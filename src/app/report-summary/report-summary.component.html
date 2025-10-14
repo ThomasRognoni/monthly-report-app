@@ -1,0 +1,48 @@
+<div class="report-summary">
+  <!-- Header -->
+  <div class="summary-header">
+    <h1>ESTRATTO PERSONALE RIASSUNTIVO DELLE ATTIVITA'</h1>
+    <h2>MESE DI {{ currentMonth | date:'MMMM yyyy' | uppercase }}</h2>
+    <h3>{{ employeeName }}</h3>
+  </div>
+
+  <!-- Quadrature Section -->
+  <div class="quadrature-section">
+    <h4>QUADRATURA DEL MESE</h4>
+    <div class="quadrature-grid">
+      <div class="quadrature-item">
+        <span class="label">Totale giorni lavorativi del mese:</span>
+        <span class="value">{{ totalWorkDays }}</span>
+      </div>
+      <div class="quadrature-item">
+        <span class="label">Totale giorni dichiarati dal dipendente:</span>
+        <span class="value">{{ totalDeclaredDays | number:'1.2-2' }}</span>
+      </div>
+      <div class="quadrature-item" [class.negative]="quadrature < 0" [class.positive]="quadrature > 0">
+        <span class="label">Quadratura:</span>
+        <span class="value">{{ quadrature | number:'1.2-2' }}</span>
+      </div>
+      <div class="quadrature-item">
+        <span class="label">Straordinari:</span>
+        <span class="value">{{ overtime | number:'1.2-2' }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Activity Totals -->
+  <div class="activity-totals">
+    <h4>RIEPILOGO ATTIVITÀ</h4>
+    <div class="activity-grid">
+      @for (activity of activityCodes; track activity.code) {
+        <div class="activity-item">
+          <span class="activity-label">{{ activity.description }} ({{ activity.code }}):</span>
+          <span class="activity-value">{{ activityTotals[activity.code] | number:'1.2-2' }}</span>
+        </div>
+      }
+      <div class="activity-item total">
+        <span class="activity-label">TOTALE GIORNI DICHIARATI (TT):</span>
+        <span class="activity-value">{{ totalDeclaredDays | number:'1.2-2' }}</span>
+        </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,25 @@
+<div class="extract-list">
+  <h3>ESTRATTI</h3>
+  
+  <div class="extracts-grid">
+    @for (extract of extracts; track extract['id']) {
+      <div class="extract-item">
+        <div class="extract-info">
+          <div class="extract-id">{{ extract['id'] }}</div>
+          <div class="extract-description">{{ extract['description'] }}</div>
+          <div class="extract-client">Cliente: {{ extract['client'] }}</div>
+        </div>
+        <div class="extract-total">
+          <span class="total-label">Giorni totali:</span>
+          <span class="total-value">{{ extractTotals[extract['id']] | number:'1.2-2' }}</span>
+        </div>
+      </div>
+    }
+    
+    @if (extracts.length === 0) {
+      <div class="no-extracts">
+        Nessun estratto configurato
+      </div>
+    }
+  </div>
+</div>

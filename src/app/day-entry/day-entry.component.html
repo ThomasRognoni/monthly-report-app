@@ -1,0 +1,77 @@
+<div class="day-entry">
+  <div class="entry-field">
+    <input 
+      type="date" 
+      [value]="getFormattedDate()"
+      (change)="onDateChange($event)"
+      class="form-control">
+  </div>
+  
+  <div class="entry-field">
+    <select 
+      [value]="day.code"
+      (change)="onCodeChange($event)"
+      class="form-control">
+      <option value="">Seleziona codice</option>
+      @for (activity of activityCodes; track activity.code) {
+        <option [value]="activity.code">{{ activity.code }} - {{ activity.description }}</option>
+      }
+    </select>
+  </div>
+  
+  <div class="entry-field">
+    <input 
+      type="text" 
+      [value]="day.activity"
+      (change)="onActivityChange($event)"
+      placeholder="Descrizione attività"
+      class="form-control">
+  </div>
+  
+  <div class="entry-field">
+    <select 
+      [value]="day.extract || ''"
+      (change)="onExtractChange($event)"
+      class="form-control">
+      <option value="">-- Seleziona Estratto --</option>
+      @for (extract of extracts; track extract.id) {
+        <option [value]="extract.id">{{ extract.id }} - {{ extract.client }}</option>
+      }
+    </select>
+  </div>
+  
+  <div class="entry-field">
+    <input 
+      type="text" 
+      [value]="day.client || ''"
+      (change)="onClientChange($event)"
+      placeholder="Cliente"
+      class="form-control">
+  </div>
+  
+  <div class="entry-field">
+    <input 
+      type="number" 
+      [value]="day.hours"
+      (change)="onHoursChange($event)"
+      min="0"
+      max="2"
+      step="0.125"
+      class="form-control hours-input">
+  </div>
+  
+  <div class="entry-field">
+    <input 
+      type="text" 
+      [value]="day.notes || ''"
+      (change)="onNotesChange($event)"
+      placeholder="Note"
+      class="form-control">
+  </div>
+  
+  <div class="entry-field actions">
+    <button (click)="onRemove()" class="btn btn-danger btn-sm">
+      ×
+    </button>
+  </div>
+</div>

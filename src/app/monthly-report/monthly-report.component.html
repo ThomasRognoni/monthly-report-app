@@ -1,0 +1,90 @@
+<div class="container">
+  <!-- Instructions -->
+  <div class="instructions">
+    <p><strong>Note di compilazione:</strong> ogni dipendente dovrà compilare il seguente prospetto indicando con precisione le attività svolte nel mese con riferimento all'estratto interessato.</p>
+    <p>Indicando il codice dell'estratto e i giorni effettuati.</p>
+    <p>Dovrà inoltre provvedere ad indicare eventuali giorni di ferie/permessi e malattia.</p>
+    <p>Il totale dei giorni indicati non dovrà essere inferiore ai giorni lavorativi del mese.</p>
+  </div>
+
+  <!-- Month Selection -->
+  <div class="month-selection">
+    <label for="month">Seleziona Mese:</label>
+    <input 
+      id="month"
+      type="month" 
+      [value]="getFormattedMonth()"
+      (change)="onMonthChange($event)"
+      class="form-control">
+    <button (click)="loadTemplate()" class="btn btn-secondary">Carica Template Mese</button>
+  </div>
+
+  <!-- Report Summary -->
+  <app-report-summary
+    [employeeName]="employeeName()"
+    [currentMonth]="currentMonth()"
+    [totalWorkDays]="totalWorkDays()"
+    [totalDeclaredDays]="totalDeclaredDays()"
+    [quadrature]="quadrature()"
+    [overtime]="overtime()"
+    [activityTotals]="activityTotals()"
+    [activityCodes]="activityCodes()">
+  </app-report-summary>
+
+  <!-- Extract List -->
+  <app-extract-list
+    [extracts]="extracts()"
+    [extractTotals]="extractTotals()">
+  </app-extract-list>
+
+  <!-- Day Entries Section -->
+  <div class="entries-section">
+    <div class="section-header">
+      <h3>DETTAGLIO GIORNALIERO</h3>
+      <button (click)="addDayEntry()" class="btn btn-primary">+ Aggiungi Giorno</button>
+    </div>
+
+    <div class="entries-container">
+      <!-- Table Header -->
+      <div class="entries-header">
+        <div>Data</div>
+        <div>Codice</div>
+        <div>Attività</div>
+        <div>Estratto</div>
+        <div>Cliente</div>
+        <div>Ore</div>
+        <div>Note</div>
+        <div>Azioni</div>
+      </div>
+
+      <!-- Day Entries -->
+      @for (day of days(); track $index; let i = $index) {
+        <app-day-entry
+          [day]="day"
+          [index]="i"
+          [activityCodes]="activityCodes()"
+          [extracts]="extracts()"
+          (update)="updateDayEntry($event)"
+          (remove)="removeDayEntry($event)">
+        </app-day-entry>
+      }
+
+      @if (days().length === 0) {
+        <div class="no-entries">
+          <p>Nessun giorno inserito. Clicca "Carica Template Mese" per iniziare o "Aggiungi Giorno" per inserire manualmente.</p>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Export Section -->
+  <div class="export-section">
+    <button (click)="exportToExcel()" class="btn btn-export" [disabled]="days().length === 0">
+      📊 Esporta in Excel
+    </button>
+    <p class="export-note">
+      Il prospetto dovrà essere inviato entro la chiusura del mese all'Ufficio Amministrazione: 
+      <a href="mailto:amministrazione@studioform.net">amministrazione@studioform.net</a>
+    </p>
+  </div>
+</div>
