@@ -1,1 +1,57 @@
-<app-monthly-report />
+<div class="app-container" [class.initialized]="isInitialized">
+  <!-- Navigation -->
+  <nav class="nav-container">
+    <div class="nav-content">
+      <a routerLink="/" class="nav-logo">
+        📊 {{ title }}
+      </a>
+      <ul class="nav-menu">
+        <li>
+          <a 
+            routerLink="/" 
+            routerLinkActive="active" 
+            [routerLinkActiveOptions]="{ exact: true }"
+            class="nav-link"
+            (click)="onRouteChange('/')">
+            🏠 Home
+          </a>
+        </li>
+        <li>
+          <a 
+            routerLink="/monthly-report" 
+            routerLinkActive="active" 
+            class="nav-link"
+            (click)="onRouteChange('/monthly-report')">
+            📅 Estratti
+          </a>
+        </li>
+      </ul>
+
+      <!-- Optional: App info display -->
+      <div class="nav-info" *ngIf="false"> <!-- Hidden for now -->
+        <span class="app-version">v{{ appInfo.version }}</span>
+        <span class="app-year">© {{ currentYear }}</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content" [class.home-route]="isHomeRoute">
+    <router-outlet></router-outlet>
+  </main>
+
+  <!-- Optional: Global loading indicator -->
+  <div class="global-loading" *ngIf="false"> <!-- Hidden for now -->
+    <div class="loading-spinner">⏳</div>
+    <span>Caricamento...</span>
+  </div>
+
+  <!-- Optional: Global error messages -->
+  <div class="global-error" *ngIf="false"> <!-- Hidden for now -->
+    <div class="error-content">
+      <span class="error-icon">⚠️</span>
+      <span class="error-message">Si è verificato un errore</span>
+      <button class="error-dismiss" (click)="onGlobalError(null)">×</button>
+    </div>
+  </div>
+</div>

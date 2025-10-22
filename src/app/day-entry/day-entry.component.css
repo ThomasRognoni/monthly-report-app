@@ -1,65 +1,153 @@
+:host {
+  /* CSS variables for consistent theming - aligned with PrimeNG */
+  --color-danger: #e53e3e;
+  --color-danger-hover: #c53030;
+  --color-danger-light: #fed7d7;
+  --color-primary: #4299e1;
+  --color-primary-light: rgba(66, 153, 225, 0.1);
+  --color-border: #ced4da;
+  --color-background-alt: #f8f9fa;
+  --color-background-invalid: #fff5f5;
+  --color-text-muted: #a0aec0;
+  --color-text-dark: #4a5568;
+  --border-radius: 6px;
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --font-size-sm: 12px;
+  --font-size-base: 14px;
+  --transition: 0.2s;
+}
+
 .day-entry {
   display: grid;
   grid-template-columns: 1fr 1fr 2fr 1.5fr 1.5fr 0.8fr 2fr 1fr;
-  gap: 10px;
-  padding: 10px 15px;
-  border-bottom: 1px solid #dee2e6;
-  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-bottom: 1px solid var(--color-border);
+  align-items: start;
+  background: white;
+  transition: all var(--transition);
+}
+
+.day-entry:hover {
+  background-color: #fafafa;
+}
+
+.day-entry.invalid {
+  background-color: var(--color-background-invalid);
+  border-left: 4px solid var(--color-danger);
 }
 
 .day-entry:nth-child(even) {
-  background-color: #f8f9fa;
+  background-color: var(--color-background-alt);
 }
 
-.entry-field .form-control {
+.day-entry.invalid:nth-child(even) {
+  background-color: var(--color-background-invalid);
+}
+
+.entry-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+/* Ensure PrimeNG components take full width */
+.entry-field ::ng-deep .p-calendar,
+.entry-field ::ng-deep .p-dropdown,
+.entry-field ::ng-deep .p-inputtext,
+.entry-field ::ng-deep .p-inputnumber {
   width: 100%;
-  padding: 8px;
-  border: 1px solid #ced4da;
-  border-radius: 3px;
-  font-size: 14px;
 }
 
-.hours-input {
+/* Hours input specific styles */
+.entry-field ::ng-deep .p-inputnumber .p-inputtext {
   text-align: center;
 }
 
+/* Actions area */
 .actions {
-  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
 }
 
-.btn-danger {
-  background-color: #dc3545;
-  color: white;
-  border: none;
-  border-radius: 3px;
-  padding: 6px 10px;
-  cursor: pointer;
-  font-size: 14px;
+/* Error message styling */
+.entry-field ::ng-deep .p-message {
+  margin-top: 2px;
 }
 
-.btn-danger:hover {
-  background-color: #c82333;
+.entry-field ::ng-deep .p-message .p-message-text {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
 }
 
+/* Invalid state for PrimeNG components */
+.day-entry.invalid ::ng-deep .p-dropdown,
+.day-entry.invalid ::ng-deep .p-inputnumber,
+.day-entry.invalid ::ng-deep .p-calendar .p-inputtext {
+  border-color: var(--color-danger) !important;
+}
+
+/* Mobile responsiveness */
 @media (max-width: 768px) {
   .day-entry {
     grid-template-columns: 1fr;
-    gap: 5px;
-    padding: 15px;
-    border: 1px solid #dee2e6;
-    border-radius: 5px;
-    margin-bottom: 10px;
-  }
-  
-  .entry-field {
-    display: flex;
-    flex-direction: column;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-lg);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    margin-bottom: var(--spacing-md);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
   
   .entry-field label {
-    font-weight: bold;
-    margin-bottom: 5px;
+    font-weight: 600;
+    margin-bottom: var(--spacing-xs);
     font-size: 12px;
-    color: #666;
+    color: var(--color-text-dark);
+  }
+  
+  .actions {
+    justify-content: flex-start;
+    margin-top: var(--spacing-sm);
+  }
+}
+
+/* Large screen adjustments */
+@media (min-width: 1200px) {
+  .day-entry {
+    grid-template-columns: 1fr 1fr 2fr 1.5fr 1.5fr 0.8fr 2fr 1fr;
+  }
+}
+
+/* Print styles */
+@media print {
+  .day-entry {
+    break-inside: avoid;
+    border-bottom: 1px solid #ccc;
+    background: white !important;
+  }
+  
+  .actions {
+    display: none;
+  }
+}
+
+/* Animation for smooth transitions */
+.day-entry {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

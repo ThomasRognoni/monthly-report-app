@@ -6,6 +6,7 @@ export interface DayEntry {
   client?: string;
   hours: number;
   notes?: string;
+  prefilled?: boolean;
 }
 
 export interface Extract {

@@ -1,173 +1,725 @@
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-  font-family: Arial, sans-serif;
-}
-
-.instructions {
-  background-color: #f8f9fa;
-  padding: 20px;
-  border-radius: 5px;
-  margin-bottom: 30px;
-  border-left: 4px solid #007bff;
-}
-
-.instructions p {
-  margin: 5px 0;
-  line-height: 1.5;
-}
-
-.month-selection {
+.monthly-report-container {
+  --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --card-bg: rgba(255, 255, 255, 0.15);
+  --card-border: rgba(255, 255, 255, 0.2);
+  --text-primary: white;
+  --hover-transition: all 0.3s ease;
+  --blur-effect: blur(10px);
+  
+  min-height: 100vh;
+  background: var(--primary-gradient);
+  padding: 2rem;
   display: flex;
-  align-items: center;
-  gap: 15px;
-  margin-bottom: 30px;
-  padding: 15px;
-  background-color: #e9ecef;
-  border-radius: 5px;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 2rem;
 }
 
-.month-selection label {
-  font-weight: bold;
-  color: #333;
+/* Header */
+.page-header {
+  background: var(--card-bg);
+  backdrop-filter: var(--blur-effect);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  padding: 1.5rem 2rem;
+  color: var(--text-primary);
+  transition: var(--hover-transition);
 }
 
-.month-selection .form-control {
-  padding: 8px 12px;
-  border: 1px solid #ced4da;
-  border-radius: 4px;
-  font-size: 14px;
+.page-header:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.3);
 }
 
-.btn {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.3s;
-}
-
-.btn-primary {
-  background-color: #007bff;
-  color: white;
-}
-
-.btn-secondary {
-  background-color: #6c757d;
-  color: white;
-}
-
-.btn-export {
-  background-color: #28a745;
-  color: white;
-  padding: 15px 30px;
-  font-size: 16px;
-}
-
-.btn:hover {
-  opacity: 0.9;
-}
-
-.btn:disabled {
-  background-color: #6c757d;
-  cursor: not-allowed;
-}
-
-.entries-section {
-  margin-bottom: 30px;
-}
-
-.section-header {
+.header-content {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
-  padding-bottom: 10px;
-  border-bottom: 2px solid #dee2e6;
+  gap: 2rem;
 }
 
-.section-header h3 {
-  color: #333;
+.btn-back {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: var(--hover-transition);
+  border: 1px solid var(--card-border);
+  backdrop-filter: var(--blur-effect);
+  white-space: nowrap;
+}
+
+.btn-back:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.3);
+}
+
+.page-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Cards - Using home page feature-card design */
+.feature-card {
+  background: var(--card-bg);
+  backdrop-filter: var(--blur-effect);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  padding: 2rem;
+  color: var(--text-primary);
+  transition: var(--hover-transition);
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  background: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.4);
+}
+
+.feature-icon {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+/* Instructions Card */
+.instructions-card {
+  text-align: center;
+}
+
+.instructions-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.instructions-header h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.instructions-content p {
+  opacity: 0.9;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+.instructions-list {
+  text-align: left;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-width: 600px;
+  margin-inline: auto;
+}
+
+.instructions-list li {
+  padding: 0.5rem 0;
+  opacity: 0.9;
+  line-height: 1.5;
+  position: relative;
+  padding-left: 1.5rem;
+}
+
+.instructions-list li::before {
+  content: "•";
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: bold;
+  position: absolute;
+  left: 0.5rem;
+}
+
+/* Month Selection Card */
+.month-selection-card {
+  text-align: center;
+}
+
+.selection-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.selection-header h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+}
+
+.selection-header p {
+  opacity: 0.8;
+  margin: 0;
+}
+
+.selection-controls {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  text-align: left;
+  min-width: 200px;
+}
+
+.form-group label {
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+.form-control {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  color: var(--text-primary);
+  font-size: 1rem;
+  backdrop-filter: var(--blur-effect);
+  transition: var(--hover-transition);
+  min-width: 0;
+}
+
+.form-control:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+}
+
+.form-control::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* Buttons */
+.btn {
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.125rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: var(--hover-transition);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background: rgba(255, 255, 255, 0.2);
+  color: var(--text-primary);
+  backdrop-filter: var(--blur-effect);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.3);
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Holidays Info Section */
+.holidays-info {
+  margin-bottom: 2rem;
+}
+
+.holidays-info .section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--card-border);
+}
+
+.holidays-info .section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.holidays-info .section-title h3 {
+  font-size: 1.375rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.holidays-list {
+  padding: 1rem 2rem;
+}
+
+.holiday-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.holiday-item:last-child {
+  border-bottom: none;
+}
+
+.holiday-date {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.holiday-description {
+  opacity: 0.9;
+  font-size: 0.875rem;
+}
+
+/* Entries Section */
+.entries-section {
+  padding: 0;
+  overflow: hidden;
+}
+
+.entries-section .section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--card-border);
+}
+
+.entries-section .section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.entries-section .section-title h3 {
+  font-size: 1.375rem;
+  font-weight: 600;
   margin: 0;
 }
 
 .entries-container {
-  border: 1px solid #dee2e6;
-  border-radius: 5px;
-  overflow: hidden;
+  padding: 0;
 }
 
 .entries-header {
   display: grid;
   grid-template-columns: 1fr 1fr 2fr 1.5fr 1.5fr 0.8fr 2fr 1fr;
-  background-color: #343a40;
-  color: white;
-  font-weight: bold;
-  padding: 15px;
-  gap: 10px;
+  background: rgba(255, 255, 255, 0.2);
+  color: var(--text-primary);
+  font-weight: 600;
+  padding: 1.25rem 1.5rem;
+  gap: 1rem;
+  font-size: 0.875rem;
+  backdrop-filter: var(--blur-effect);
 }
 
+/* Alerts and Warnings */
+.alert {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin: 1.5rem 2rem;
+  color: var(--text-primary);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  backdrop-filter: var(--blur-effect);
+}
+
+.alert-warning {
+  background: rgba(245, 158, 11, 0.2);
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+.warning-icon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.warning-content {
+  flex: 1;
+}
+
+.exceeded-days {
+  margin-top: 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.exceeded-day {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.25rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+}
+
+/* No Entries State */
 .no-entries {
   text-align: center;
-  padding: 40px;
-  color: #666;
-  font-style: italic;
-  background-color: #f8f9fa;
+  padding: 3rem 2rem;
+  color: rgba(255, 255, 255, 0.8);
 }
 
+.no-entries-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.no-entries h4 {
+  font-size: 1.5rem;
+  margin: 0 0 1rem 0;
+  color: var(--text-primary);
+}
+
+.no-entries p {
+  margin: 0;
+  line-height: 1.6;
+  max-width: 400px;
+  margin-inline: auto;
+}
+
+/* Export Section */
 .export-section {
   text-align: center;
-  padding: 30px;
-  border-top: 2px solid #333;
-  margin-top: 30px;
+}
+
+.export-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.export-content h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.export-content p {
+  opacity: 0.9;
+  margin: 0;
+  line-height: 1.6;
+  max-width: 500px;
+}
+
+.btn-export {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.8) 0%, rgba(5, 150, 105, 0.9) 100%);
+  color: var(--text-primary);
+  padding: 1.25rem 3rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3);
+  transition: var(--hover-transition);
+  margin-top: 1rem;
+}
+
+.btn-export:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -3px rgba(16, 185, 129, 0.4);
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.9) 0%, rgba(5, 150, 105, 1) 100%);
+}
+
+.btn-export:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .export-note {
-  margin-top: 15px;
-  color: #666;
-  font-size: 14px;
+  margin-top: 1.5rem;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  max-width: 500px;
 }
 
 .export-note a {
-  color: #007bff;
+  color: var(--text-primary);
   text-decoration: none;
+  font-weight: 600;
 }
 
 .export-note a:hover {
   text-decoration: underline;
 }
 
+.validation-warning {
+  background: rgba(245, 158, 11, 0.2);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-top: 1.5rem;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  text-align: left;
+  backdrop-filter: var(--blur-effect);
+  max-width: 500px;
+  width: 100%;
+}
+
+.validation-warning ul {
+  margin: 0.5rem 0 0 0;
+  padding-left: 1.5rem;
+}
+
+.validation-warning li {
+  margin: 0.25rem 0;
+}
+
+/* Sections for child components */
+.summary-section,
+.extract-section {
+  margin-bottom: 0;
+}
+
+/* Utility Classes */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .entries-header {
+    grid-template-columns: 1fr 1fr 1.5fr 1.2fr 1.2fr 0.7fr 1.5fr 0.8fr;
+    font-size: 0.8rem;
+    padding: 1rem;
+    gap: 0.75rem;
+  }
+}
+
 @media (max-width: 768px) {
-  .container {
-    padding: 10px;
+  .monthly-report-container {
+    padding: 1rem;
+    gap: 1.5rem;
   }
   
-  .month-selection {
+  .header-content {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
+    gap: 1rem;
+    text-align: center;
   }
   
-  .section-header {
+  .page-title {
+    font-size: 1.75rem;
+  }
+  
+  .selection-controls {
     flex-direction: column;
-    gap: 10px;
+    align-items: center;
+    width: 100%;
+  }
+  
+  .form-group {
+    width: 100%;
+    max-width: 300px;
+  }
+  
+  /* Holidays responsive */
+  .holidays-info .section-header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .holidays-list {
+    padding: 1rem;
+  }
+  
+  .holiday-item {
+    flex-direction: column;
     align-items: flex-start;
+    gap: 0.25rem;
+  }
+  
+  .holiday-date {
+    font-size: 0.875rem;
+  }
+  
+  .holiday-description {
+    font-size: 0.8rem;
+  }
+  
+  .entries-section .section-header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+    text-align: center;
   }
   
   .entries-header {
     grid-template-columns: 1fr;
     text-align: center;
+    gap: 0.5rem;
+    padding: 1rem;
   }
   
   .entries-header div {
-    padding: 5px 0;
-    border-bottom: 1px solid #495057;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
   }
   
   .entries-header div:last-child {
     border-bottom: none;
+  }
+  
+  .feature-card {
+    padding: 1.5rem;
+  }
+  
+  .alert {
+    margin: 1rem;
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+  }
+  
+  .exceeded-days {
+    justify-content: center;
+  }
+  
+  .btn {
+    width: 100%;
+    max-width: 300px;
+  }
+  
+  .btn-back {
+    align-self: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .monthly-report-container {
+    padding: 0.75rem;
+    gap: 1rem;
+  }
+  
+  .page-title {
+    font-size: 1.5rem;
+  }
+  
+  .feature-card {
+    padding: 1.25rem;
+    border-radius: 12px;
+  }
+  
+  .btn {
+    padding: 0.875rem 1.5rem;
+    font-size: 1rem;
+  }
+  
+  .selection-controls .btn {
+    width: 100%;
+    max-width: none;
+  }
+  
+  .feature-icon {
+    font-size: 2rem;
+  }
+  
+  .no-entries {
+    padding: 2rem 1rem;
+  }
+  
+  .no-entries-icon {
+    font-size: 3rem;
+  }
+  
+  .export-content {
+    gap: 0.75rem;
+  }
+  
+  /* Holidays mobile optimizations */
+  .holidays-info .section-header {
+    padding: 1rem 1.25rem;
+  }
+  
+  .holidays-list {
+    padding: 0.75rem 1rem;
+  }
+  
+  .holiday-item {
+    padding: 0.5rem 0;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .monthly-report-container {
+    background: white;
+    color: black;
+    padding: 0;
+  }
+  
+  .feature-card {
+    background: white;
+    color: black;
+    border: 1px solid #ccc;
+    backdrop-filter: none;
+  }
+  
+  .btn-back,
+  .btn-primary,
+  .btn-export {
+    display: none;
+  }
+  
+  /* Holidays print styles */
+  .holidays-info {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+  }
+  
+  .holiday-item {
+    border-bottom: 1px solid #dee2e6;
+  }
+  
+  .holiday-date {
+    color: black;
+    font-weight: bold;
+  }
+  
+  .holiday-description {
+    color: #666;
   }
 }

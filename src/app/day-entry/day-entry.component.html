@@ -1,77 +1,95 @@
-<div class="day-entry">
+<div class="day-entry" [class.invalid]="!isValid()">
   <div class="entry-field">
-    <input 
-      type="date" 
-      [value]="getFormattedDate()"
-      (change)="onDateChange($event)"
-      class="form-control">
+    <p-calendar
+      [(ngModel)]="localDay.date"
+      (onSelect)="onFieldChange('date', $event)"
+      dateFormat="yy-mm-dd"
+      [showIcon]="true"
+      styleClass="w-full"
+      [class]="!isValid() ? 'ng-invalid ng-dirty' : ''">
+    </p-calendar>
   </div>
   
   <div class="entry-field">
-    <select 
-      [value]="day.code"
-      (change)="onCodeChange($event)"
-      class="form-control">
-      <option value="">Seleziona codice</option>
-      @for (activity of activityCodes; track activity.code) {
-        <option [value]="activity.code">{{ activity.code }} - {{ activity.description }}</option>
-      }
-    </select>
+    <p-dropdown
+      [options]="activityOptions"
+      [(ngModel)]="localDay.code"
+      (onChange)="onFieldChange('code', $event.value, true)"
+      [class]="!isCodeValid ? 'ng-invalid ng-dirty' : ''"
+      placeholder="Seleziona codice"
+      styleClass="w-full">
+    </p-dropdown>
+    @if (!isCodeValid) {
+      <p-message severity="error" text="Codice attività obbligatorio" styleClass="mt-1"></p-message>
+    }
   </div>
   
   <div class="entry-field">
     <input 
       type="text" 
-      [value]="day.activity"
-      (change)="onActivityChange($event)"
+      pInputText
+      [(ngModel)]="localDay.activity"
+      (ngModelChange)="onFieldChange('activity', $event)"
       placeholder="Descrizione attività"
-      class="form-control">
+      class="w-full">
   </div>
   
-  <div class="entry-field">
-    <select 
-      [value]="day.extract || ''"
-      (change)="onExtractChange($event)"
-      class="form-control">
-      <option value="">-- Seleziona Estratto --</option>
-      @for (extract of extracts; track extract.id) {
-        <option [value]="extract.id">{{ extract.id }} - {{ extract.client }}</option>
-      }
-    </select>
-  </div>
+  @if (shouldShowExtract()) {
+    <div class="entry-field">
+      <p-dropdown
+        [options]="extractOptions"
+        [(ngModel)]="localDay.extract"
+        (onChange)="onFieldChange('extract', $event.value)"
+        placeholder="Seleziona estratto"
+        styleClass="w-full">
+      </p-dropdown>
+    </div>
+  }
   
   <div class="entry-field">
     <input 
       type="text" 
-      [value]="day.client || ''"
-      (change)="onClientChange($event)"
+      pInputText
+      [(ngModel)]="localDay.client"
+      (ngModelChange)="onFieldChange('client', $event)"
       placeholder="Cliente"
-      class="form-control">
+      class="w-full">
   </div>
   
   <div class="entry-field">
-    <input 
-      type="number" 
-      [value]="day.hours"
-      (change)="onHoursChange($event)"
-      min="0"
-      max="2"
-      step="0.125"
-      class="form-control hours-input">
+    <p-inputNumber
+      [(ngModel)]="localDay.hours"
+      (onInput)="onFieldChange('hours', $event.value, true)"
+      mode="decimal"
+      [min]="0.125"
+      [max]="8"
+      [minFractionDigits]="3"
+      [maxFractionDigits]="3"
+      [class]="!isHoursValid ? 'ng-invalid ng-dirty' : ''"
+      placeholder="0.000"
+      styleClass="w-full">
+    </p-inputNumber>
+    @if (!isHoursValid) {
+      <p-message severity="error" text="Ore obbligatorie (0.125 - 8)" styleClass="mt-1"></p-message>
+    }
   </div>
   
   <div class="entry-field">
     <input 
       type="text" 
-      [value]="day.notes || ''"
-      (change)="onNotesChange($event)"
+      pInputText
+      [(ngModel)]="localDay.notes"
+      (ngModelChange)="onFieldChange('notes', $event)"
       placeholder="Note"
-      class="form-control">
+      class="w-full">
   </div>
   
   <div class="entry-field actions">
-    <button (click)="onRemove()" class="btn btn-danger btn-sm">
-      ×
-    </button>
+    <p-button 
+      icon="pi pi-times" 
+      styleClass="p-button-danger p-button-text p-button-sm"
+      (onClick)="onRemove()"
+      [rounded]="true">
+    </p-button>
   </div>
 </div>

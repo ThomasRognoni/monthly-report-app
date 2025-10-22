@@ -1,90 +1,234 @@
-<div class="container">
+<div class="monthly-report-container">
+  <!-- Header -->
+  <header class="page-header">
+    <div class="header-content">
+      <a routerLink="/" class="btn btn-back">
+        ← Torna alla Home
+      </a>
+      <h1 class="page-title">📅 Gestione Estratti Mensili</h1>
+    </div>
+  </header>
+
   <!-- Instructions -->
-  <div class="instructions">
-    <p><strong>Note di compilazione:</strong> ogni dipendente dovrà compilare il seguente prospetto indicando con precisione le attività svolte nel mese con riferimento all'estratto interessato.</p>
-    <p>Indicando il codice dell'estratto e i giorni effettuati.</p>
-    <p>Dovrà inoltre provvedere ad indicare eventuali giorni di ferie/permessi e malattia.</p>
-    <p>Il totale dei giorni indicati non dovrà essere inferiore ai giorni lavorativi del mese.</p>
-  </div>
+  <section class="instructions-card feature-card" aria-labelledby="instructions-heading">
+    <div class="instructions-header">
+      <span class="feature-icon" aria-hidden="true">💡</span>
+      <h3 id="instructions-heading">Note di compilazione</h3>
+    </div>
+    <div class="instructions-content">
+      <p>Ogni dipendente dovrà compilare il seguente prospetto indicando con precisione le attività svolte nel mese con riferimento all'estratto interessato.</p>
+      <ul class="instructions-list">
+        <li>Indicando il codice dell'estratto e i giorni effettuati</li>
+        <li>Dovrà inoltre provvedere ad indicare eventuali giorni di ferie/permessi e malattia</li>
+        <li>Il totale dei giorni indicati non dovrà essere inferiore ai giorni lavorativi del mese</li>
+        <li>Limite massimo di 8 ore per giorno lavorativo</li>
+      </ul>
+    </div>
+  </section>
 
   <!-- Month Selection -->
-  <div class="month-selection">
-    <label for="month">Seleziona Mese:</label>
-    <input 
-      id="month"
-      type="month" 
-      [value]="getFormattedMonth()"
-      (change)="onMonthChange($event)"
-      class="form-control">
-    <button (click)="loadTemplate()" class="btn btn-secondary">Carica Template Mese</button>
-  </div>
+  <section class="month-selection-card feature-card" aria-labelledby="month-selection-heading">
+    <div class="selection-header">
+      <span class="feature-icon" aria-hidden="true">🎯</span>
+      <h3 id="month-selection-heading">Selezione Mese</h3>
+      <p>Scegli il mese di riferimento per la compilazione</p>
+    </div>
+    <div class="selection-controls">
+      <div class="form-group">
+        <label for="month-select">Mese di riferimento:</label>
+        <input 
+          id="month-select"
+          type="month" 
+          [value]="getFormattedMonth()"
+          (change)="onMonthChange($event)"
+          class="form-control"
+          aria-describedby="month-help">
+      </div>
+      <button 
+        type="button" 
+        (click)="loadTemplate()" 
+        class="btn btn-primary"
+        aria-label="Carica template per il mese selezionato">
+        📋 Carica Template Mese
+      </button>
+    </div>
+  </section>
+
+  <!-- Holidays Info Section -->
+  @if (getCurrentMonthHolidays().length > 0) {
+    <section class="holidays-info feature-card" aria-labelledby="holidays-heading">
+      <div class="section-header">
+        <div class="section-title">
+          <span class="feature-icon" aria-hidden="true">🎄</span>
+          <h3 id="holidays-heading">Festività del Mese</h3>
+        </div>
+      </div>
+      <div class="holidays-list">
+        @for (holiday of getCurrentMonthHolidays(); track holiday.date) {
+          <div class="holiday-item">
+            <span class="holiday-date">{{ formatHolidayDate(holiday.date) }}</span>
+            <span class="holiday-description">{{ holiday.reason }}</span>
+          </div>
+        }
+      </div>
+    </section>
+  }
 
   <!-- Report Summary -->
-  <app-report-summary
-    [employeeName]="employeeName()"
-    [currentMonth]="currentMonth()"
-    [totalWorkDays]="totalWorkDays()"
-    [totalDeclaredDays]="totalDeclaredDays()"
-    [quadrature]="quadrature()"
-    [overtime]="overtime()"
-    [activityTotals]="activityTotals()"
-    [activityCodes]="activityCodes()">
-  </app-report-summary>
+  <section class="summary-section" aria-labelledby="summary-heading">
+    <app-report-summary
+      [employeeName]="employeeName()"
+      [currentMonth]="currentMonth()"
+      [totalWorkDays]="totalWorkDays()"
+      [totalDeclaredDays]="totalDeclaredDays()"
+      [quadrature]="quadrature()"
+      [overtime]="overtime()"
+      [activityTotals]="activityTotals()"
+      [activityDays]="activityDays()"
+      [activityCodes]="activityCodes()">
+    </app-report-summary>
+  </section>
 
   <!-- Extract List -->
-  <app-extract-list
-    [extracts]="extracts()"
-    [extractTotals]="extractTotals()">
-  </app-extract-list>
+  <section class="extract-section" aria-labelledby="extracts-heading">
+    <app-extract-list
+      [extracts]="extracts()"
+      [extractTotals]="extractTotals()"
+      [totalDeclaredDays]="totalDeclaredDays()">
+    </app-extract-list>
+  </section>
 
   <!-- Day Entries Section -->
-  <div class="entries-section">
+  <section class="entries-section feature-card" aria-labelledby="entries-heading">
     <div class="section-header">
-      <h3>DETTAGLIO GIORNALIERO</h3>
-      <button (click)="addDayEntry()" class="btn btn-primary">+ Aggiungi Giorno</button>
+      <div class="section-title">
+        <span class="feature-icon" aria-hidden="true">📝</span>
+        <h3 id="entries-heading">Dettaglio Giornaliero</h3>
+      </div>
+      <button 
+        type="button" 
+        (click)="addDayEntry()" 
+        class="btn btn-primary"
+        aria-label="Aggiungi un nuovo giorno al report">
+        ➕ Aggiungi Giorno
+      </button>
     </div>
+
+    <!-- Daily Hours Warning -->
+    @if (hasExceededDailyLimit()) {
+      <div class="alert alert-warning" role="alert" aria-live="polite">
+        <span class="warning-icon" aria-hidden="true">⚠️</span>
+        <div class="warning-content">
+          <strong>Attenzione:</strong> Alcuni giorni superano il limite di 8 ore.
+          <div class="exceeded-days">
+            @for (day of getExceededDays(); track day.date) {
+              <div class="exceeded-day">
+                {{ day.date | date:'dd/MM/yyyy' }}: {{ day.hours }} ore
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    }
 
     <div class="entries-container">
       <!-- Table Header -->
-      <div class="entries-header">
-        <div>Data</div>
-        <div>Codice</div>
-        <div>Attività</div>
-        <div>Estratto</div>
-        <div>Cliente</div>
-        <div>Ore</div>
-        <div>Note</div>
-        <div>Azioni</div>
+      <div class="entries-header" role="rowgroup">
+        <div role="columnheader">Data</div>
+        <div role="columnheader">Codice</div>
+        <div role="columnheader">Attività</div>
+        <div role="columnheader">Estratto</div>
+        <div role="columnheader">Cliente</div>
+        <div role="columnheader">Ore</div>
+        <div role="columnheader">Note</div>
+        <div role="columnheader">Azioni</div>
       </div>
 
       <!-- Day Entries -->
-      @for (day of days(); track $index; let i = $index) {
+      @for (day of days(); track day.date.getTime(); let i = $index) {
         <app-day-entry
           [day]="day"
           [index]="i"
           [activityCodes]="activityCodes()"
           [extracts]="extracts()"
+          [dailyHours]="getDailyHoursForDate(day.date)"
           (update)="updateDayEntry($event)"
-          (remove)="removeDayEntry($event)">
+          (remove)="removeDayEntry($event)"
+          role="row">
         </app-day-entry>
       }
 
       @if (days().length === 0) {
-        <div class="no-entries">
-          <p>Nessun giorno inserito. Clicca "Carica Template Mese" per iniziare o "Aggiungi Giorno" per inserire manualmente.</p>
+        <div class="no-entries" aria-live="polite">
+          <div class="no-entries-icon" aria-hidden="true">📅</div>
+          <h4>Nessun giorno inserito</h4>
+          <p>Clicca "Carica Template Mese" per iniziare o "Aggiungi Giorno" per inserire manualmente.</p>
         </div>
       }
     </div>
-  </div>
+  </section>
 
   <!-- Export Section -->
-  <div class="export-section">
-    <button (click)="exportToExcel()" class="btn btn-export" [disabled]="days().length === 0">
-      📊 Esporta in Excel
-    </button>
-    <p class="export-note">
-      Il prospetto dovrà essere inviato entro la chiusura del mese all'Ufficio Amministrazione: 
-      <a href="mailto:amministrazione@studioform.net">amministrazione@studioform.net</a>
-    </p>
-  </div>
+  <section class="export-section feature-card" aria-labelledby="export-heading">
+    <div class="export-content">
+      <span class="feature-icon" aria-hidden="true">📊</span>
+      <h3 id="export-heading">Esporta Report</h3>
+      <p>Genera il file Excel completo per l'invio all'amministrazione</p>
+      
+      <button 
+        type="button"
+        (click)="exportToExcel()" 
+        class="btn btn-export" 
+        [disabled]="!allDaysValid() || days().length === 0 || !isMonthFullyFilled()"
+        aria-describedby="export-requirements"
+        aria-label="Esporta il report in formato Excel">
+        🚀 Esporta in Excel
+      </button>
+      
+      <p class="export-note">
+        Il prospetto dovrà essere inviato entro la chiusura del mese all'Ufficio Amministrazione: 
+        <a href="mailto:amministrazione@studioform.net" aria-label="Invia email a amministrazione@studioform.net">
+          amministrazione@studioform.net
+        </a>
+      </p>
+      
+      <!-- Export Requirements -->
+      <div id="export-requirements" class="visually-hidden">
+        Per esportare, è necessario che tutti i giorni siano validi, ci sia almeno un giorno inserito e il mese sia completamente compilato.
+      </div>
+      
+      <!-- Validation Warning -->
+      @if (days().length > 0 && !allDaysValid()) {
+        <div class="validation-warning" role="alert" aria-live="polite">
+          <span class="warning-icon" aria-hidden="true">⚠️</span>
+          <div>
+            <strong>Completa tutti i campi obbligatori:</strong>
+            <ul>
+              <li>Codice attività selezionato per ogni giorno</li>
+              <li>Ore comprese tra 1 e 8 per ogni voce</li>
+              <li>Non più di 8 ore totali per giorno</li>
+            </ul>
+          </div>
+        </div>
+      }
+
+      <!-- Month Completion Warning -->
+      @if (days().length > 0 && !isMonthFullyFilled()) {
+        <div class="validation-warning" role="alert" aria-live="polite">
+          <span class="warning-icon" aria-hidden="true">⚠️</span>
+          <div>
+            <strong>Mese non completamente compilato:</strong>
+            <ul>
+              <li>Assicurati di aver inserito esattamente 8 ore per ogni giorno lavorativo del mese</li>
+              <li>Giorni lavorativi totali: {{ totalWorkDays() }}</li>
+              <li>Giorni dichiarati: {{ totalDeclaredDays() }}</li>
+              @if (getCurrentMonthHolidays().length > 0) {
+                <li>Festività considerate: {{ getCurrentMonthHolidays().length }}</li>
+              }
+            </ul>
+          </div>
+        </div>
+      }
+    </div>
+  </section>
 </div>
