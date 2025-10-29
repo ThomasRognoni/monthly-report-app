@@ -16,7 +16,7 @@
             </div>
             <div class="extract-actions">
               <span class="extract-total">
-                {{ (extractTotals[extract.id] || 0) | number:'1.2-2' }} giorni
+                {{ getDaysFromHours(extractTotals[extract.id] || 0) | number:'1.2-2' }} giorni
               </span>
             </div>
           </div>
@@ -33,20 +33,19 @@
             <div class="progress-container">
               <div class="progress-bar">
                 <div 
-                  class="progress-fill"
-                  [style.width.%]="getProgressWidth(extractTotals[extract.id] || 0)">
-                </div>
+  class="progress-fill"
+  [style.width.%]="getProgressWidth(extract.id, extractTotals[extract.id] || 0)">
+</div>
               </div>
               <span class="progress-text">
-                {{ getProgressWidth(extractTotals[extract.id] || 0) | number:'1.0-0' }}%
-              </span>
+  {{ getProgressWidth(extract.id, extractTotals[extract.id] || 0) | number:'1.0-0' }}%
+</span>
             </div>
           </div>
         </div>
       }
     </div>
 
-    <!-- Total Card -->
     <div class="total-section">
       <div class="total-card feature-card">
         <div class="total-content">

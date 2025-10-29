@@ -1,9 +1,8 @@
-// services/persistence.service.ts
 import { Injectable } from '@angular/core';
 import { DayEntry } from '../models/day-entry.model';
 
 interface MonthlyData {
-  [key: string]: DayEntry[]; // key: 'YYYY-MM'
+  [key: string]: DayEntry[];
 }
 
 @Injectable({

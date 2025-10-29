@@ -15,6 +15,7 @@ export interface Extract {
   description: string;
   client: string;
   totalDays: number;
+  expectedDays?: number;
 }
 
 export interface MonthlyReport {
@@ -23,3 +24,4 @@ export interface MonthlyReport {
   days: DayEntry[];
   totalWorkDays: number;
 }
+

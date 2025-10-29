@@ -1,5 +1,4 @@
 :host {
-  /* CSS Custom Properties for consistent theming */
   --color-white: rgba(255, 255, 255, 1);
   --color-white-90: rgba(255, 255, 255, 0.9);
   --color-white-80: rgba(255, 255, 255, 0.8);
@@ -74,7 +73,6 @@
   font-size: var(--font-size-lg);
 }
 
-/* Extract Grid Layout */
 .extract-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
@@ -82,7 +80,6 @@
   margin-bottom: var(--spacing-3xl);
 }
 
-/* Extract Card Base Styles */
 .extract-card {
   background: var(--color-white-15);
   backdrop-filter: var(--blur);
@@ -100,7 +97,6 @@
   box-shadow: var(--shadow-xl);
 }
 
-/* Card Header */
 .extract-header {
   display: flex;
   justify-content: space-between;
@@ -143,7 +139,6 @@
   backdrop-filter: var(--blur);
 }
 
-/* Card Body */
 .extract-body {
   padding: var(--spacing-xl);
 }
@@ -180,7 +175,6 @@
   backdrop-filter: var(--blur);
 }
 
-/* Card Footer */
 .extract-footer {
   padding: var(--spacing-lg) var(--spacing-xl) var(--spacing-xl) var(--spacing-xl);
   border-top: 1px solid var(--color-white-10);
@@ -217,7 +211,6 @@
   text-shadow: var(--shadow-text);
 }
 
-/* Total Section */
 .total-section {
   margin-top: var(--spacing-2xl);
 }
@@ -274,7 +267,6 @@
   text-shadow: var(--shadow-text-lg);
 }
 
-/* Empty State Styles */
 .no-extracts-message {
   display: flex;
   justify-content: center;
@@ -304,7 +296,6 @@
   font-size: var(--font-size-sm);
 }
 
-/* Responsive Design */
 @media (max-width: 1024px) {
   .extract-grid {
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -395,7 +386,6 @@
   }
 }
 
-/* Animations */
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -407,7 +397,6 @@
   }
 }
 
-/* Staggered animation delays for cards */
 .extract-card:nth-child(odd) {
   animation-delay: 0.1s;
 }
@@ -416,7 +405,6 @@
   animation-delay: 0.2s;
 }
 
-/* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
   .extract-card,
   .total-card {

@@ -1,15 +1,10 @@
 <div class="monthly-report-container">
-  <!-- Header -->
   <header class="page-header">
     <div class="header-content">
-      <a routerLink="/" class="btn btn-back">
-        ← Torna alla Home
-      </a>
-      <h1 class="page-title">📅 Gestione Estratti Mensili</h1>
+      <h1 class="page-title">Gestione Estratti Mensili</h1>
     </div>
   </header>
 
-  <!-- Instructions -->
   <section class="instructions-card feature-card" aria-labelledby="instructions-heading">
     <div class="instructions-header">
       <span class="feature-icon" aria-hidden="true">💡</span>
@@ -26,10 +21,8 @@
     </div>
   </section>
 
-  <!-- Month Selection -->
   <section class="month-selection-card feature-card" aria-labelledby="month-selection-heading">
     <div class="selection-header">
-      <span class="feature-icon" aria-hidden="true">🎯</span>
       <h3 id="month-selection-heading">Selezione Mese</h3>
       <p>Scegli il mese di riferimento per la compilazione</p>
     </div>
@@ -46,20 +39,18 @@
       </div>
       <button 
         type="button" 
-        (click)="loadTemplate()" 
+        (click)="loadTemplate()"
         class="btn btn-primary"
         aria-label="Carica template per il mese selezionato">
-        📋 Carica Template Mese
+        Carica Template Mese
       </button>
     </div>
   </section>
 
-  <!-- Holidays Info Section -->
   @if (getCurrentMonthHolidays().length > 0) {
     <section class="holidays-info feature-card" aria-labelledby="holidays-heading">
       <div class="section-header">
         <div class="section-title">
-          <span class="feature-icon" aria-hidden="true">🎄</span>
           <h3 id="holidays-heading">Festività del Mese</h3>
         </div>
       </div>
@@ -74,7 +65,6 @@
     </section>
   }
 
-  <!-- Report Summary -->
   <section class="summary-section" aria-labelledby="summary-heading">
     <app-report-summary
       [employeeName]="employeeName()"
@@ -89,7 +79,6 @@
     </app-report-summary>
   </section>
 
-  <!-- Extract List -->
   <section class="extract-section" aria-labelledby="extracts-heading">
     <app-extract-list
       [extracts]="extracts()"
@@ -98,7 +87,6 @@
     </app-extract-list>
   </section>
 
-  <!-- Day Entries Section -->
   <section class="entries-section feature-card" aria-labelledby="entries-heading">
     <div class="section-header">
       <div class="section-title">
@@ -114,7 +102,6 @@
       </button>
     </div>
 
-    <!-- Daily Hours Warning -->
     @if (hasExceededDailyLimit()) {
       <div class="alert alert-warning" role="alert" aria-live="polite">
         <span class="warning-icon" aria-hidden="true">⚠️</span>
@@ -132,7 +119,6 @@
     }
 
     <div class="entries-container">
-      <!-- Table Header -->
       <div class="entries-header" role="rowgroup">
         <div role="columnheader">Data</div>
         <div role="columnheader">Codice</div>
@@ -144,7 +130,6 @@
         <div role="columnheader">Azioni</div>
       </div>
 
-      <!-- Day Entries -->
       @for (day of days(); track day.date.getTime(); let i = $index) {
         <app-day-entry
           [day]="day"
@@ -167,11 +152,8 @@
       }
     </div>
   </section>
-
-  <!-- Export Section -->
   <section class="export-section feature-card" aria-labelledby="export-heading">
     <div class="export-content">
-      <span class="feature-icon" aria-hidden="true">📊</span>
       <h3 id="export-heading">Esporta Report</h3>
       <p>Genera il file Excel completo per l'invio all'amministrazione</p>
       
@@ -192,12 +174,10 @@
         </a>
       </p>
       
-      <!-- Export Requirements -->
       <div id="export-requirements" class="visually-hidden">
         Per esportare, è necessario che tutti i giorni siano validi, ci sia almeno un giorno inserito e il mese sia completamente compilato.
       </div>
       
-      <!-- Validation Warning -->
       @if (days().length > 0 && !allDaysValid()) {
         <div class="validation-warning" role="alert" aria-live="polite">
           <span class="warning-icon" aria-hidden="true">⚠️</span>
@@ -212,7 +192,6 @@
         </div>
       }
 
-      <!-- Month Completion Warning -->
       @if (days().length > 0 && !isMonthFullyFilled()) {
         <div class="validation-warning" role="alert" aria-live="polite">
           <span class="warning-icon" aria-hidden="true">⚠️</span>

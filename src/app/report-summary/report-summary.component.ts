@@ -27,7 +27,6 @@ export class ReportSummaryComponent implements OnInit, OnDestroy {
   holidays: Holiday[] = [];
   compiledDays = new Set<string>();
 
-  // Computed properties for better template usage
   get quadratureStatus(): string {
     if (this.quadrature < 0) return 'negative';
     if (this.quadrature > 0) return 'positive';
@@ -47,17 +46,11 @@ export class ReportSummaryComponent implements OnInit, OnDestroy {
     });
   }
 
-  /**
-   * Get activity code description by code
-   */
   getActivityDescription(code: string): string {
     const activity = this.activityCodes.find(act => act.code === code);
     return activity?.description || code;
   }
 
-  /**
-   * Get sorted activity codes for consistent display
-   */
   get sortedActivityCodes(): string[] {
     return Object.keys(this.activityTotals).sort();
   }
@@ -71,9 +64,6 @@ export class ReportSummaryComponent implements OnInit, OnDestroy {
     console.log(`${this.componentName} destroyed`);
   }
 
-  /**
-   * Refresh holiday data for the current month
-   */
   refresh(): void {
     const year = this.currentMonth.getFullYear();
     const month = this.currentMonth.getMonth() + 1;
@@ -82,15 +72,9 @@ export class ReportSummaryComponent implements OnInit, OnDestroy {
     this.compiledDays = this.holidayService.getCompiledDaysForMonth(year, month);
   }
 
-  /**
-   * Add a new holiday
-   * @param dateIso - Date in ISO string format
-   * @param reason - Optional reason for the holiday
-   */
   addHoliday(dateIso: string, reason?: string): void {
     const result = this.holidayService.addHoliday(dateIso, reason);
     
-    // Provide user feedback based on result status
     switch (result.status) {
       case 'ignored-weekend':
         console.warn('Holiday not added: date falls on weekend');
@@ -106,35 +90,22 @@ export class ReportSummaryComponent implements OnInit, OnDestroy {
     this.refresh();
   }
 
-  /**
-   * Remove holiday by date
-   * @param dateIso - Date in ISO string format
-   */
   removeHoliday(dateIso: string): void {
     this.holidayService.removeHolidayByDate(dateIso);
     this.refresh();
   }
 
-  /**
-   * Check if a date is compiled
-   * @param dateIso - Date in ISO string format
-   * @returns boolean indicating if date is compiled
-   */
   isCompiled(dateIso: string): boolean {
     return this.compiledDays.has(dateIso);
   }
 
-  /**
-   * Calculate percentage for progress indicators
-   */
   getPercentage(value: number, total: number): number {
-    if (total === 0) return 0;
-    return (value / total) * 100;
+  if (total === 0 || !Number.isFinite(value) || !Number.isFinite(total)) {
+    return 0;
   }
+  return (value / total) * 100;
+}
 
-  /**
-   * Format number with Italian locale
-   */
   formatNumber(value: number): string {
     return value.toLocaleString('it-IT', {
       minimumFractionDigits: 2,
@@ -142,11 +113,21 @@ export class ReportSummaryComponent implements OnInit, OnDestroy {
     });
   }
 
-  /**
-   * Handle month change from parent component
-   */
   onMonthChange(newMonth: Date): void {
     this.currentMonth = newMonth;
     this.refresh();
   }
+
+  debugActivityData(): void {
+  console.log('=== ACTIVITY DATA DEBUG ===');
+  console.log('Activity Totals:', this.activityTotals);
+  console.log('Activity Days:', this.activityDays);
+  console.log('Total Declared Days:', this.totalDeclaredDays);
+  
+  this.sortedActivityCodes.forEach(code => {
+    const days = this.activityDays[code] || 0;
+    const percentage = this.getPercentage(days, this.totalDeclaredDays);
+    console.log(`Code ${code}: ${days} days = ${percentage}%`);
+  });
+}
 }

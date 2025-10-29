@@ -1,5 +1,4 @@
 :host {
-  /* CSS variables for consistent theming - aligned with PrimeNG */
   --color-danger: #e53e3e;
   --color-danger-hover: #c53030;
   --color-danger-light: #fed7d7;
@@ -54,44 +53,25 @@
   gap: var(--spacing-xs);
 }
 
-/* Ensure PrimeNG components take full width */
-.entry-field ::ng-deep .p-calendar,
-.entry-field ::ng-deep .p-dropdown,
-.entry-field ::ng-deep .p-inputtext,
-.entry-field ::ng-deep .p-inputnumber {
-  width: 100%;
-}
-
-/* Hours input specific styles */
-.entry-field ::ng-deep .p-inputnumber .p-inputtext {
+.hours-input {
   text-align: center;
 }
 
-/* Actions area */
 .actions {
   display: flex;
   justify-content: center;
   align-items: flex-start;
 }
 
-/* Error message styling */
-.entry-field ::ng-deep .p-message {
+::ng-deep .day-entry .p-message {
   margin-top: 2px;
 }
 
-.entry-field ::ng-deep .p-message .p-message-text {
+::ng-deep .day-entry .p-message .p-message-text {
   font-size: var(--font-size-sm);
   font-weight: 500;
 }
 
-/* Invalid state for PrimeNG components */
-.day-entry.invalid ::ng-deep .p-dropdown,
-.day-entry.invalid ::ng-deep .p-inputnumber,
-.day-entry.invalid ::ng-deep .p-calendar .p-inputtext {
-  border-color: var(--color-danger) !important;
-}
-
-/* Mobile responsiveness */
 @media (max-width: 768px) {
   .day-entry {
     grid-template-columns: 1fr;
@@ -116,14 +96,12 @@
   }
 }
 
-/* Large screen adjustments */
 @media (min-width: 1200px) {
   .day-entry {
     grid-template-columns: 1fr 1fr 2fr 1.5fr 1.5fr 0.8fr 2fr 1fr;
   }
 }
 
-/* Print styles */
 @media print {
   .day-entry {
     break-inside: avoid;
@@ -131,12 +109,11 @@
     background: white !important;
   }
   
-  .actions {
+  ::ng-deep .day-entry .p-button {
     display: none;
   }
 }
 
-/* Animation for smooth transitions */
 .day-entry {
   animation: fadeIn 0.3s ease-in-out;
 }

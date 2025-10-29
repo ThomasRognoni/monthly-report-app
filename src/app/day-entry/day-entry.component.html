@@ -1,95 +1,90 @@
 <div class="day-entry" [class.invalid]="!isValid()">
   <div class="entry-field">
-    <p-calendar
-      [(ngModel)]="localDay.date"
-      (onSelect)="onFieldChange('date', $event)"
-      dateFormat="yy-mm-dd"
-      [showIcon]="true"
-      styleClass="w-full"
-      [class]="!isValid() ? 'ng-invalid ng-dirty' : ''">
-    </p-calendar>
+    <input 
+      type="date" 
+      [value]="getFormattedDate()"
+      (change)="onFieldChange('date', $event)"
+      class="form-control">
   </div>
   
   <div class="entry-field">
-    <p-dropdown
-      [options]="activityOptions"
-      [(ngModel)]="localDay.code"
-      (onChange)="onFieldChange('code', $event.value, true)"
-      [class]="!isCodeValid ? 'ng-invalid ng-dirty' : ''"
-      placeholder="Seleziona codice"
-      styleClass="w-full">
-    </p-dropdown>
+    <select 
+      [value]="day.code"
+      (change)="onFieldChange('code', $event, true)"
+      [class.invalid]="!isCodeValid"
+      class="form-control"
+      required>
+      <option value="" disabled selected>Seleziona codice *</option>
+      @for (activity of activityCodes; track activity.code) {
+        <option [value]="activity.code">{{ activity.code }} - {{ activity.description }}</option>
+      }
+    </select>
     @if (!isCodeValid) {
-      <p-message severity="error" text="Codice attività obbligatorio" styleClass="mt-1"></p-message>
+      <div class="error-message">Codice attività obbligatorio</div>
     }
   </div>
   
   <div class="entry-field">
     <input 
       type="text" 
-      pInputText
-      [(ngModel)]="localDay.activity"
-      (ngModelChange)="onFieldChange('activity', $event)"
+      [value]="day.activity"
+      (change)="onFieldChange('activity', $event)"
       placeholder="Descrizione attività"
-      class="w-full">
+      class="form-control">
   </div>
   
   @if (shouldShowExtract()) {
     <div class="entry-field">
-      <p-dropdown
-        [options]="extractOptions"
-        [(ngModel)]="localDay.extract"
-        (onChange)="onFieldChange('extract', $event.value)"
-        placeholder="Seleziona estratto"
-        styleClass="w-full">
-      </p-dropdown>
+      <select 
+        [value]="day.extract || ''"
+        (change)="onFieldChange('extract', $event)"
+        class="form-control">
+        <option value="">-- Seleziona Estratto --</option>
+        @for (extract of extracts; track extract.id) {
+          <option [value]="extract.id">{{ extract.id }} - {{ extract.client }}</option>
+        }
+      </select>
     </div>
   }
   
   <div class="entry-field">
     <input 
       type="text" 
-      pInputText
-      [(ngModel)]="localDay.client"
-      (ngModelChange)="onFieldChange('client', $event)"
+      [value]="day.client || ''"
+      (change)="onFieldChange('client', $event)"
       placeholder="Cliente"
-      class="w-full">
+      class="form-control">
   </div>
   
   <div class="entry-field">
-    <p-inputNumber
-      [(ngModel)]="localDay.hours"
-      (onInput)="onFieldChange('hours', $event.value, true)"
-      mode="decimal"
-      [min]="0.125"
-      [max]="8"
-      [minFractionDigits]="3"
-      [maxFractionDigits]="3"
-      [class]="!isHoursValid ? 'ng-invalid ng-dirty' : ''"
-      placeholder="0.000"
-      styleClass="w-full">
-    </p-inputNumber>
+    <input 
+      type="number" 
+      [value]="day.hours"
+      (change)="onFieldChange('hours', $event, true)"
+      [class.invalid]="!isHoursValid"
+      min="0.125"
+      max="8"
+      step="0.125"
+      placeholder="0.00"
+      class="form-control hours-input"
+      required>
     @if (!isHoursValid) {
-      <p-message severity="error" text="Ore obbligatorie (0.125 - 8)" styleClass="mt-1"></p-message>
+      <div class="error-message">Ore obbligatorie (0.125 - 8)</div>
     }
   </div>
   
   <div class="entry-field">
     <input 
       type="text" 
-      pInputText
-      [(ngModel)]="localDay.notes"
-      (ngModelChange)="onFieldChange('notes', $event)"
+      [value]="day.notes || ''"
+      (change)="onFieldChange('notes', $event)"
       placeholder="Note"
-      class="w-full">
+      class="form-control">
   </div>
   
   <div class="entry-field actions">
-    <p-button 
-      icon="pi pi-times" 
-      styleClass="p-button-danger p-button-text p-button-sm"
-      (onClick)="onRemove()"
-      [rounded]="true">
-    </p-button>
+    <button (click)="onRemove()" class="btn btn-danger btn-sm">
+      ×
+    </button>
   </div>
 </div>

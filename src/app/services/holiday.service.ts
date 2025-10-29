@@ -3,11 +3,11 @@ import { BehaviorSubject } from 'rxjs';
 
 export interface Holiday {
   id: string;
-  date: string;         // ISO yyyy-MM-dd
+  date: string;
   reason?: string;
 }
 
-type MonthKey = string; // yyyy-MM
+type MonthKey = string;
 
 interface HolidayState {
   [month: MonthKey]: Holiday[];
@@ -15,7 +15,6 @@ interface HolidayState {
 
 const STORAGE_KEY = 'app.holidays.v1';
 
-// Festività fisse italiane (anno-agnostiche)
 const ITALIAN_HOLIDAYS = [
   { date: '01-01', reason: 'Capodanno' },
   { date: '01-06', reason: 'Epifania' },
@@ -36,7 +35,7 @@ function toMonthKey(dateIso: string): MonthKey {
 function isWeekend(dateIso: string): boolean {
   const [y, m, d] = dateIso.split('-').map(Number);
   const dt = new Date(y, (m - 1), d);
-  const day = dt.getDay(); // 0 Sun, 6 Sat
+  const day = dt.getDay();
   return day === 0 || day === 6;
 }
 
@@ -44,7 +43,6 @@ function generateId(dateIso: string): string {
   return `h-${dateIso}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
-// Calcola la Pasqua (algoritmo di Gauss)
 function calculateEaster(year: number): Date {
   const a = year % 19;
   const b = Math.floor(year / 100);
@@ -64,12 +62,10 @@ function calculateEaster(year: number): Date {
   return new Date(year, month - 1, day);
 }
 
-// Calcola le festività mobili basate sulla Pasqua
 function calculateMovableHolidays(year: number): Holiday[] {
   const easter = calculateEaster(year);
   const holidays: Holiday[] = [];
   
-  // Lunedì dell'Angelo (Pasquetta)
   const easterMonday = new Date(easter);
   easterMonday.setDate(easter.getDate() + 1);
   
@@ -100,23 +96,17 @@ export class HolidayService {
       const raw = localStorage.getItem(STORAGE_KEY);
       const savedState = raw ? (JSON.parse(raw) as HolidayState) : {};
       
-      // Inizializza con le festività italiane se non presenti
       return this.initializeItalianHolidays(savedState);
     } catch {
       return this.initializeItalianHolidays({});
     }
   }
 
-  /**
-   * Inizializza le festività italiane per gli anni 2020-2030
-   */
   private initializeItalianHolidays(savedState: HolidayState): HolidayState {
     const state = { ...savedState };
     const currentYear = new Date().getFullYear();
     
-    // Considera gli anni dal 2020 al 2030
     for (let year = 2020; year <= 2030; year++) {
-      // Aggiungi festività fisse
       ITALIAN_HOLIDAYS.forEach(fixedHoliday => {
         const dateIso = `${year}-${fixedHoliday.date}`;
         const monthKey = toMonthKey(dateIso);
@@ -125,7 +115,6 @@ export class HolidayService {
           state[monthKey] = [];
         }
         
-        // Verifica se esiste già questa festività
         const exists = state[monthKey].some(h => h.date === dateIso);
         
         if (!exists && !isWeekend(dateIso)) {
@@ -137,7 +126,6 @@ export class HolidayService {
         }
       });
       
-      // Aggiungi festività mobili (Pasquetta)
       const movableHolidays = calculateMovableHolidays(year);
       movableHolidays.forEach(holiday => {
         const monthKey = toMonthKey(holiday.date);
@@ -177,12 +165,6 @@ export class HolidayService {
     return list.some(h => h.date === dateIso);
   }
 
-  /**
-   * Adds a holiday if it's not weekend.
-   * - If weekend: returns {status: 'ignored-weekend'}
-   * - If already present by date: returns {status: 'exists'}
-   * - On success: returns {status: 'saved', holiday}
-   */
   addHoliday(dateIso: string, reason?: string):
     | { status: 'saved'; holiday: Holiday }
     | { status: 'ignored-weekend' }
@@ -228,23 +210,17 @@ export class HolidayService {
     return true;
   }
 
-  /**
-   * Verifica se una data è una festività italiana predefinita
-   */
   isItalianHoliday(dateIso: string): boolean {
     const [year, month, day] = dateIso.split('-').map(Number);
     const dateStr = `${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
     
-    // Controlla festività fisse
     const isFixedHoliday = ITALIAN_HOLIDAYS.some(h => h.date === dateStr);
     if (isFixedHoliday) return true;
     
-    // Controlla festività mobili
     const movableHolidays = calculateMovableHolidays(year);
     return movableHolidays.some(h => h.date === dateIso);
   }
 
-  // Aggiungi questo metodo al HolidayService per debug
 debugHolidayCheck(dateIso: string): void {
   const key = toMonthKey(dateIso);
   const state = this.state$.value;

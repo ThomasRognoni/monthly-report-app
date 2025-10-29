@@ -1,5 +1,4 @@
 :host {
-  /* CSS Custom Properties for consistent theming */
   --color-white: rgba(255, 255, 255, 1);
   --color-white-90: rgba(255, 255, 255, 0.9);
   --color-white-80: rgba(255, 255, 255, 0.8);

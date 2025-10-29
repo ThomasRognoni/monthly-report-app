@@ -71,7 +71,6 @@
     </div>
   </div>
 
-  <!-- Activity Totals -->
   <div class="activity-section">
     <h3 class="section-title">
       RIEPILOGO ATTIVITÀ
@@ -89,23 +88,22 @@
               {{ formatNumber(activityDays[activityCode] || 0) }} giorni
             </div>
           </div>
-          @if (activityTotals[activityCode] > 0) {
-            <div class="activity-progress">
-              <div class="progress-bar">
-                <div 
-                  class="progress-fill"
-                  [style.width.%]="getPercentage(activityDays[activityCode] || 0, totalDeclaredDays)">
-                </div>
-              </div>
-              <span class="progress-text">
-                {{ getPercentage(activityDays[activityCode] || 0, totalDeclaredDays) | number:'1.0-0' }}%
-              </span>
-            </div>
-          }
+          @if ((activityDays[activityCode] || 0) > 0) {
+  <div class="activity-progress">
+    <div class="progress-bar">
+      <div 
+        class="progress-fill"
+        [style.width.%]="getPercentage(activityDays[activityCode] || 0, totalDeclaredDays)">
+      </div>
+    </div>
+    <span class="progress-text">
+      {{ getPercentage(activityDays[activityCode] || 0, totalDeclaredDays) | number:'1.0-0' }}%
+    </span>
+  </div>
+}
         </div>
       }
       
-      <!-- Total Card -->
       <div class="activity-card feature-card total-card">
         <div class="activity-content">
           <div class="activity-info">
@@ -130,24 +128,3 @@
       </div>
     </div>
   </div>
-
-  <!-- Holiday Summary (Optional Section) -->
-  @if (holidays.length > 0) {
-    <div class="holiday-section">
-      <h3 class="section-title">
-        GIORNI FESTIVI ({{ holidays.length }})
-      </h3>
-      <div class="holiday-list">
-        @for (holiday of holidays; track holiday.date) {
-          <div class="holiday-item" [class.compiled]="isCompiled(holiday.date)">
-            <span class="holiday-date">{{ holiday.date | date:'dd/MM/yyyy' }}</span>
-            <span class="holiday-reason">{{ holiday.reason || 'Festivo' }}</span>
-            <span class="holiday-status">
-              {{ isCompiled(holiday.date) ? '✅ Compilato' : '⏳ Da compilare' }}
-            </span>
-          </div>
-        }
-      </div>
-    </div>
-  }
-</div>
