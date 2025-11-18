@@ -29,12 +29,10 @@ interface ExportData {
 export class ExcelExportService {
   private templateUrl =
     'assets/templates/10-ROGNONI-Rilevazione_estratti_template.xlsx';
-  // When true, prefer server-side export which preserves template fidelity
   private forceServerExport = true;
 
   async generateExcel(data: ExportData): Promise<void> {
     try {
-      // 1) Try server-side export first (reliable, preserves styles/images)
       if (this.forceServerExport) {
         try {
           const serverUrl = 'http://localhost:3000/export';
@@ -56,7 +54,6 @@ export class ExcelExportService {
         }
       }
 
-      // 2) Try client-side xlsx-populate (best fidelity) — dynamic import with several paths
       try {
         const importPaths = [
           'xlsx-populate/browser/xlsx-populate',
@@ -70,7 +67,7 @@ export class ExcelExportService {
         if (!XlsxPopulate) {
           for (const p of importPaths) {
             try {
-              const mod: any = await import(/* webpackIgnore: false */ p);
+              const mod: any = await import(p);
               XlsxPopulate = mod.default || mod;
               break;
             } catch (e) {
@@ -116,7 +113,6 @@ export class ExcelExportService {
           'xlsx-populate not available or failed, falling back to xlsx:',
           xpErr
         );
-        // Try server-side fallback if available
         try {
           const serverUrl = 'http://localhost:3000/export';
           const resp = await fetch(serverUrl, {
@@ -137,7 +133,6 @@ export class ExcelExportService {
         }
       }
 
-      // 3) Final fallback: use `xlsx` library (may lose styles/images)
       const template = await this.loadTemplate();
       const workbook = this.populateTemplateWithData(template, data);
 
@@ -220,7 +215,6 @@ export class ExcelExportService {
     return template;
   }
 
-  // --- xlsx-populate helpers ---
   private updateActivityTotalsXp(sheet: any, data: ExportData): void {
     const activityRows: { [key: string]: number } = {
       D: 28,

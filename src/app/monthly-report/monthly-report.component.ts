@@ -343,8 +343,6 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
     const monthIndex = selectedMonth.getMonth();
     const monthNumber = monthIndex + 1;
 
-    // Loading template for selected month
-
     const firstDay = new Date(year, monthIndex, 1);
     const lastDay = new Date(year, monthIndex + 1, 0);
 
@@ -357,8 +355,6 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
     let weekendCount = 0;
     let holidayCount = 0;
     let workdayCount = 0;
-
-    // Month range and holidays computed
 
     for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(Date.UTC(year, monthIndex, day, 12, 0, 0));
@@ -539,7 +535,6 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
     errorMessage += `• Codice attività selezionato\n`;
     errorMessage += `• Ore inserite (tra 0.125 e 8)\n`;
 
-    // Mostra i giorni non validi
     if (validation.invalidDays.length > 0) {
       errorMessage += `\nGiorni non validi:\n`;
       validation.invalidDays.forEach((day) => {
@@ -579,7 +574,6 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
 
   debugValidation(): void {
     this.days().forEach((day, index) => {
-      // no-op: debug removed
       void day;
       void index;
     });

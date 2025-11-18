@@ -1,5 +1,3 @@
-// Minimal ambient declaration to allow importing `xlsx-populate` without
-// TypeScript error when the package doesn't provide its own types.
 declare module 'xlsx-populate' {
   const XlsxPopulate: any;
   export default XlsxPopulate;

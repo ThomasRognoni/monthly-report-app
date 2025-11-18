@@ -20,7 +20,6 @@ const TEMPLATE = path.join(
 app.post("/export", async (req, res) => {
   try {
     const data = req.body;
-    // DEBUG: log incoming payload summary for diagnosis
     try {
       console.log("--- /export payload summary ---");
       console.log("totalDeclaredHours:", data.totalDeclaredHours);
@@ -51,12 +50,9 @@ app.post("/export", async (req, res) => {
     sheet.cell("B8").value(data.employeeName || "");
 
     sheet.cell("E21").value(data.totalWorkDays || 0);
-    // E22 will be written after we compute declaredDays below (avoid duplicate declarations)
-    // placeholder will be set later
     sheet.cell("E23").value(data.quadrature || 0);
     sheet.cell("E24").value(data.overtime || 0);
 
-    // minimal daily insertion (mirror client logic)
     if (Array.isArray(data.days)) {
       for (let i = 0; i < data.days.length; i++) {
         const day = data.days[i];
@@ -86,7 +82,6 @@ app.post("/export", async (req, res) => {
       }
     }
 
-    // Write activity totals (convert hours -> days)
     const activityRows = {
       D: 28,
       AA: 29,
@@ -99,7 +94,6 @@ app.post("/export", async (req, res) => {
 
     Object.entries(activityRows).forEach(([code, row]) => {
       const raw = (data.activityTotals && data.activityTotals[code]) || 0;
-      // If raw looks like hours (bigger than possible days in a month), convert to days
       const days =
         raw > 31
           ? Math.round((raw / 8) * 100) / 100
@@ -108,8 +102,6 @@ app.post("/export", async (req, res) => {
       sheet.cell(`G${row}`).value(days);
     });
 
-    // Total declared days in G36 (hours -> days if needed)
-    // Total declared days in G36 (accept either days or hours)
     let declaredRaw =
       typeof data.totalDeclaredDays === "number"
         ? data.totalDeclaredDays
@@ -120,10 +112,8 @@ app.post("/export", async (req, res) => {
       Math.round((declaredRaw > 31 ? declaredRaw / 8 : declaredRaw) * 100) /
       100;
     sheet.cell("G36").value(roundedDeclared);
-    // Also populate E22 with the same declared days value
     sheet.cell("E22").value(roundedDeclared || 0);
 
-    // Write extract totals (hours -> days)
     const extractRows = {
       ESA3582021: 39,
       BD0002022S: 40,

@@ -32,7 +32,6 @@ async function run() {
   sheet.cell("B8").value("TEST USER");
   sheet.cell("G36").value(12.5);
 
-  // write a few rows of dummy daily data
   for (let i = 0; i < 5; i++) {
     const row = 47 + i;
     sheet.cell(`B${row}`).value(`01/11/2025`);

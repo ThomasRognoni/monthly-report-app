@@ -39,7 +39,6 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   onRouteChange(route: string): void {
-    // route changed
   }
 
   private cleanupSubscriptions(): void {
@@ -61,6 +60,5 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   refreshApp(): void {
-    // refresh application state
   }
 }

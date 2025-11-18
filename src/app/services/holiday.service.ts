@@ -248,7 +248,6 @@ export class HolidayService {
     const list = state[key] ?? [];
     const isHoliday = list.some((h) => h.date === dateIso);
 
-    // debugHolidayCheck output suppressed in browser
     void dateIso;
     void key;
     void list;
