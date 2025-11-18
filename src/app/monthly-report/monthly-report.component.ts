@@ -278,6 +278,13 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.days.set([]);
+    // load saved employee name if present
+    try {
+      const saved = this.persistenceService.getEmployeeName();
+      if (saved) this.employeeName.set(saved);
+    } catch (e) {
+      // ignore
+    }
   }
 
   ngOnDestroy(): void {
@@ -525,6 +532,15 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
           exportButton.disabled = false;
         }
       });
+  }
+
+  onEmployeeNameChange(value: string): void {
+    this.employeeName.set(value || '');
+    try {
+      this.persistenceService.saveEmployeeName(value || '');
+    } catch (e) {
+      // ignore storage errors
+    }
   }
 
   private showExportError(): void {

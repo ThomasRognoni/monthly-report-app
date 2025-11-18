@@ -181,7 +181,14 @@ function generateFileName(data) {
   const m = new Date(data.month);
   const month = String(m.getMonth() + 1).padStart(2, "0");
   const year = m.getFullYear();
-  return `ROGNONI-Rilevazione_estratti_${month}-${year}.xlsx`;
+  const name =
+    data && data.employeeName ? String(data.employeeName).trim() : "UNKNOWN";
+  const parts = name.split(/\s+/);
+  const last =
+    (parts.length > 0 ? parts[parts.length - 1] : "UNKNOWN")
+      .replace(/[^A-Za-z0-9]/g, "")
+      .toUpperCase() || "UNKNOWN";
+  return `${last}-Rilevazione_estratti_${month}-${year}.xlsx`;
 }
 
 const PORT = process.env.EXPORT_PORT || 3000;

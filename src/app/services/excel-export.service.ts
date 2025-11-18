@@ -413,7 +413,12 @@ export class ExcelExportService {
   private generateFileName(data: ExportData): string {
     const month = (data.month.getMonth() + 1).toString().padStart(2, '0');
     const year = data.month.getFullYear();
-    return `ROGNONI-Rilevazione_estratti_${month}-${year}.xlsx`;
+    const name = (data.employeeName || 'UNKNOWN').toString().trim();
+    const last = (name.split(/\s+/).pop() || 'UNKNOWN')
+      .replace(/[^A-Za-z0-9]/g, '')
+      .toUpperCase();
+    const safe = last || 'UNKNOWN';
+    return `${safe}-Rilevazione_estratti_${month}-${year}.xlsx`;
   }
 
   private saveAsExcelFile(buffer: ArrayBuffer, fileName: string): void {

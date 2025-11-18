@@ -6,21 +6,22 @@ interface MonthlyData {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class PersistenceService {
   private readonly STORAGE_KEY = 'monthly-report-data';
+  private readonly NAME_KEY = 'monthly-report-employee-name';
 
   saveMonthlyData(month: string, data: DayEntry[]): void {
     const allData = this.getAllMonthlyData();
-    allData[month] = data.map(day => this.serializeDate(day));
+    allData[month] = data.map((day) => this.serializeDate(day));
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(allData));
   }
 
   getMonthlyData(month: string): DayEntry[] {
     const allData = this.getAllMonthlyData();
     const data = allData[month];
-    return data ? data.map(day => this.deserializeDate(day)) : [];
+    return data ? data.map((day) => this.deserializeDate(day)) : [];
   }
 
   clearMonthlyData(month: string): void {
@@ -37,14 +38,32 @@ export class PersistenceService {
   private serializeDate(day: DayEntry): any {
     return {
       ...day,
-      date: day.date.toISOString()
+      date: day.date.toISOString(),
     };
   }
 
   private deserializeDate(day: any): DayEntry {
     return {
       ...day,
-      date: new Date(day.date)
+      date: new Date(day.date),
     };
+  }
+
+  // Persist a display name for the current user (employee)
+  saveEmployeeName(name: string): void {
+    try {
+      localStorage.setItem(this.NAME_KEY, name || '');
+    } catch (e) {
+      // ignore storage errors
+    }
+  }
+
+  getEmployeeName(): string | null {
+    try {
+      const v = localStorage.getItem(this.NAME_KEY);
+      return v && v.length > 0 ? v : null;
+    } catch (e) {
+      return null;
+    }
   }
 }
