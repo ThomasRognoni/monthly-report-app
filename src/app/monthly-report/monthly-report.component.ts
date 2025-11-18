@@ -1,4 +1,12 @@
-import { Component, ChangeDetectionStrategy, computed, signal, inject, OnInit, OnDestroy } from '@angular/core';
+import {
+  Component,
+  ChangeDetectionStrategy,
+  computed,
+  signal,
+  inject,
+  OnInit,
+  OnDestroy,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -10,6 +18,7 @@ import { DayEntryComponent } from '../day-entry/day-entry.component';
 import { ExcelExportService } from '../services/excel-export.service';
 import { HolidayService } from '../services/holiday.service';
 import { PersistenceService } from '../services/persistence.service';
+import { toIsoDate } from '../utils';
 
 interface ActivityCode {
   code: string;
@@ -37,7 +46,7 @@ interface ActivityTotals {
   ],
   templateUrl: './monthly-report.component.html',
   styleUrls: ['./monthly-report.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MonthlyReportComponent implements OnInit, OnDestroy {
   private readonly excelExportService = inject(ExcelExportService);
@@ -105,7 +114,7 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
 
   readonly dailyHours = computed((): DailyHours => {
     const dailyTotals: DailyHours = {};
-    this.days().forEach(day => {
+    this.days().forEach((day) => {
       const dateKey = day.date.toDateString();
       dailyTotals[dateKey] = (dailyTotals[dateKey] || 0) + day.hours;
     });
@@ -113,33 +122,34 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
   });
 
   readonly hasExceededDailyLimit = computed(() => {
-  const exceeded = Object.values(this.dailyHours()).some(hours => hours > 8);
-  console.log('Daily limit check:', { dailyHours: this.dailyHours(), exceeded });
-  return exceeded;
-});
+    const exceeded = Object.values(this.dailyHours()).some(
+      (hours) => hours > 8
+    );
+    return exceeded;
+  });
 
   readonly totalWorkDays = computed(() => {
     const month = this.currentMonth();
     const year = month.getFullYear();
     const monthIndex = month.getMonth();
     let count = 0;
-    
+
     const date = new Date(year, monthIndex, 1);
-    
+
     while (date.getMonth() === monthIndex) {
       const dayOfWeek = date.getDay();
-      const isoDate = `${year}-${(monthIndex + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
-      
+      const isoDate = toIsoDate(date);
+
       const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
       const isHoliday = this.holidayService.isHoliday(isoDate);
-      
+
       if (!isWeekend && !isHoliday) {
         count++;
       }
-      
+
       date.setDate(date.getDate() + 1);
     }
-    
+
     return count;
   });
 
@@ -151,49 +161,50 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
 
   readonly totalDeclaredDays = computed(() => {
     const uniqueDates = new Set(
-      this.days()
-        .map(day => day.date.toDateString())
+      this.days().map((day) => day.date.toDateString())
     );
     return uniqueDates.size;
   });
 
-  readonly quadrature = computed(() => this.totalWorkDays() - this.totalDeclaredDays());
+  readonly quadrature = computed(
+    () => this.totalWorkDays() - this.totalDeclaredDays()
+  );
 
   readonly overtime = computed(() => {
-    const overtimeDays = this.days().filter(day => day.code === 'ST');
+    const overtimeDays = this.days().filter((day) => day.code === 'ST');
     return overtimeDays.reduce((sum, day) => sum + day.hours, 0);
   });
 
   readonly activityTotals = computed((): ActivityTotals => {
-  const totals: ActivityTotals = {};
-  this.activityCodes().forEach(activity => {
-    const totalHours = this.days()
-      .filter(day => day.code === activity.code)
-      .reduce((sum, day) => sum + day.hours, 0);
-    totals[activity.code] = totalHours / 8;
+    const totals: ActivityTotals = {};
+    this.activityCodes().forEach((activity) => {
+      const totalHours = this.days()
+        .filter((day) => day.code === activity.code)
+        .reduce((sum, day) => sum + day.hours, 0);
+      totals[activity.code] = totalHours / 8;
+    });
+    return totals;
   });
-  return totals;
-});
 
   readonly activityDays = computed((): ActivityTotals => {
     const daysMap: ActivityTotals = {};
     const totals = this.activityTotals();
-    Object.keys(totals).forEach(code => {
+    Object.keys(totals).forEach((code) => {
       daysMap[code] = totals[code];
     });
     return daysMap;
   });
 
   readonly extractTotals = computed((): ActivityTotals => {
-  const totals: ActivityTotals = {};
-  this.extracts().forEach(extract => {
-    const totalHours = this.days()
-      .filter(day => day.extract === extract.id)
-      .reduce((sum, day) => sum + day.hours, 0);
-    totals[extract.id] = totalHours;
+    const totals: ActivityTotals = {};
+    this.extracts().forEach((extract) => {
+      const totalHours = this.days()
+        .filter((day) => day.extract === extract.id)
+        .reduce((sum, day) => sum + day.hours, 0);
+      totals[extract.id] = totalHours;
+    });
+    return totals;
   });
-  return totals;
-});
 
   readonly isMonthFullyFilled = computed(() => {
     const month = this.currentMonth();
@@ -202,20 +213,22 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
 
     const workDateKeys: string[] = [];
     const cursor = new Date(year, monthIndex, 1);
-    
+
     while (cursor.getMonth() === monthIndex) {
       const dayOfWeek = cursor.getDay();
-      const isoDate = `${year}-${(monthIndex + 1).toString().padStart(2, '0')}-${cursor.getDate().toString().padStart(2, '0')}`;
-      
-      if (dayOfWeek !== 0 && dayOfWeek !== 6 && !this.holidayService.isHoliday(isoDate)) {
+      const isoDate = toIsoDate(cursor);
+      if (
+        dayOfWeek !== 0 &&
+        dayOfWeek !== 6 &&
+        !this.holidayService.isHoliday(isoDate)
+      ) {
         workDateKeys.push(cursor.toDateString());
       }
       cursor.setDate(cursor.getDate() + 1);
     }
 
     const dailyHours: DailyHours = {};
-    this.days().forEach(entry => {
-      
+    this.days().forEach((entry) => {
       const normalizedDate = new Date(
         entry.date.getFullYear(),
         entry.date.getMonth(),
@@ -225,46 +238,46 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
       dailyHours[key] = (dailyHours[key] || 0) + entry.hours;
     });
 
-    return workDateKeys.every(key => (dailyHours[key] || 0) === 8);
+    return workDateKeys.every((key) => (dailyHours[key] || 0) === 8);
   });
 
   readonly allDaysValid = computed(() => {
-  const daysValid = this.days().every(day => {
-    const hasValidCode = day.code?.trim() && day.code.length > 0;
-    const hasValidHours = !isNaN(day.hours) && day.hours >= 0 && day.hours <= 8;
-    
-    return hasValidCode && hasValidHours;
-  });
-  
-  const noExceededLimit = !this.hasExceededDailyLimit();
-  
-  return daysValid && noExceededLimit;
-});
+    const daysValid = this.days().every((day) => {
+      const hasValidCode = day.code?.trim() && day.code.length > 0;
+      const hasValidHours =
+        !isNaN(day.hours) && day.hours >= 0 && day.hours <= 8;
 
-readonly validationStatus = computed(() => {
-  const invalidDays = this.days().filter(day => {
-    
-    return !day.code?.trim() || 
-           day.hours <= 0 || 
-           isNaN(day.hours) ||
-           day.hours > 8;
+      return hasValidCode && hasValidHours;
+    });
+
+    const noExceededLimit = !this.hasExceededDailyLimit();
+
+    return daysValid && noExceededLimit;
   });
-  
-  return {
-    isValid: invalidDays.length === 0 && !this.hasExceededDailyLimit(),
-    invalidDays: invalidDays,
-    exceededDays: this.getExceededDays()
-  };
-});
+
+  readonly validationStatus = computed(() => {
+    const invalidDays = this.days().filter((day) => {
+      return (
+        !day.code?.trim() || day.hours <= 0 || isNaN(day.hours) || day.hours > 8
+      );
+    });
+
+    return {
+      isValid: invalidDays.length === 0 && !this.hasExceededDailyLimit(),
+      invalidDays: invalidDays,
+      exceededDays: this.getExceededDays(),
+    };
+  });
 
   private getCurrentMonthKey(): string {
     const month = this.currentMonth();
-    return `${month.getFullYear()}-${(month.getMonth() + 1).toString().padStart(2, '0')}`;
+    return `${month.getFullYear()}-${(month.getMonth() + 1)
+      .toString()
+      .padStart(2, '0')}`;
   }
 
   ngOnInit(): void {
     this.days.set([]);
-    console.log('Template inizializzato: nessun giorno caricato');
   }
 
   ngOnDestroy(): void {
@@ -274,18 +287,20 @@ readonly validationStatus = computed(() => {
   private saveCurrentData(): void {
     const monthKey = this.getCurrentMonthKey();
     const currentData = this.days();
-    
+
     if (currentData.length > 0) {
       this.persistenceService.saveMonthlyData(monthKey, currentData);
-      console.log(`Dati salvati per il mese: ${monthKey}`, currentData);
     } else {
       this.persistenceService.clearMonthlyData(monthKey);
-      console.log(`Dati rimossi per il mese: ${monthKey}`);
     }
   }
 
-  updateDayEntry(event: { index: number; field: keyof DayEntry; value: any }): void {
-    this.days.update(days =>
+  updateDayEntry(event: {
+    index: number;
+    field: keyof DayEntry;
+    value: any;
+  }): void {
+    this.days.update((days) =>
       days.map((day, i) =>
         i === event.index ? { ...day, [event.field]: event.value } : day
       )
@@ -294,7 +309,7 @@ readonly validationStatus = computed(() => {
   }
 
   removeDayEntry(index: number): void {
-    this.days.update(days => days.filter((_, i) => i !== index));
+    this.days.update((days) => days.filter((_, i) => i !== index));
     this.saveCurrentData();
   }
 
@@ -306,7 +321,7 @@ readonly validationStatus = computed(() => {
       hours: 1,
       notes: '',
     };
-    this.days.update(days => [...days, newEntry]);
+    this.days.update((days) => [...days, newEntry]);
     this.saveCurrentData();
   }
 
@@ -314,12 +329,11 @@ readonly validationStatus = computed(() => {
     const input = event.target as HTMLInputElement;
     if (input.value) {
       this.saveCurrentData();
-      
+
       const newDate = new Date(input.value + '-01');
       this.currentMonth.set(newDate);
-      
+
       this.days.set([]);
-      console.log(`Cambiato mese a: ${this.getCurrentMonthKey()}, giorni resettati`);
     }
   }
 
@@ -329,45 +343,38 @@ readonly validationStatus = computed(() => {
     const monthIndex = selectedMonth.getMonth();
     const monthNumber = monthIndex + 1;
 
-    console.log(`Caricamento template per: ${selectedMonth.toLocaleDateString('it-IT', {
-      month: 'long',
-      year: 'numeric',
-    })}`);
+    // Loading template for selected month
 
     const firstDay = new Date(year, monthIndex, 1);
     const lastDay = new Date(year, monthIndex + 1, 0);
-    
+
     const daysInMonth = lastDay.getDate();
-    
+
     const holidays = this.holidayService.getHolidaysForMonth(year, monthNumber);
-    const holidayDates = new Set(holidays.map(h => h.date));
-    
+    const holidayDates = new Set(holidays.map((h) => h.date));
+
     const workDays: DayEntry[] = [];
     let weekendCount = 0;
     let holidayCount = 0;
     let workdayCount = 0;
 
-    console.log(`Range del mese: ${firstDay.toLocaleDateString('it-IT')} - ${lastDay.toLocaleDateString('it-IT')}`);
-    console.log(`Giorni totali nel mese: ${daysInMonth}`);
-    console.log(`Festività trovate:`, holidays);
+    // Month range and holidays computed
 
     for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(Date.UTC(year, monthIndex, day, 12, 0, 0));
-      
+
       const dayOfWeek = date.getDay();
       const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
 
-      const isoDate = `${year}-${monthNumber.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
-      
+      const isoDate = toIsoDate(date);
+
       const isHoliday = this.holidayService.isHoliday(isoDate);
-      const holidayInfo = holidays.find(h => h.date === isoDate);
+      const holidayInfo = holidays.find((h) => h.date === isoDate);
 
       if (isWeekend || isHoliday) {
         if (isWeekend) {
-          console.log(`Saltato WEEKEND: ${date.toLocaleDateString('it-IT')} (${this.getDayName(dayOfWeek)})`);
           weekendCount++;
         } else {
-          console.log(`Saltato FESTIVITÀ: ${date.toLocaleDateString('it-IT')} - ${holidayInfo?.reason || 'Festività'}`);
           holidayCount++;
         }
         continue;
@@ -381,22 +388,29 @@ readonly validationStatus = computed(() => {
         notes: '',
         extract: '',
         client: '',
-        prefilled: true
+        prefilled: true,
       });
       workdayCount++;
-      console.log(`Aggiunto giorno LAVORATIVO: ${date.toLocaleDateString('it-IT')}`);
     }
 
     workDays.sort((a, b) => a.date.getTime() - b.date.getTime());
-    
+
     this.days.set(workDays);
     this.saveCurrentData();
-    
+
     alert(`Template del mese caricato`);
   }
 
   private getDayName(dayOfWeek: number): string {
-    const days = ['Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato'];
+    const days = [
+      'Domenica',
+      'Lunedì',
+      'Martedì',
+      'Mercoledì',
+      'Giovedì',
+      'Venerdì',
+      'Sabato',
+    ];
     return days[dayOfWeek];
   }
 
@@ -409,23 +423,17 @@ readonly validationStatus = computed(() => {
   }
 
   isHoliday(date: Date): boolean {
-    const year = date.getFullYear();
-    const month = date.getMonth() + 1;
-    const day = date.getDate();
-    const isoDate = `${year.toString().padStart(4, '0')}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
-    
-    return this.holidayService.isHoliday(isoDate);
+    return this.holidayService.isHoliday(toIsoDate(date));
   }
 
   getHolidayDescription(date: Date): string {
     const year = date.getFullYear();
     const month = date.getMonth() + 1;
-    const day = date.getDate();
-    const isoDate = `${year.toString().padStart(4, '0')}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
-    
+    const isoDate = toIsoDate(date);
+
     const holidays = this.holidayService.getHolidaysForMonth(year, month);
-    const holiday = holidays.find(h => h.date === isoDate);
-    
+    const holiday = holidays.find((h) => h.date === isoDate);
+
     return holiday?.reason || '';
   }
 
@@ -433,7 +441,7 @@ readonly validationStatus = computed(() => {
     const month = this.currentMonth();
     const year = month.getFullYear();
     const monthNumber = month.getMonth() + 1;
-    
+
     return this.holidayService.getHolidaysForMonth(year, monthNumber);
   }
 
@@ -442,7 +450,7 @@ readonly validationStatus = computed(() => {
     return date.toLocaleDateString('it-IT', {
       day: '2-digit',
       month: '2-digit',
-      year: 'numeric'
+      year: 'numeric',
     });
   }
 
@@ -452,7 +460,7 @@ readonly validationStatus = computed(() => {
       if (hours > 8) {
         exceeded.push({
           date: new Date(date).toLocaleDateString('it-IT'),
-          hours: hours
+          hours: hours,
         });
       }
     });
@@ -460,59 +468,59 @@ readonly validationStatus = computed(() => {
   }
 
   exportToExcel(): void {
-  const validation = this.validationStatus();
-  
-  if (!validation.isValid || !this.isMonthFullyFilled()) {
-    this.showExportError();
-    return;
-  }
+    const validation = this.validationStatus();
 
-  const exportData = {
-    employeeName: this.employeeName(),
-    month: new Date(this.currentMonth()),
-    days: this.days().map(day => ({
-      ...day,
-      date: new Date(day.date)
-    })),
-    extracts: this.extracts(),
-    activityTotals: this.activityTotals(),
-    extractTotals: this.extractTotals(),
-    totalWorkDays: this.totalWorkDays(),
-    totalDeclaredDays: this.totalDeclaredDays(),
-    totalDeclaredHours: this.totalDeclaredHours(),
-    quadrature: this.quadrature(),
-    overtime: this.overtime(),
-    activityCodes: this.activityCodes(),
-    holidays: this.getCurrentMonthHolidays()
-  };
+    if (!validation.isValid || !this.isMonthFullyFilled()) {
+      this.showExportError();
+      return;
+    }
 
-  console.log('📋 Dati preparati per esportazione:', exportData);
-  console.log(`🔢 Conversioni: ${this.totalDeclaredHours()} ore = ${this.totalDeclaredHours() / 8} giorni`);
+    const exportData = {
+      employeeName: this.employeeName(),
+      month: new Date(this.currentMonth()),
+      days: this.days().map((day) => ({
+        ...day,
+        date: new Date(day.date),
+      })),
+      extracts: this.extracts(),
+      activityTotals: this.activityTotals(),
+      extractTotals: this.extractTotals(),
+      totalWorkDays: this.totalWorkDays(),
+      totalDeclaredDays: this.totalDeclaredDays(),
+      totalDeclaredHours: this.totalDeclaredHours(),
+      quadrature: this.quadrature(),
+      overtime: this.overtime(),
+      activityCodes: this.activityCodes(),
+      holidays: this.getCurrentMonthHolidays(),
+    };
 
-    const exportButton = document.querySelector('.btn-export') as HTMLButtonElement;
+    const exportButton = document.querySelector(
+      '.btn-export'
+    ) as HTMLButtonElement;
     const originalText = exportButton?.textContent || '🚀 Esporta in Excel';
-    
+
     if (exportButton) {
       exportButton.textContent = '⏳ Generando Excel...';
       exportButton.disabled = true;
     }
 
-    this.excelExportService.generateExcel(exportData)
+    this.excelExportService
+      .generateExcel(exportData)
       .then(() => {
-        console.log('Esportazione completata con successo');
         alert('File Excel generato con successo!');
       })
-      .catch(error => {
-        console.error('Errore nell\'esportazione:', error);
-        
+      .catch((error) => {
+        console.error("Errore nell'esportazione:", error);
+
         let errorMessage = 'Errore nella generazione del file Excel. ';
-        
+
         if (error.message.includes('Template non trovato')) {
-          errorMessage += '\n\nIl file template non è stato trovato. Assicurati che il file esista nella cartella assets/templates/';
+          errorMessage +=
+            '\n\nIl file template non è stato trovato. Assicurati che il file esista nella cartella assets/templates/';
         } else {
           errorMessage += `\n\nDettaglio: ${error.message}`;
         }
-        
+
         alert(errorMessage);
       })
       .finally(() => {
@@ -524,68 +532,56 @@ readonly validationStatus = computed(() => {
   }
 
   private showExportError(): void {
-  const validation = this.validationStatus();
-  
-  let errorMessage = `Impossibile esportare. Ci sono ${validation.invalidDays.length} giorni non validi.\n\n`;
-  errorMessage += `Assicurati che tutti i giorni abbiano:\n`;
-  errorMessage += `• Codice attività selezionato\n`;
-  errorMessage += `• Ore inserite (tra 0.125 e 8)\n`;
-  
-  // Mostra i giorni non validi
-  if (validation.invalidDays.length > 0) {
-    errorMessage += `\nGiorni non validi:\n`;
-    validation.invalidDays.forEach(day => {
-      errorMessage += `  - ${day.date.toLocaleDateString('it-IT')}: ${day.code} - ${day.hours} ore\n`;
-    });
-  }
-  
-  if (this.hasExceededDailyLimit()) {
-    errorMessage += `• Non più di 8 ore totali per giorno\n`;
-    
-    validation.exceededDays.forEach(day => {
-      errorMessage += `  - ${day.date}: ${day.hours} ore\n`;
-    });
-  }
+    const validation = this.validationStatus();
 
-  if (!this.isMonthFullyFilled()) {
-    const month = this.currentMonth();
-    const year = month.getFullYear();
-    const monthNumber = month.getMonth() + 1;
-    const holidays = this.holidayService.getHolidaysForMonth(year, monthNumber);
-    
-    errorMessage += `• Inserisci ore per tutti i giorni lavorativi del mese\n`;
-    errorMessage += `  Giorni lavorativi totali: ${this.totalWorkDays()}\n`;
-    errorMessage += `  Giorni dichiarati: ${this.totalDeclaredDays()}\n`;
-    if (holidays.length > 0) {
-      errorMessage += `  Festività considerate: ${holidays.length}\n`;
+    let errorMessage = `Impossibile esportare. Ci sono ${validation.invalidDays.length} giorni non validi.\n\n`;
+    errorMessage += `Assicurati che tutti i giorni abbiano:\n`;
+    errorMessage += `• Codice attività selezionato\n`;
+    errorMessage += `• Ore inserite (tra 0.125 e 8)\n`;
+
+    // Mostra i giorni non validi
+    if (validation.invalidDays.length > 0) {
+      errorMessage += `\nGiorni non validi:\n`;
+      validation.invalidDays.forEach((day) => {
+        errorMessage += `  - ${day.date.toLocaleDateString('it-IT')}: ${
+          day.code
+        } - ${day.hours} ore\n`;
+      });
     }
-  }
-  
-  alert(errorMessage);
-}
 
-debugValidation(): void {
-  console.log('=== VALIDATION DEBUG ===');
-  console.log('Total days:', this.days().length);
-  console.log('allDaysValid:', this.allDaysValid());
-  console.log('hasExceededDailyLimit:', this.hasExceededDailyLimit());
-  console.log('isMonthFullyFilled:', this.isMonthFullyFilled());
-  
-  this.days().forEach((day, index) => {
-    const isValidCode = day.code?.trim() && day.code.length > 0;
-    const isValidHours = !isNaN(day.hours) && day.hours >= 0 && day.hours <= 8;
-    const isValid = isValidCode && isValidHours;
-    
-    console.log(`Day ${index + 1} (${day.date.toLocaleDateString()}):`, {
-      code: day.code,
-      hours: day.hours,
-      isValidCode,
-      isValidHours,
-      isValid
+    if (this.hasExceededDailyLimit()) {
+      errorMessage += `• Non più di 8 ore totali per giorno\n`;
+
+      validation.exceededDays.forEach((day) => {
+        errorMessage += `  - ${day.date}: ${day.hours} ore\n`;
+      });
+    }
+
+    if (!this.isMonthFullyFilled()) {
+      const month = this.currentMonth();
+      const year = month.getFullYear();
+      const monthNumber = month.getMonth() + 1;
+      const holidays = this.holidayService.getHolidaysForMonth(
+        year,
+        monthNumber
+      );
+
+      errorMessage += `• Inserisci ore per tutti i giorni lavorativi del mese\n`;
+      errorMessage += `  Giorni lavorativi totali: ${this.totalWorkDays()}\n`;
+      errorMessage += `  Giorni dichiarati: ${this.totalDeclaredDays()}\n`;
+      if (holidays.length > 0) {
+        errorMessage += `  Festività considerate: ${holidays.length}\n`;
+      }
+    }
+
+    alert(errorMessage);
+  }
+
+  debugValidation(): void {
+    this.days().forEach((day, index) => {
+      // no-op: debug removed
+      void day;
+      void index;
     });
-  });
-  
-  console.log('Daily hours by date:', this.dailyHours());
-  console.log('Exceeded days:', this.getExceededDays());
-}
+  }
 }

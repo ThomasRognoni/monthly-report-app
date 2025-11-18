@@ -25,7 +25,7 @@ const ITALIAN_HOLIDAYS = [
   { date: '11-01', reason: 'Ognissanti' },
   { date: '12-08', reason: 'Immacolata Concezione' },
   { date: '12-25', reason: 'Natale' },
-  { date: '12-26', reason: 'Santo Stefano' }
+  { date: '12-26', reason: 'Santo Stefano' },
 ];
 
 function toMonthKey(dateIso: string): MonthKey {
@@ -34,7 +34,7 @@ function toMonthKey(dateIso: string): MonthKey {
 
 function isWeekend(dateIso: string): boolean {
   const [y, m, d] = dateIso.split('-').map(Number);
-  const dt = new Date(y, (m - 1), d);
+  const dt = new Date(y, m - 1, d);
   const day = dt.getDay();
   return day === 0 || day === 6;
 }
@@ -58,23 +58,23 @@ function calculateEaster(year: number): Date {
   const m = Math.floor((a + 11 * h + 22 * l) / 451);
   const month = Math.floor((h + l - 7 * m + 114) / 31);
   const day = ((h + l - 7 * m + 114) % 31) + 1;
-  
+
   return new Date(year, month - 1, day);
 }
 
 function calculateMovableHolidays(year: number): Holiday[] {
   const easter = calculateEaster(year);
   const holidays: Holiday[] = [];
-  
+
   const easterMonday = new Date(easter);
   easterMonday.setDate(easter.getDate() + 1);
-  
+
   holidays.push({
     id: `easter-monday-${year}`,
     date: formatDate(easterMonday),
-    reason: 'Lunedì dell\'Angelo (Pasquetta)'
+    reason: "Lunedì dell'Angelo (Pasquetta)",
   });
-  
+
   return holidays;
 }
 
@@ -90,12 +90,21 @@ export class HolidayService {
   private state$ = new BehaviorSubject<HolidayState>(this.load());
 
   holidays$ = this.state$.asObservable();
+  private movableHolidaysCache: Map<number, Holiday[]> = new Map();
+
+  private getMovableHolidays(year: number): Holiday[] {
+    if (this.movableHolidaysCache.has(year))
+      return this.movableHolidaysCache.get(year)!;
+    const list = calculateMovableHolidays(year);
+    this.movableHolidaysCache.set(year, list);
+    return list;
+  }
 
   private load(): HolidayState {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       const savedState = raw ? (JSON.parse(raw) as HolidayState) : {};
-      
+
       return this.initializeItalianHolidays(savedState);
     } catch {
       return this.initializeItalianHolidays({});
@@ -105,43 +114,43 @@ export class HolidayService {
   private initializeItalianHolidays(savedState: HolidayState): HolidayState {
     const state = { ...savedState };
     const currentYear = new Date().getFullYear();
-    
+
     for (let year = 2020; year <= 2030; year++) {
-      ITALIAN_HOLIDAYS.forEach(fixedHoliday => {
+      ITALIAN_HOLIDAYS.forEach((fixedHoliday) => {
         const dateIso = `${year}-${fixedHoliday.date}`;
         const monthKey = toMonthKey(dateIso);
-        
+
         if (!state[monthKey]) {
           state[monthKey] = [];
         }
-        
-        const exists = state[monthKey].some(h => h.date === dateIso);
-        
+
+        const exists = state[monthKey].some((h) => h.date === dateIso);
+
         if (!exists && !isWeekend(dateIso)) {
           state[monthKey].push({
             id: generateId(dateIso),
             date: dateIso,
-            reason: fixedHoliday.reason
+            reason: fixedHoliday.reason,
           });
         }
       });
-      
+
       const movableHolidays = calculateMovableHolidays(year);
-      movableHolidays.forEach(holiday => {
+      movableHolidays.forEach((holiday) => {
         const monthKey = toMonthKey(holiday.date);
-        
+
         if (!state[monthKey]) {
           state[monthKey] = [];
         }
-        
-        const exists = state[monthKey].some(h => h.date === holiday.date);
-        
+
+        const exists = state[monthKey].some((h) => h.date === holiday.date);
+
         if (!exists && !isWeekend(holiday.date)) {
           state[monthKey].push(holiday);
         }
       });
     }
-    
+
     return state;
   }
 
@@ -150,22 +159,32 @@ export class HolidayService {
   }
 
   getHolidaysForMonth(year: number, month1to12: number): Holiday[] {
-    const monthKey = `${year.toString().padStart(4, '0')}-${month1to12.toString().padStart(2, '0')}`;
+    const monthKey = `${year.toString().padStart(4, '0')}-${month1to12
+      .toString()
+      .padStart(2, '0')}`;
     const state = this.state$.value;
-    return state[monthKey]?.slice().sort((a, b) => a.date.localeCompare(b.date)) ?? [];
+    return (
+      state[monthKey]?.slice().sort((a, b) => a.date.localeCompare(b.date)) ??
+      []
+    );
   }
 
   getCompiledDaysForMonth(year: number, month1to12: number): Set<string> {
-    return new Set(this.getHolidaysForMonth(year, month1to12).map(h => h.date));
+    return new Set(
+      this.getHolidaysForMonth(year, month1to12).map((h) => h.date)
+    );
   }
 
   isHoliday(dateIso: string): boolean {
     const key = toMonthKey(dateIso);
     const list = this.state$.value[key] ?? [];
-    return list.some(h => h.date === dateIso);
+    return list.some((h) => h.date === dateIso);
   }
 
-  addHoliday(dateIso: string, reason?: string):
+  addHoliday(
+    dateIso: string,
+    reason?: string
+  ):
     | { status: 'saved'; holiday: Holiday }
     | { status: 'ignored-weekend' }
     | { status: 'exists' } {
@@ -178,9 +197,9 @@ export class HolidayService {
 
     const key = toMonthKey(dateIso);
     const state = { ...this.state$.value };
-    const list = (state[key]?.slice() ?? []);
+    const list = state[key]?.slice() ?? [];
 
-    if (list.some(h => h.date === dateIso)) {
+    if (list.some((h) => h.date === dateIso)) {
       return { status: 'exists' };
     }
 
@@ -202,7 +221,7 @@ export class HolidayService {
     const key = toMonthKey(dateIso);
     const state = { ...this.state$.value };
     const list = state[key] ?? [];
-    const next = list.filter(h => h.date !== dateIso);
+    const next = list.filter((h) => h.date !== dateIso);
     if (next.length === list.length) return false;
     state[key] = next;
     this.state$.next(state);
@@ -212,25 +231,27 @@ export class HolidayService {
 
   isItalianHoliday(dateIso: string): boolean {
     const [year, month, day] = dateIso.split('-').map(Number);
-    const dateStr = `${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
-    
-    const isFixedHoliday = ITALIAN_HOLIDAYS.some(h => h.date === dateStr);
+    const dateStr = `${month.toString().padStart(2, '0')}-${day
+      .toString()
+      .padStart(2, '0')}`;
+
+    const isFixedHoliday = ITALIAN_HOLIDAYS.some((h) => h.date === dateStr);
     if (isFixedHoliday) return true;
-    
-    const movableHolidays = calculateMovableHolidays(year);
-    return movableHolidays.some(h => h.date === dateIso);
+
+    const movableHolidays = this.getMovableHolidays(year);
+    return movableHolidays.some((h) => h.date === dateIso);
   }
 
-debugHolidayCheck(dateIso: string): void {
-  const key = toMonthKey(dateIso);
-  const state = this.state$.value;
-  const list = state[key] ?? [];
-  const isHoliday = list.some(h => h.date === dateIso);
-  
-  console.log(`🔍 DEBUG HOLIDAY CHECK:
-    - Data: ${dateIso}
-    - Chiave mese: ${key}
-    - Festività nel mese:`, list);
-  console.log(`   Risultato isHoliday(): ${isHoliday}`);
-}
+  debugHolidayCheck(dateIso: string): void {
+    const key = toMonthKey(dateIso);
+    const state = this.state$.value;
+    const list = state[key] ?? [];
+    const isHoliday = list.some((h) => h.date === dateIso);
+
+    // debugHolidayCheck output suppressed in browser
+    void dateIso;
+    void key;
+    void list;
+    void isHoliday;
+  }
 }

@@ -11,7 +11,6 @@ import { Subscription } from 'rxjs';
   templateUrl: './app.html',
   styleUrls: ['./app.css'],
 })
-
 export class AppComponent implements OnInit, OnDestroy {
   readonly currentYear = new Date().getFullYear();
 
@@ -40,7 +39,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   onRouteChange(route: string): void {
-    console.log(`Navigated to: ${route}`);
+    // route changed
   }
 
   private cleanupSubscriptions(): void {
@@ -62,6 +61,6 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   refreshApp(): void {
-    console.log('Refreshing application state...');
+    // refresh application state
   }
 }

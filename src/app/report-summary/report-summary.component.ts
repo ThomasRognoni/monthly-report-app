@@ -1,4 +1,11 @@
-import { Component, Input, ChangeDetectionStrategy, OnInit, OnDestroy, inject } from '@angular/core';
+import {
+  Component,
+  Input,
+  ChangeDetectionStrategy,
+  OnInit,
+  OnDestroy,
+  inject,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HolidayService, Holiday } from '../services/holiday.service';
 
@@ -8,7 +15,7 @@ import { HolidayService, Holiday } from '../services/holiday.service';
   imports: [CommonModule],
   templateUrl: './report-summary.component.html',
   styleUrls: ['./report-summary.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReportSummaryComponent implements OnInit, OnDestroy {
   @Input() employeeName: string = '';
@@ -17,8 +24,8 @@ export class ReportSummaryComponent implements OnInit, OnDestroy {
   @Input() totalDeclaredDays: number = 0;
   @Input() quadrature: number = 0;
   @Input() overtime: number = 0;
-  @Input() activityTotals: {[key: string]: number} = {};
-  @Input() activityDays: {[key: string]: number} = {};
+  @Input() activityTotals: { [key: string]: number } = {};
+  @Input() activityDays: { [key: string]: number } = {};
   @Input() activityCodes: any[] = [];
 
   private readonly holidayService = inject(HolidayService);
@@ -42,12 +49,12 @@ export class ReportSummaryComponent implements OnInit, OnDestroy {
   get formattedMonthYear(): string {
     return this.currentMonth.toLocaleDateString('it-IT', {
       month: 'long',
-      year: 'numeric'
+      year: 'numeric',
     });
   }
 
   getActivityDescription(code: string): string {
-    const activity = this.activityCodes.find(act => act.code === code);
+    const activity = this.activityCodes.find((act) => act.code === code);
     return activity?.description || code;
   }
 
@@ -56,25 +63,25 @@ export class ReportSummaryComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    console.log(`${this.componentName} initialized`);
     this.refresh();
   }
 
-  ngOnDestroy(): void {
-    console.log(`${this.componentName} destroyed`);
-  }
+  ngOnDestroy(): void {}
 
   refresh(): void {
     const year = this.currentMonth.getFullYear();
     const month = this.currentMonth.getMonth() + 1;
 
     this.holidays = this.holidayService.getHolidaysForMonth(year, month);
-    this.compiledDays = this.holidayService.getCompiledDaysForMonth(year, month);
+    this.compiledDays = this.holidayService.getCompiledDaysForMonth(
+      year,
+      month
+    );
   }
 
   addHoliday(dateIso: string, reason?: string): void {
     const result = this.holidayService.addHoliday(dateIso, reason);
-    
+
     switch (result.status) {
       case 'ignored-weekend':
         console.warn('Holiday not added: date falls on weekend');
@@ -83,10 +90,9 @@ export class ReportSummaryComponent implements OnInit, OnDestroy {
         console.warn('Holiday already exists for this date');
         break;
       case 'saved':
-        console.log('Holiday added successfully');
         break;
     }
-    
+
     this.refresh();
   }
 
@@ -100,16 +106,16 @@ export class ReportSummaryComponent implements OnInit, OnDestroy {
   }
 
   getPercentage(value: number, total: number): number {
-  if (total === 0 || !Number.isFinite(value) || !Number.isFinite(total)) {
-    return 0;
+    if (total === 0 || !Number.isFinite(value) || !Number.isFinite(total)) {
+      return 0;
+    }
+    return (value / total) * 100;
   }
-  return (value / total) * 100;
-}
 
   formatNumber(value: number): string {
     return value.toLocaleString('it-IT', {
       minimumFractionDigits: 2,
-      maximumFractionDigits: 2
+      maximumFractionDigits: 2,
     });
   }
 
@@ -119,15 +125,12 @@ export class ReportSummaryComponent implements OnInit, OnDestroy {
   }
 
   debugActivityData(): void {
-  console.log('=== ACTIVITY DATA DEBUG ===');
-  console.log('Activity Totals:', this.activityTotals);
-  console.log('Activity Days:', this.activityDays);
-  console.log('Total Declared Days:', this.totalDeclaredDays);
-  
-  this.sortedActivityCodes.forEach(code => {
-    const days = this.activityDays[code] || 0;
-    const percentage = this.getPercentage(days, this.totalDeclaredDays);
-    console.log(`Code ${code}: ${days} days = ${percentage}%`);
-  });
-}
+    // debug logging removed
+    void this.activityTotals;
+    void this.activityDays;
+    void this.totalDeclaredDays;
+    this.sortedActivityCodes.forEach((code) => {
+      void code;
+    });
+  }
 }

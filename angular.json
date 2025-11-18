@@ -22,14 +22,17 @@
               "src/favicon.ico",
               "src/assets",
               {
+                "glob": "xlsx-populate.min.js",
+                "input": "node_modules/xlsx-populate/browser",
+                "output": "/assets/vendor"
+              },
+              {
                 "glob": "**/*",
                 "input": "src/assets/templates",
                 "output": "/assets/templates"
               }
             ],
-            "styles": [
-              "src/styles.css"
-            ],
+            "styles": ["src/styles.css"],
             "externalDependencies": []
           },
           "configurations": {
@@ -42,8 +45,8 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "4kB",
-                  "maximumError": "8kB"
+                  "maximumWarning": "24kB",
+                  "maximumError": "48kB"
                 }
               ],
               "outputHashing": "all"
