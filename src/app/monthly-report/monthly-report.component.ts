@@ -507,31 +507,38 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
       exportButton.disabled = true;
     }
 
-    this.excelExportService
-      .generateExcel(exportData)
-      .then(() => {
-        alert('File Excel generato con successo!');
-      })
-      .catch((error) => {
-        console.error("Errore nell'esportazione:", error);
+    // defer heavy export work so the click handler can return and the UI can
+    // paint the 'generating' state. Using two RAFs ensures the browser has
+    // a chance to render before starting CPU-heavy processing.
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        this.excelExportService
+          .generateExcel(exportData)
+          .then(() => {
+            alert('File Excel generato con successo!');
+          })
+          .catch((error) => {
+            console.error("Errore nell'esportazione:", error);
 
-        let errorMessage = 'Errore nella generazione del file Excel. ';
+            let errorMessage = 'Errore nella generazione del file Excel. ';
 
-        if (error.message.includes('Template non trovato')) {
-          errorMessage +=
-            '\n\nIl file template non è stato trovato. Assicurati che il file esista nella cartella assets/templates/';
-        } else {
-          errorMessage += `\n\nDettaglio: ${error.message}`;
-        }
+            if (error.message.includes('Template non trovato')) {
+              errorMessage +=
+                '\n\nIl file template non è stato trovato. Assicurati che il file esista nella cartella assets/templates/';
+            } else {
+              errorMessage += `\n\nDettaglio: ${error.message}`;
+            }
 
-        alert(errorMessage);
-      })
-      .finally(() => {
-        if (exportButton) {
-          exportButton.textContent = originalText;
-          exportButton.disabled = false;
-        }
+            alert(errorMessage);
+          })
+          .finally(() => {
+            if (exportButton) {
+              exportButton.textContent = originalText;
+              exportButton.disabled = false;
+            }
+          });
       });
+    });
   }
 
   onEmployeeNameChange(value: string): void {

@@ -29,30 +29,10 @@ interface ExportData {
 export class ExcelExportService {
   private templateUrl =
     'assets/templates/10-ROGNONI-Rilevazione_estratti_template.xlsx';
-  private forceServerExport = true;
 
   async generateExcel(data: ExportData): Promise<void> {
     try {
-      if (this.forceServerExport) {
-        try {
-          const serverUrl = 'http://localhost:3000/export';
-          const resp = await fetch(serverUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data),
-          });
-          if (resp.ok) {
-            const blob = await resp.blob();
-            const arrayBuffer = await blob.arrayBuffer();
-            this.saveAsExcelFile(arrayBuffer, this.generateFileName(data));
-            return;
-          } else {
-            console.warn('Server-side export returned', resp.status);
-          }
-        } catch (srvErr) {
-          console.warn('Forced server-side export failed:', srvErr);
-        }
-      }
+      // Client-side export only: attempt in-browser xlsx-populate then fallback to xlsx
 
       try {
         const importPaths = [
@@ -113,24 +93,7 @@ export class ExcelExportService {
           'xlsx-populate not available or failed, falling back to xlsx:',
           xpErr
         );
-        try {
-          const serverUrl = 'http://localhost:3000/export';
-          const resp = await fetch(serverUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data),
-          });
-          if (resp.ok) {
-            const blob = await resp.blob();
-            const arrayBuffer = await blob.arrayBuffer();
-            this.saveAsExcelFile(arrayBuffer, this.generateFileName(data));
-            return;
-          } else {
-            console.warn('Server-side export returned', resp.status);
-          }
-        } catch (srvErr) {
-          console.warn('Server-side export attempt failed:', srvErr);
-        }
+        // proceed to SheetJS fallback
       }
 
       const template = await this.loadTemplate();
