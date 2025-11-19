@@ -278,12 +278,10 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.days.set([]);
-    // load saved employee name if present
     try {
       const saved = this.persistenceService.getEmployeeName();
       if (saved) this.employeeName.set(saved);
     } catch (e) {
-      // ignore
     }
   }
 
@@ -507,9 +505,6 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
       exportButton.disabled = true;
     }
 
-    // defer heavy export work so the click handler can return and the UI can
-    // paint the 'generating' state. Using two RAFs ensures the browser has
-    // a chance to render before starting CPU-heavy processing.
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         this.excelExportService
@@ -546,7 +541,6 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
     try {
       this.persistenceService.saveEmployeeName(value || '');
     } catch (e) {
-      // ignore storage errors
     }
   }
 

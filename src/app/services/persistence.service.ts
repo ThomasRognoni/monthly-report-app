@@ -49,12 +49,10 @@ export class PersistenceService {
     };
   }
 
-  // Persist a display name for the current user (employee)
   saveEmployeeName(name: string): void {
     try {
       localStorage.setItem(this.NAME_KEY, name || '');
     } catch (e) {
-      // ignore storage errors
     }
   }
 

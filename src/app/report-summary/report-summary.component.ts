@@ -125,7 +125,6 @@ export class ReportSummaryComponent implements OnInit, OnDestroy {
   }
 
   debugActivityData(): void {
-    // debug logging removed
     void this.activityTotals;
     void this.activityDays;
     void this.totalDeclaredDays;
