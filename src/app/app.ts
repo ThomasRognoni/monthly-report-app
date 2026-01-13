@@ -38,8 +38,7 @@ export class AppComponent implements OnInit, OnDestroy {
       });
   }
 
-  onRouteChange(route: string): void {
-  }
+  onRouteChange(route: string): void {}
 
   private cleanupSubscriptions(): void {
     if (this.routerSubscription) {
@@ -59,6 +58,5 @@ export class AppComponent implements OnInit, OnDestroy {
     console.error('Global error caught:', error);
   }
 
-  refreshApp(): void {
-  }
+  refreshApp(): void {}
 }

@@ -26,10 +26,8 @@
   </div>
 
   <div class="quadrature-section">
-    <h3 class="section-title">
-      QUADRATURA DEL MESE
-    </h3>
-    
+    <h3 class="section-title">QUADRATURA DEL MESE</h3>
+
     <div class="quadrature-grid">
       <div class="metric-card feature-card">
         <div class="card-content">
@@ -49,7 +47,10 @@
         </div>
       </div>
 
-      <div class="metric-card feature-card quadrature-status" [class]="quadratureStatus">
+      <div
+        class="metric-card feature-card quadrature-status"
+        [class]="quadratureStatus"
+      >
         <div class="card-content">
           <div class="metric-header">
             <span class="metric-label">Quadratura</span>
@@ -70,59 +71,70 @@
   </div>
 
   <div class="activity-section">
-    <h3 class="section-title">
-      RIEPILOGO ATTIVITÀ
-    </h3>
-    
+    <h3 class="section-title">RIEPILOGO ATTIVITÀ</h3>
+
     <div class="activity-grid">
       @for (activityCode of sortedActivityCodes; track activityCode) {
-        <div class="activity-card feature-card">
-          <div class="activity-content">
-            <div class="activity-info">
-              <span class="activity-code">{{ activityCode }}</span>
-              <span class="activity-description">{{ getActivityDescription(activityCode) }}</span>
-            </div>
-            <div class="activity-total">
-              {{ formatNumber(activityDays[activityCode] || 0) }} giorni
-            </div>
+      <div class="activity-card feature-card">
+        <div class="activity-content">
+          <div class="activity-info">
+            <span class="activity-code">{{ activityCode }}</span>
+            <span class="activity-description">{{
+              getActivityDescription(activityCode)
+            }}</span>
           </div>
-          @if ((activityDays[activityCode] || 0) > 0) {
-  <div class="activity-progress">
-    <div class="progress-bar">
-      <div 
-        class="progress-fill"
-        [style.width.%]="getPercentage(activityDays[activityCode] || 0, totalDeclaredDays)">
-      </div>
-    </div>
-    <span class="progress-text">
-      {{ getPercentage(activityDays[activityCode] || 0, totalDeclaredDays) | number:'1.0-0' }}%
-    </span>
-  </div>
-}
+          <div class="activity-total">
+            {{ formatNumber(activityDays[activityCode] || 0) }} giorni
+          </div>
         </div>
+        @if ((activityDays[activityCode] || 0) > 0) {
+        <div class="activity-progress">
+          <div class="progress-bar">
+            <div
+              class="progress-fill"
+              [style.width.%]="
+                getPercentage(
+                  activityDays[activityCode] || 0,
+                  totalDeclaredDays
+                )
+              "
+            ></div>
+          </div>
+          <span class="progress-text">
+            {{
+              getPercentage(activityDays[activityCode] || 0, totalDeclaredDays)
+                | number : "1.0-0"
+            }}%
+          </span>
+        </div>
+        }
+      </div>
       }
-      
+
       <div class="activity-card feature-card total-card">
         <div class="activity-content">
           <div class="activity-info">
             <span class="activity-code total-code">TT</span>
-            <span class="activity-description total-description">TOTALE GIORNI DICHIARATI</span>
+            <span class="activity-description total-description"
+              >TOTALE GIORNI DICHIARATI</span
+            >
           </div>
           <div class="activity-total total-value">
             {{ formatNumber(totalDeclaredDays) }}
           </div>
         </div>
         @if (totalDeclaredDays > 0) {
-          <div class="activity-progress">
-            <div class="progress-bar">
-              <div 
-                class="progress-fill total-progress"
-                [style.width.%]="100">
-              </div>
-            </div>
-            <span class="progress-text">100%</span>
+        <div class="activity-progress">
+          <div class="progress-bar">
+            <div
+              class="progress-fill total-progress"
+              [style.width.%]="100"
+            ></div>
           </div>
+          <span class="progress-text">100%</span>
+        </div>
         }
       </div>
     </div>
   </div>
+</div>

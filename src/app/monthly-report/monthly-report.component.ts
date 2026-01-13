@@ -172,18 +172,22 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
     }
 
     return count;
-});
+  });
 
   readonly totalDeclaredHours = computed(() =>
     this.days().reduce((sum, day) => sum + (day.hours || 0), 0)
   );
 
   readonly totalDeclaredDays = computed(() => {
-    const uniqueDates = new Set(this.days().map((day) => day.date.toDateString()));
+    const uniqueDates = new Set(
+      this.days().map((day) => day.date.toDateString())
+    );
     return uniqueDates.size;
   });
 
-  readonly quadrature = computed(() => this.totalWorkDays() - this.totalDeclaredDays());
+  readonly quadrature = computed(
+    () => this.totalWorkDays() - this.totalDeclaredDays()
+  );
 
   readonly overtime = computed(() => {
     return this.days()
@@ -372,7 +376,9 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
         const firstOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
         this.currentMonth.set(firstOfMonth);
         try {
-          this.persistenceService.saveCurrentMonthKey(this.getCurrentMonthKey());
+          this.persistenceService.saveCurrentMonthKey(
+            this.getCurrentMonthKey()
+          );
         } catch (e) {}
       }
 
@@ -390,13 +396,15 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
             JSON.stringify(saved[0]).slice(0, 1000)
           );
       } catch (e) {}
-      
+
       const firstLoadFlag = sessionStorage.getItem('monthlyReportFirstLoad');
       if (!firstLoadFlag) {
         sessionStorage.setItem('monthlyReportFirstLoad', '1');
         this.days.set([]);
       } else {
-        const saved = this.persistenceService.getMonthlyData(this.getCurrentMonthKey());
+        const saved = this.persistenceService.getMonthlyData(
+          this.getCurrentMonthKey()
+        );
         if (saved && Array.isArray(saved) && saved.length > 0) {
           this.days.set(saved as DayEntry[]);
         } else {
@@ -407,7 +415,7 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
       console.debug('MonthlyReport.ngOnInit: error reading saved days', e);
       this.days.set([]);
     }
-    
+
     try {
       const saved = this.persistenceService.getEmployeeName();
       if (saved) this.employeeName.set(saved);
@@ -422,7 +430,7 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
       const savedEmail = this.persistenceService.getAdminEmail();
       if (savedEmail) this.adminEmail.set(savedEmail);
     } catch (e) {}
-    
+
     try {
       this.persistenceService.saveCurrentMonthKey(this.getCurrentMonthKey());
     } catch (e) {}
@@ -460,7 +468,6 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
         } catch (err) {}
       });
     } catch (e) {}
-
   }
 
   ngOnDestroy(): void {

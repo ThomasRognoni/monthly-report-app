@@ -56,7 +56,6 @@ export class ExcelExportService {
 
   async generateExcel(data: ExportData): Promise<void> {
     try {
-
       try {
         const importPaths = [
           'xlsx-populate/browser/xlsx-populate',

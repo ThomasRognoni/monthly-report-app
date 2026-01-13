@@ -40,8 +40,7 @@ export class PersistenceService {
                 break;
               }
             }
-          } catch (e) {
-          }
+          } catch (e) {}
         }
       }
     } catch (e) {}

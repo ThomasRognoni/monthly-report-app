@@ -14,110 +14,144 @@
     </div>
 
     <div class="entry-field actions">
-      <button (click)="onRemove()" class="btn btn-danger btn-sm btn-day-delete" aria-label="Elimina giorno">
+      <button
+        (click)="onRemove()"
+        class="btn btn-danger btn-sm btn-day-delete"
+        aria-label="Elimina giorno"
+      >
         ×
       </button>
-      <button (click)="expanded = !expanded" class="btn btn-secondary btn-sm btn-toggle" [class.open]="expanded" [attr.aria-expanded]="expanded">
-        {{ expanded ? 'Chiudi' : 'Dettagli' }}
+      <button
+        (click)="expanded = !expanded"
+        class="btn btn-secondary btn-sm btn-toggle"
+        [class.open]="expanded"
+        [attr.aria-expanded]="expanded"
+      >
+        {{ expanded ? "Chiudi" : "Dettagli" }}
       </button>
     </div>
   </div>
 
-  <div class="day-tasks" [class.expanded]="expanded" [attr.aria-hidden]="!expanded">
-      <div class="tasks-header" *ngIf="expanded">
-        <div class="task-col">Codice</div>
-        <div class="task-col">Attività</div>
-        <div class="task-col">Estratto</div>
-        <div class="task-col">Cliente</div>
-        <div class="task-col">Ore</div>
-        <div class="task-col">Note</div>
-         <div class="task-col"></div>
-      </div>
-      @for (task of localTasks; track i; let i = $index) {
-        <div class="task-row" [class.invalid]="false" [style.animationDelay]="(i * 60) + 'ms'">
-          <div class="entry-field">
-            <select
-              [value]="task.code"
-              (change)="updateTask(i, 'code', $event)"
-              class="form-control"
-            >
-              <option value="" disabled selected>Seleziona codice *</option>
-              @for (activity of activityCodes; track activity.code) {
-                <option [value]="activity.code">{{ activity.code }} - {{ activity.description }}</option>
-              }
-            </select>
-          </div>
-
-          <div class="entry-field">
-            <input
-              type="text"
-              [value]="task.activity"
-              (change)="updateTask(i, 'activity', $event)"
-              placeholder="Descrizione attività"
-              class="form-control"
-            />
-          </div>
-
-          @if (shouldShowExtract()) {
-            <div class="entry-field">
-              <select
-                [value]="task.extract || ''"
-                (change)="updateTask(i, 'extract', $event)"
-                class="form-control"
-              >
-                <option value="">-- Seleziona Estratto --</option>
-                @for (extract of extracts; track extract.id) {
-                  <option [value]="extract.id">{{ extract.id }} - {{ extract.client }}</option>
-                }
-              </select>
-            </div>
+  <div
+    class="day-tasks"
+    [class.expanded]="expanded"
+    [attr.aria-hidden]="!expanded"
+  >
+    <div class="tasks-header" *ngIf="expanded">
+      <div class="task-col">Codice</div>
+      <div class="task-col">Attività</div>
+      <div class="task-col">Estratto</div>
+      <div class="task-col">Cliente</div>
+      <div class="task-col">Ore</div>
+      <div class="task-col">Note</div>
+      <div class="task-col"></div>
+    </div>
+    @for (task of localTasks; track i; let i = $index) {
+    <div
+      class="task-row"
+      [class.invalid]="false"
+      [style.animationDelay]="i * 60 + 'ms'"
+    >
+      <div class="entry-field">
+        <select
+          [value]="task.code"
+          (change)="updateTask(i, 'code', $event)"
+          class="form-control"
+        >
+          <option value="" disabled selected>Seleziona codice *</option>
+          @for (activity of activityCodes; track activity.code) {
+          <option [value]="activity.code">
+            {{ activity.code }} - {{ activity.description }}
+          </option>
           }
+        </select>
+      </div>
 
-          <div class="entry-field">
-            <input
-              type="text"
-              [value]="task.client || ''"
-              (change)="updateTask(i, 'client', $event)"
-              placeholder="Cliente"
-              class="form-control"
-            />
-          </div>
+      <div class="entry-field">
+        <input
+          type="text"
+          [value]="task.activity"
+          (change)="updateTask(i, 'activity', $event)"
+          placeholder="Descrizione attività"
+          class="form-control"
+        />
+      </div>
 
-          <div class="entry-field">
-            <input
-              type="number"
-              [value]="task.hours"
-              (change)="updateTask(i, 'hours', $event)"
-              min="0.125"
-              max="8"
-              step="0.125"
-              placeholder="0.00"
-              class="form-control hours-input"
-            />
-          </div>
-
-          <div class="entry-field">
-            <input
-              type="text"
-              [value]="task.notes || ''"
-              (change)="updateTask(i, 'notes', $event)"
-              placeholder="Note"
-              class="form-control"
-            />
-          </div>
-
-          <div class="entry-field actions">
-            <button (click)="removeTask(i)" class="btn btn-danger btn-sm btn-trash" aria-label="Rimuovi attività">
-              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false">
-                <path d="M3 6h18v2H3V6zm2 3h14l-1.2 11.2A2 2 0 0 1 15.8 22H8.2a2 2 0 0 1-1.99-1.8L5 9zm5 3v6h2v-6H10zm4 0v6h2v-6h-2zM9 4h6l1 2H8l1-2z" />
-              </svg>
-            </button>
-          </div>
-        </div>
+      @if (shouldShowExtract()) {
+      <div class="entry-field">
+        <select
+          [value]="task.extract || ''"
+          (change)="updateTask(i, 'extract', $event)"
+          class="form-control"
+        >
+          <option value="">-- Seleziona Estratto --</option>
+          @for (extract of extracts; track extract.id) {
+          <option [value]="extract.id">
+            {{ extract.id }} - {{ extract.client }}
+          </option>
+          }
+        </select>
+      </div>
       }
 
-      <div class="task-controls">
-        <button (click)="addTask()" class="btn btn-primary btn-sm">Aggiungi attività</button>
+      <div class="entry-field">
+        <input
+          type="text"
+          [value]="task.client || ''"
+          (change)="updateTask(i, 'client', $event)"
+          placeholder="Cliente"
+          class="form-control"
+        />
+      </div>
+
+      <div class="entry-field">
+        <input
+          type="number"
+          [value]="task.hours"
+          (change)="updateTask(i, 'hours', $event)"
+          min="0.125"
+          max="8"
+          step="0.125"
+          placeholder="0.00"
+          class="form-control hours-input"
+        />
+      </div>
+
+      <div class="entry-field">
+        <input
+          type="text"
+          [value]="task.notes || ''"
+          (change)="updateTask(i, 'notes', $event)"
+          placeholder="Note"
+          class="form-control"
+        />
+      </div>
+
+      <div class="entry-field actions">
+        <button
+          (click)="removeTask(i)"
+          class="btn btn-danger btn-sm btn-trash"
+          aria-label="Rimuovi attività"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <path
+              d="M3 6h18v2H3V6zm2 3h14l-1.2 11.2A2 2 0 0 1 15.8 22H8.2a2 2 0 0 1-1.99-1.8L5 9zm5 3v6h2v-6H10zm4 0v6h2v-6h-2zM9 4h6l1 2H8l1-2z"
+            />
+          </svg>
+        </button>
       </div>
     </div>
+    }
+
+    <div class="task-controls">
+      <button (click)="addTask()" class="btn btn-primary btn-sm">
+        Aggiungi attività
+      </button>
+    </div>
+  </div>
 </div>

@@ -49,15 +49,18 @@ export class DayEntryComponent implements OnChanges {
         this.localTasks = this.day.tasks.map((t) => ({ ...t }));
       } else {
         this.localTasks = [
-            {
-              code: this.day.code || '',
-              activity: this.day.activity || '',
-              extract: this.day.extract || '',
-              client: this.day.client || '',
-              hours: typeof this.day.hours === 'number' && this.day.hours > 0 ? this.day.hours : 8,
-              notes: this.day.notes || '',
-            },
-          ];
+          {
+            code: this.day.code || '',
+            activity: this.day.activity || '',
+            extract: this.day.extract || '',
+            client: this.day.client || '',
+            hours:
+              typeof this.day.hours === 'number' && this.day.hours > 0
+                ? this.day.hours
+                : 8,
+            notes: this.day.notes || '',
+          },
+        ];
       }
     }
   }
@@ -118,30 +121,36 @@ export class DayEntryComponent implements OnChanges {
   }
 
   private emitTasksUpdate(): void {
-    this.update.emit({ index: this.index, field: 'tasks' as any, value: this.localTasks });
+    this.update.emit({
+      index: this.index,
+      field: 'tasks' as any,
+      value: this.localTasks,
+    });
   }
 
   private validateField(field: keyof DayEntry, value: any): void {
-  switch (field) {
-    case 'code':
-      this.isCodeValid = value !== '' && value?.trim().length > 0;
-      break;
-    case 'hours':
-      this.isHoursValid = !isNaN(value) && value >= 0 && value <= 8;
-      break;
+    switch (field) {
+      case 'code':
+        this.isCodeValid = value !== '' && value?.trim().length > 0;
+        break;
+      case 'hours':
+        this.isHoursValid = !isNaN(value) && value >= 0 && value <= 8;
+        break;
+    }
   }
-}
 
-isValid(): boolean {
-  const dayToCheck = this.localDay || this.day;
-  
-  return this.isCodeValid &&
-         this.isHoursValid &&
-         dayToCheck.code !== '' &&
-         dayToCheck.code?.trim().length > 0 &&
-         dayToCheck.hours >= 0 &&
-         dayToCheck.hours <= 8;
-}
+  isValid(): boolean {
+    const dayToCheck = this.localDay || this.day;
+
+    return (
+      this.isCodeValid &&
+      this.isHoursValid &&
+      dayToCheck.code !== '' &&
+      dayToCheck.code?.trim().length > 0 &&
+      dayToCheck.hours >= 0 &&
+      dayToCheck.hours <= 8
+    );
+  }
 
   private isFieldValid(field: keyof DayEntry): boolean {
     switch (field) {
@@ -155,7 +164,10 @@ isValid(): boolean {
   }
 
   getLocalTotalHours(): number {
-    return this.localTasks.reduce((s, t) => s + (typeof t.hours === 'number' ? t.hours : 0), 0);
+    return this.localTasks.reduce(
+      (s, t) => s + (typeof t.hours === 'number' ? t.hours : 0),
+      0
+    );
   }
 
   onRemove(): void {

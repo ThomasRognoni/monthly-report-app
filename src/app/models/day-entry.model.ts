@@ -34,4 +34,3 @@ export interface MonthlyReport {
   days: DayEntry[];
   totalWorkDays: number;
 }
-
