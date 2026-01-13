@@ -8,7 +8,7 @@ import { DayEntry } from '../../models/day-entry.model';
 @Component({
   selector: 'app-daily-detail',
   standalone: true,
-  imports: [CommonModule, DayEntryComponent],
+  imports: [CommonModule],
   templateUrl: './daily-detail.component.html',
   styleUrls: ['./daily-detail.component.css'],
 })
