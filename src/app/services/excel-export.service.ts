@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
-import * as XLSX from 'xlsx';
-import { saveAs } from 'file-saver';
+import { Injectable, inject } from '@angular/core';
+import { PersistenceService } from './persistence.service';
+// Delay loading heavy SheetJS library until export time to reduce initial bundle size
 import {
   formatExcelDate,
   getMonthYearItalian,
@@ -23,12 +23,37 @@ interface ExportData {
   overtime: number;
   activityCodes: any[];
   holidays: any[];
+  adminEmail?: string;
 }
 
 @Injectable({ providedIn: 'root' })
 export class ExcelExportService {
   private templateUrl =
     'assets/templates/10-ROGNONI-Rilevazione_estratti_template.xlsx';
+  private persistence = inject(PersistenceService);
+
+  private async fetchWithTimeout(
+    url: string,
+    timeout = 8000,
+    retries = 1
+  ): Promise<Response> {
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      const controller = new AbortController();
+      const id = setTimeout(() => controller.abort(), timeout);
+      try {
+        const resp = await fetch(url, { signal: controller.signal });
+        clearTimeout(id);
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        return resp;
+      } catch (err) {
+        clearTimeout(id);
+        if (attempt === retries) throw err;
+        // small backoff
+        await new Promise((r) => setTimeout(r, 300 * (attempt + 1)));
+      }
+    }
+    throw new Error('Failed to fetch');
+  }
 
   async generateExcel(data: ExportData): Promise<void> {
     try {
@@ -59,8 +84,8 @@ export class ExcelExportService {
         if (!XlsxPopulate)
           throw lastErr || new Error('xlsx-populate import_failed');
 
-        const response = await fetch(this.templateUrl);
-        if (!response.ok) throw new Error(`HTTP error ${response.status}`);
+        // fetch template with timeout/retries to avoid hanging the UI
+        const response = await this.fetchWithTimeout(this.templateUrl, 8000, 2);
         const arrayBuffer = await response.arrayBuffer();
 
         const workbookXp: any = await XlsxPopulate.fromDataAsync(arrayBuffer);
@@ -68,6 +93,7 @@ export class ExcelExportService {
 
         sheet.cell('B7').value(`MESE DI ${getMonthYearItalian(data.month)}`);
         sheet.cell('B8').value(data.employeeName || '');
+        sheet.cell('B9').value(data.adminEmail || '');
 
         sheet.cell('E21').value(data.totalWorkDays || 0);
         const declaredDays =
@@ -99,6 +125,8 @@ export class ExcelExportService {
       const template = await this.loadTemplate();
       const workbook = this.populateTemplateWithData(template, data);
 
+      const XLSXmod: any = await import('xlsx');
+      const XLSX = XLSXmod.default || XLSXmod;
       const excelBuffer = XLSX.write(workbook, {
         bookType: 'xlsx',
         type: 'binary',
@@ -124,13 +152,13 @@ export class ExcelExportService {
     return buf;
   }
 
-  private async loadTemplate(): Promise<XLSX.WorkBook> {
+  private async loadTemplate(): Promise<any> {
     try {
-      const response = await fetch(this.templateUrl);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+      // use the resilient fetch helper with a slightly longer timeout
+      const response = await this.fetchWithTimeout(this.templateUrl, 10000, 2);
       const arrayBuffer = await response.arrayBuffer();
+      const XLSXmod: any = await import('xlsx');
+      const XLSX = XLSXmod.default || XLSXmod;
       return XLSX.read(arrayBuffer, {
         type: 'array',
         cellDates: true,
@@ -139,17 +167,27 @@ export class ExcelExportService {
         sheetStubs: true,
       });
     } catch (error) {
-      console.error('Errore nel caricamento del template:', error);
-      throw new Error(
-        `Template non trovato o non accessibile: ${this.templateUrl}`
+      console.error(
+        'Errore nel caricamento del template (timeout/retry):',
+        error
       );
+      // As a graceful fallback, return a minimal empty workbook structure
+      try {
+        const XLSXmod: any = await import('xlsx');
+        const XLSX = XLSXmod.default || XLSXmod;
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.aoa_to_sheet([['']]);
+        XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+        return wb;
+      } catch (innerErr) {
+        throw new Error(
+          `Template non accessibile e fallback non riuscito: ${innerErr}`
+        );
+      }
     }
   }
 
-  private populateTemplateWithData(
-    template: XLSX.WorkBook,
-    data: ExportData
-  ): XLSX.WorkBook {
+  private populateTemplateWithData(template: any, data: ExportData): any {
     const firstSheetName = template.SheetNames[0];
     const worksheet = template.Sheets[firstSheetName];
 
@@ -159,6 +197,7 @@ export class ExcelExportService {
       `MESE DI ${getMonthYearItalian(data.month)}`
     );
     this.updateCellSafely(worksheet, 'B8', data.employeeName);
+    this.updateCellSafely(worksheet, 'B9', data.adminEmail || '');
 
     this.updateCellSafely(worksheet, 'E21', data.totalWorkDays);
     const fallbackDeclaredDays =
@@ -253,10 +292,7 @@ export class ExcelExportService {
     });
   }
 
-  private updateActivityTotals(
-    worksheet: XLSX.WorkSheet,
-    data: ExportData
-  ): void {
+  private updateActivityTotals(worksheet: any, data: ExportData): void {
     const activityRows: { [key: string]: number } = {
       D: 28,
       AA: 29,
@@ -279,10 +315,7 @@ export class ExcelExportService {
     );
   }
 
-  private updateExtractTotals(
-    worksheet: XLSX.WorkSheet,
-    data: ExportData
-  ): void {
+  private updateExtractTotals(worksheet: any, data: ExportData): void {
     const extractRows: { [key: string]: number } = {
       ESA3582021: 39,
       BD0002022S: 40,
@@ -300,11 +333,7 @@ export class ExcelExportService {
     });
   }
 
-  private updateCellWithValue(
-    worksheet: XLSX.WorkSheet,
-    cell: string,
-    value: any
-  ): void {
+  private updateCellWithValue(worksheet: any, cell: string, value: any): void {
     if (!worksheet[cell]) worksheet[cell] = {};
     delete worksheet[cell].f;
     worksheet[cell].v = value;
@@ -314,7 +343,7 @@ export class ExcelExportService {
     else worksheet[cell].t = 's';
   }
 
-  private insertDailyData(worksheet: XLSX.WorkSheet, data: ExportData): void {
+  private insertDailyData(worksheet: any, data: ExportData): void {
     this.clearExistingData(worksheet, 47);
 
     data.days.forEach((day, index) => {
@@ -341,7 +370,7 @@ export class ExcelExportService {
     });
   }
 
-  private clearExistingData(worksheet: XLSX.WorkSheet, startRow: number): void {
+  private clearExistingData(worksheet: any, startRow: number): void {
     let row = startRow;
     const columns = ['B', 'C', 'D', 'E', 'F', 'G', 'H'];
     while (worksheet[`B${row}`] && row < 200) {
@@ -356,11 +385,7 @@ export class ExcelExportService {
     }
   }
 
-  private updateCellSafely(
-    worksheet: XLSX.WorkSheet,
-    cell: string,
-    value: any
-  ): void {
+  private updateCellSafely(worksheet: any, cell: string, value: any): void {
     if (!worksheet[cell]) {
       worksheet[cell] = { t: 's', v: value, w: value?.toString() || '' };
     } else {
@@ -389,7 +414,45 @@ export class ExcelExportService {
       const data: Blob = new Blob([buffer], {
         type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       });
-      saveAs(data, fileName);
+      // persist export history as a data URL so it can be downloaded later from the history page
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const result = reader.result;
+          if (result && typeof result === 'string') {
+            const dataUrl = result;
+            try {
+              this.persistence.saveExportHistory({
+                filename: fileName,
+                date: new Date().toLocaleString(),
+                dataUrl,
+              });
+            } catch (err) {}
+          }
+        } catch (err) {}
+      };
+      reader.readAsDataURL(data);
+      // Dynamically import file-saver to avoid bundling CommonJS at startup
+      // This reduces initial bundle size and defers loading until export
+      (async () => {
+        try {
+          const mod: any = await import('file-saver');
+          const saveAsFn = mod.saveAs || mod.default || mod;
+          saveAsFn(data, fileName);
+        } catch (err) {
+          console.error(
+            'file-saver dynamic import failed, attempting global save:',
+            err
+          );
+          // Fallback: attempt to use global saveAs if present
+          const globalSave: any = (window as any).saveAs;
+          if (typeof globalSave === 'function') {
+            globalSave(data, fileName);
+          } else {
+            throw new Error('saveAs unavailable');
+          }
+        }
+      })();
     } catch (error) {
       console.error('Errore nel salvataggio del file:', error);
       throw new Error('Impossibile salvare il file Excel');

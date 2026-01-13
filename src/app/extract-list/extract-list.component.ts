@@ -1,15 +1,36 @@
-import { Component, Input, computed } from '@angular/core';
+import { Component, Input, computed, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Extract } from '../models/day-entry.model';
 
 @Component({
   selector: 'app-extract-list',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './extract-list.component.html',
   styleUrls: ['./extract-list.component.css']
 })
 export class ExtractListComponent {
+  @Output() manage = new EventEmitter<void>();
+  @Input() showManager = false;
+
+  // form bindings passed from parent
+  @Input() newExtractId: string = '';
+  @Input() newExtractCode: string = '';
+  @Input() newExtractDesc: string = '';
+  @Input() newExtractClient: string = '';
+  @Input() editingExtractId: string | null = null;
+  @Input() lastActionMessage: string = '';
+
+  @Output() newExtractIdChange = new EventEmitter<string>();
+  @Output() newExtractCodeChange = new EventEmitter<string>();
+  @Output() newExtractDescChange = new EventEmitter<string>();
+  @Output() newExtractClientChange = new EventEmitter<string>();
+
+  @Output() addExtract = new EventEmitter<Partial<Extract>>();
+  @Output() cancelEdit = new EventEmitter<void>();
+  @Output() startEdit = new EventEmitter<Extract>();
+  @Output() remove = new EventEmitter<string>();
   @Input() extracts: Extract[] = [];
   @Input() extractTotals: { [key: string]: number } = {};
   
@@ -71,5 +92,26 @@ export class ExtractListComponent {
       const daysB = this.hoursToDays(totalB);
       return daysB - daysA;
     });
+  }
+
+  onManage(): void {
+    this.manage.emit();
+  }
+
+  onAddExtract(): void {
+    if (!this.newExtractId || !this.newExtractCode) return;
+    this.addExtract.emit({ id: this.newExtractId || '', code: this.newExtractCode || '', description: this.newExtractDesc || '', client: this.newExtractClient || '' });
+  }
+
+  onCancelEdit(): void {
+    this.cancelEdit.emit();
+  }
+
+  onStartEdit(ex: Extract): void {
+    this.startEdit.emit(ex);
+  }
+
+  onRemove(id: string): void {
+    this.remove.emit(id);
   }
 }

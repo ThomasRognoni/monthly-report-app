@@ -1,0 +1,28 @@
+<div class="page-container">
+  <h2>Elenco Estratti</h2>
+  <div class="content-card">
+    <div class="debug-badge">
+      Mese corrente: {{ currentMonthKey || "(nessuno)" }}
+    </div>
+    <app-extract-list
+      [extracts]="extracts"
+      [extractTotals]="extractTotals"
+      [totalDeclaredDays]="totalDeclaredDays"
+      [showManager]="showManager"
+      [newExtractId]="newExtractId"
+      [newExtractCode]="newExtractCode"
+      [newExtractDesc]="newExtractDesc"
+      [newExtractClient]="newExtractClient"
+      [editingExtractId]="editingExtractId"
+      (newExtractIdChange)="newExtractId = $event"
+      (newExtractCodeChange)="newExtractCode = $event"
+      (newExtractDescChange)="newExtractDesc = $event"
+      (newExtractClientChange)="newExtractClient = $event"
+      (manage)="showManager = !showManager"
+      (addExtract)="onAddExtract($event)"
+      (remove)="onRemove($event)"
+      (startEdit)="onStartEdit($event)"
+      (cancelEdit)="onCancelEdit()"
+    ></app-extract-list>
+  </div>
+</div>

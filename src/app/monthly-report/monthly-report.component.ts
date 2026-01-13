@@ -6,12 +6,13 @@ import {
   inject,
   OnInit,
   OnDestroy,
+  effect,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 
-import { DayEntry, Extract } from '../models/day-entry.model';
+import { DayEntry, Extract, Task } from '../models/day-entry.model';
 import { ReportSummaryComponent } from '../report-summary/report-summary.component';
 import { ExtractListComponent } from '../extract-list/extract-list.component';
 import { DayEntryComponent } from '../day-entry/day-entry.component';
@@ -41,12 +42,11 @@ interface ActivityTotals {
     FormsModule,
     RouterModule,
     ReportSummaryComponent,
-    ExtractListComponent,
     DayEntryComponent,
   ],
   templateUrl: './monthly-report.component.html',
   styleUrls: ['./monthly-report.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush as const,
 })
 export class MonthlyReportComponent implements OnInit, OnDestroy {
   private readonly excelExportService = inject(ExcelExportService);
@@ -55,6 +55,23 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
 
   readonly employeeName = signal('Thomas Rognoni');
   readonly currentMonth = signal(new Date());
+  readonly adminEmail = signal('amministrazione@beyondoc.net');
+  readonly showExtractManager = signal(false);
+  // form fields for extract management (bind with ngModel)
+  newExtractId = signal('');
+  newExtractCode = signal('');
+  newExtractDesc = signal('');
+  newExtractClient = signal('');
+  editingExtractId = signal<string | null>(null);
+
+  // holiday manager toggle
+  readonly showHolidayManager = signal(false);
+
+  // aria-live message
+  lastActionMessage = signal('');
+  // holiday form models
+  holidayDateModel = signal('');
+  holidayReasonModel = signal('');
 
   readonly activityCodes = signal<ActivityCode[]>([
     { code: 'D', description: 'Giorni Lavorativi Designer' },
@@ -104,6 +121,14 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
     },
   ]);
 
+  readonly sortedExtracts = computed(() => {
+    return [...this.extracts()].sort((a, b) => {
+      const ca = (a.client || '').toString();
+      const cb = (b.client || '').toString();
+      return ca.localeCompare(cb);
+    });
+  });
+
   readonly days = signal<DayEntry[]>([]);
 
   readonly totalHours = computed(() =>
@@ -151,36 +176,34 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
     }
 
     return count;
-  });
+});
 
   readonly totalDeclaredHours = computed(() =>
-    this.days().reduce((sum, day) => {
-      return sum + day.hours;
-    }, 0)
+    this.days().reduce((sum, day) => sum + (day.hours || 0), 0)
   );
 
   readonly totalDeclaredDays = computed(() => {
-    const uniqueDates = new Set(
-      this.days().map((day) => day.date.toDateString())
-    );
+    const uniqueDates = new Set(this.days().map((day) => day.date.toDateString()));
     return uniqueDates.size;
   });
 
-  readonly quadrature = computed(
-    () => this.totalWorkDays() - this.totalDeclaredDays()
-  );
+  readonly quadrature = computed(() => this.totalWorkDays() - this.totalDeclaredDays());
 
   readonly overtime = computed(() => {
-    const overtimeDays = this.days().filter((day) => day.code === 'ST');
-    return overtimeDays.reduce((sum, day) => sum + day.hours, 0);
+    // Sum hours of tasks with code 'ST'
+    return this.days()
+      .flatMap((d) => d.tasks || [])
+      .filter((t) => t.code === 'ST')
+      .reduce((s, t) => s + (t.hours || 0), 0);
   });
 
   readonly activityTotals = computed((): ActivityTotals => {
     const totals: ActivityTotals = {};
     this.activityCodes().forEach((activity) => {
       const totalHours = this.days()
-        .filter((day) => day.code === activity.code)
-        .reduce((sum, day) => sum + day.hours, 0);
+        .flatMap((d) => d.tasks || [])
+        .filter((t) => t.code === activity.code)
+        .reduce((sum, t) => sum + (t.hours || 0), 0);
       totals[activity.code] = totalHours / 8;
     });
     return totals;
@@ -195,12 +218,66 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
     return daysMap;
   });
 
+  // Persist the selected month whenever it changes so other pages always
+  // see the current selection even if days are temporarily empty.
+  readonly persistCurrentMonthEffect = effect(() => {
+    const key = this.getCurrentMonthKey();
+    try {
+      this.persistenceService.saveCurrentMonthKey(key);
+    } catch (e) {}
+  });
+
+  // Reactively persist days when they change. Moved out of ngOnInit to run
+  // in the injection context and avoid runtime NG0203 errors.
+  readonly persistDaysEffect = effect(() => {
+    const d = this.days();
+    const key = this.getCurrentMonthKey();
+    if (d && key) {
+      if (d.length > 0) {
+        try {
+          const existing = this.persistenceService.getMonthlyData(key) || [];
+          if (!this.areDaysEqual(existing, d)) {
+            this.persistenceService.saveMonthlyData(key, d);
+          }
+        } catch (e) {
+          this.persistenceService.saveMonthlyData(key, d);
+        }
+      }
+    }
+  });
+
+  private areDaysEqual(
+    a: DayEntry[] | null | undefined,
+    b: DayEntry[] | null | undefined
+  ): boolean {
+    if (!a && !b) return true;
+    if (!a || !b) return false;
+    if (a.length !== b.length) return false;
+    for (let i = 0; i < a.length; i++) {
+      const da = a[i];
+      const db = b[i];
+      if (!da || !db) return false;
+      if (
+        (da.date?.getTime?.() || new Date(da.date).getTime()) !==
+        (db.date?.getTime?.() || new Date(db.date).getTime())
+      )
+        return false;
+      if ((da.hours || 0) !== (db.hours || 0)) return false;
+      if ((da.code || '') !== (db.code || '')) return false;
+      const ta = (da.tasks || []).map((t) => ({ ...t }));
+      const tb = (db.tasks || []).map((t) => ({ ...t }));
+      if (JSON.stringify(ta) !== JSON.stringify(tb)) return false;
+    }
+    return true;
+  }
+
   readonly extractTotals = computed((): ActivityTotals => {
     const totals: ActivityTotals = {};
     this.extracts().forEach((extract) => {
       const totalHours = this.days()
-        .filter((day) => day.extract === extract.id)
-        .reduce((sum, day) => sum + day.hours, 0);
+        .flatMap((d) => d.tasks || [])
+        .filter((t) => t.extract === extract.id)
+        .reduce((sum, t) => sum + (t.hours || 0), 0);
       totals[extract.id] = totalHours;
     });
     return totals;
@@ -243,11 +320,20 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
 
   readonly allDaysValid = computed(() => {
     const daysValid = this.days().every((day) => {
-      const hasValidCode = day.code?.trim() && day.code.length > 0;
-      const hasValidHours =
-        !isNaN(day.hours) && day.hours >= 0 && day.hours <= 8;
+      const tasks = day.tasks || [
+        {
+          code: day.code,
+          hours: day.hours,
+        },
+      ];
 
-      return hasValidCode && hasValidHours;
+      const allTasksValid = tasks.every((t) => {
+        const hasValidCode = !!t.code && t.code.trim().length > 0;
+        const hasValidHours = !isNaN(t.hours) && t.hours >= 0 && t.hours <= 8;
+        return hasValidCode && hasValidHours;
+      });
+
+      return allTasksValid;
     });
 
     const noExceededLimit = !this.hasExceededDailyLimit();
@@ -257,9 +343,11 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
 
   readonly validationStatus = computed(() => {
     const invalidDays = this.days().filter((day) => {
-      return (
-        !day.code?.trim() || day.hours <= 0 || isNaN(day.hours) || day.hours > 8
+      const tasks = day.tasks || [{ code: day.code, hours: day.hours }];
+      const hasInvalidTask = tasks.some(
+        (t) => !t.code?.trim() || t.hours <= 0 || isNaN(t.hours) || t.hours > 8
       );
+      return hasInvalidTask;
     });
 
     return {
@@ -277,12 +365,125 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.days.set([]);
+    // If a current month key was persisted by the app, restore it so the
+    // selected month and its days persist across navigation.
+    try {
+      const savedKey = this.persistenceService.getCurrentMonthKey();
+      console.debug('MonthlyReport.ngOnInit: persisted key=', savedKey);
+      if (savedKey) {
+        // savedKey format is YYYY-MM
+        const parts = savedKey.split('-');
+        if (parts.length === 2) {
+          const yyyy = parseInt(parts[0], 10);
+          const mm = parseInt(parts[1], 10) - 1;
+          const restored = new Date(yyyy, mm, 1);
+          this.currentMonth.set(restored);
+        }
+      } else {
+        // No saved key: initialize to the actual current month and persist it
+        const today = new Date();
+        const firstOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        this.currentMonth.set(firstOfMonth);
+        try {
+          this.persistenceService.saveCurrentMonthKey(this.getCurrentMonthKey());
+        } catch (e) {}
+      }
+
+      const saved = this.persistenceService.getMonthlyData(
+        this.getCurrentMonthKey()
+      );
+      console.debug(
+        'MonthlyReport.ngOnInit: loaded saved days length=',
+        saved?.length || 0
+      );
+      try {
+        if (saved && saved.length > 0)
+          console.debug(
+            'MonthlyReport.ngOnInit sample[0]=',
+            JSON.stringify(saved[0]).slice(0, 1000)
+          );
+      } catch (e) {}
+      
+      // Distinguish first app load from subsequent navigations within the
+      // same browser session. On first load we intentionally keep `days`
+      // empty (user requested no in-memory data at startup). On later
+      // navigations in the same session, restore persisted days for the
+      // current month so user edits are visible when returning to the page.
+      const firstLoadFlag = sessionStorage.getItem('monthlyReportFirstLoad');
+      if (!firstLoadFlag) {
+        sessionStorage.setItem('monthlyReportFirstLoad', '1');
+        this.days.set([]);
+      } else {
+        const saved = this.persistenceService.getMonthlyData(this.getCurrentMonthKey());
+        if (saved && Array.isArray(saved) && saved.length > 0) {
+          this.days.set(saved as DayEntry[]);
+        } else {
+          this.days.set([]);
+        }
+      }
+    } catch (e) {
+      console.debug('MonthlyReport.ngOnInit: error reading saved days', e);
+      this.days.set([]);
+    }
+    
     try {
       const saved = this.persistenceService.getEmployeeName();
       if (saved) this.employeeName.set(saved);
-    } catch (e) {
-    }
+      // load persisted extracts if user customized them
+      const savedExtracts = this.persistenceService.getExtracts();
+      if (
+        savedExtracts &&
+        Array.isArray(savedExtracts) &&
+        savedExtracts.length > 0
+      ) {
+        this.extracts.set(savedExtracts as Extract[]);
+      }
+      const savedEmail = this.persistenceService.getAdminEmail();
+      if (savedEmail) this.adminEmail.set(savedEmail);
+    } catch (e) {}
+    
+    // persist current month key for other pages to read
+    try {
+      this.persistenceService.saveCurrentMonthKey(this.getCurrentMonthKey());
+    } catch (e) {}
+
+    // listen for monthlyData changes made elsewhere and reload if it matches
+    try {
+      this.persistenceService.changes.addEventListener('change', (e: any) => {
+        try {
+          if (e?.detail?.type === 'monthlyData') {
+            const changedMonth = e.detail.month;
+            const current = this.getCurrentMonthKey();
+            console.debug(
+              'MonthlyReport: persistence change',
+              e.detail,
+              'currentKey=',
+              current
+            );
+            if (changedMonth && current && changedMonth === current) {
+              const saved = this.persistenceService.getMonthlyData(current);
+              console.debug(
+                'MonthlyReport: reloading days for',
+                current,
+                'len=',
+                saved?.length || 0
+              );
+              try {
+                if (saved && saved.length > 0)
+                  console.debug(
+                    'MonthlyReport: reload sample[0]=',
+                    JSON.stringify(saved[0]).slice(0, 1000)
+                  );
+              } catch (e) {}
+              this.days.set(saved as DayEntry[]);
+            }
+          }
+        } catch (err) {}
+      });
+    } catch (e) {}
+
+    // Effects for persisting month and days are initialized on the class
+    // field level to run in the proper injection context.
   }
 
   ngOnDestroy(): void {
@@ -293,11 +494,18 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
     const monthKey = this.getCurrentMonthKey();
     const currentData = this.days();
 
-    if (currentData.length > 0) {
-      this.persistenceService.saveMonthlyData(monthKey, currentData);
-    } else {
-      this.persistenceService.clearMonthlyData(monthKey);
-    }
+    // Persist current month's data if any. Do NOT automatically clear stored
+    // monthly data when there are no in-memory days to avoid accidental
+    // deletions when navigating between pages.
+    try {
+      if (currentData.length > 0) {
+        this.persistenceService.saveMonthlyData(monthKey, currentData);
+        // ensure other pages know which month is current so they can show totals
+        try {
+          this.persistenceService.saveCurrentMonthKey(monthKey);
+        } catch (e) {}
+      }
+    } catch (e) {}
   }
 
   updateDayEntry(event: {
@@ -306,9 +514,20 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
     value: any;
   }): void {
     this.days.update((days) =>
-      days.map((day, i) =>
-        i === event.index ? { ...day, [event.field]: event.value } : day
-      )
+      days.map((day, i) => {
+        if (i !== event.index) return day;
+
+        if (event.field === 'tasks') {
+          const tasks: Task[] = event.value || [];
+          const totalHours = tasks.reduce(
+            (s: number, t: Task) => s + (t.hours || 0),
+            0
+          );
+          return { ...day, tasks, hours: totalHours };
+        }
+
+        return { ...day, [event.field]: event.value };
+      })
     );
     this.saveCurrentData();
   }
@@ -323,8 +542,18 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
       date: new Date(),
       code: 'D',
       activity: '',
-      hours: 1,
+      hours: 8,
       notes: '',
+      tasks: [
+        {
+          code: 'D',
+          activity: '',
+          extract: '',
+          client: '',
+          hours: 8,
+          notes: '',
+        },
+      ],
     };
     this.days.update((days) => [...days, newEntry]);
     this.saveCurrentData();
@@ -333,12 +562,30 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
   onMonthChange(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.value) {
+      // persist current month data before switching
       this.saveCurrentData();
 
       const newDate = new Date(input.value + '-01');
       this.currentMonth.set(newDate);
 
-      this.days.set([]);
+      try {
+        this.persistenceService.saveCurrentMonthKey(this.getCurrentMonthKey());
+      } catch (e) {}
+
+      // Load persisted data for the newly selected month if present.
+      try {
+        const saved = this.persistenceService.getMonthlyData(
+          this.getCurrentMonthKey()
+        );
+        if (saved && Array.isArray(saved) && saved.length > 0) {
+          this.days.set(saved as DayEntry[]);
+        } else {
+          // leave days empty to allow user to load template or add entries
+          this.days.set([]);
+        }
+      } catch (e) {
+        this.days.set([]);
+      }
     }
   }
 
@@ -390,6 +637,16 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
         extract: '',
         client: '',
         prefilled: true,
+        tasks: [
+          {
+            code: 'D',
+            activity: '',
+            extract: '',
+            client: '',
+            hours: 8,
+            notes: '',
+          },
+        ],
       });
       workdayCount++;
     }
@@ -493,12 +750,16 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
       overtime: this.overtime(),
       activityCodes: this.activityCodes(),
       holidays: this.getCurrentMonthHolidays(),
+      adminEmail: this.adminEmail(),
     };
 
     const exportButton = document.querySelector(
       '.btn-export'
-    ) as HTMLButtonElement;
-    const originalText = exportButton?.textContent || '🚀 Esporta in Excel';
+    ) as HTMLButtonElement | null;
+    const originalText =
+      exportButton && exportButton.textContent
+        ? exportButton.textContent
+        : '🚀 Esporta in Excel';
 
     if (exportButton) {
       exportButton.textContent = '⏳ Generando Excel...';
@@ -511,6 +772,16 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
           .generateExcel(exportData)
           .then(() => {
             alert('File Excel generato con successo!');
+            // export history is recorded by the export service (with dataUrl)
+            // After successful export, clear the current selection so other pages
+            // (e.g. extracts list) no longer show totals for this month until
+            // the user selects a month again.
+            try {
+              this.persistenceService.saveCurrentMonthKey('');
+            } catch (e) {}
+            try {
+              this.days.set([]);
+            } catch (e) {}
           })
           .catch((error) => {
             console.error("Errore nell'esportazione:", error);
@@ -536,12 +807,151 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
     });
   }
 
+  addExtract(newExtract: Partial<Extract>): void {
+    try {
+      const id = (newExtract.id || '').toString().trim();
+      const code = (newExtract.code || '').toString().trim();
+      const description = (newExtract.description || '').toString().trim();
+      const client = (newExtract.client || '').toString().trim();
+      if (!id || !code) return;
+
+      const editingId = this.editingExtractId();
+      if (editingId) {
+        // update existing
+        this.extracts.update((list) => {
+          const next = list.map((e) =>
+            e.id === editingId ? { ...e, id, code, description, client } : e
+          );
+          this.persistenceService.saveExtracts(next);
+          return next;
+        });
+        this.lastActionMessage.set('Estratto aggiornato');
+      } else {
+        const extract: Extract = {
+          id,
+          code,
+          description,
+          client,
+          totalDays: 0,
+        };
+        this.extracts.update((list) => {
+          const next = [...list, extract];
+          this.persistenceService.saveExtracts(next);
+          return next;
+        });
+        this.lastActionMessage.set('Estratto aggiunto');
+      }
+
+      // clear form
+      this.newExtractId.set('');
+      this.newExtractCode.set('');
+      this.newExtractDesc.set('');
+      this.newExtractClient.set('');
+      this.editingExtractId.set(null);
+      // keep the manager open and focus
+      setTimeout(() => {
+        const el = document.getElementById(
+          'new-extract-id'
+        ) as HTMLInputElement | null;
+        el?.focus();
+      }, 50);
+    } catch (e) {}
+  }
+
+  toggleExtractManager(): void {
+    this.showExtractManager.update((v) => !v);
+  }
+
+  removeExtract(extractId: string): void {
+    try {
+      const ok = window.confirm("Confermi la rimozione dell'estratto?");
+      if (!ok) return;
+      this.extracts.update((list) => {
+        const next = list.filter((e) => e.id !== extractId);
+        this.persistenceService.saveExtracts(next);
+        return next;
+      });
+      this.lastActionMessage.set('Estratto rimosso');
+    } catch (e) {}
+  }
+
+  startEditExtract(ex: Extract): void {
+    this.editingExtractId.set(ex.id);
+    this.newExtractId.set(ex.id);
+    this.newExtractCode.set(ex.code);
+    this.newExtractDesc.set(ex.description || '');
+    this.newExtractClient.set(ex.client || '');
+    setTimeout(() => {
+      const el = document.getElementById(
+        'new-extract-id'
+      ) as HTMLInputElement | null;
+      el?.focus();
+    }, 50);
+  }
+
+  cancelEditExtract(): void {
+    this.editingExtractId.set(null);
+    this.newExtractId.set('');
+    this.newExtractCode.set('');
+    this.newExtractDesc.set('');
+    this.newExtractClient.set('');
+    this.lastActionMessage.set('Modifica annullata');
+  }
+
+  toggleHolidayManager(): void {
+    this.showHolidayManager.update((v) => !v);
+    setTimeout(() => {
+      const el = document.getElementById(
+        'holiday-date'
+      ) as HTMLInputElement | null;
+      if (this.showHolidayManager()) el?.focus();
+    }, 50);
+  }
+
+  saveAdminEmail(value: string): void {
+    this.adminEmail.set(value || '');
+    try {
+      this.persistenceService.saveAdminEmail(this.adminEmail());
+      this.lastActionMessage.set('Email amministrazione salvata');
+    } catch (e) {}
+  }
+
+  addHoliday(dateIso: string, reason: string): void {
+    if (!dateIso) return;
+    const res = this.holidayService.addHoliday(
+      dateIso,
+      reason || 'Festività aziendale'
+    );
+    if (res.status === 'saved') {
+      // optional: notify user
+    }
+  }
+
+  removeHoliday(dateIso: string): void {
+    if (!dateIso) return;
+    this.holidayService.removeHolidayByDate(dateIso);
+  }
+
+  applyCompanyClosures(year?: number): void {
+    const y = year || this.currentMonth().getFullYear();
+    // 15 and 16 August closed
+    this.holidayService.addHoliday(
+      `${y}-08-15`,
+      'Chiusura azienda - Ferragosto'
+    );
+    this.holidayService.addHoliday(`${y}-08-16`, 'Chiusura azienda');
+    // 24 December half-day - store as a full-day entry with note
+    this.holidayService.addHoliday(
+      `${y}-12-24`,
+      'Chiusura azienda (mezza giornata)'
+    );
+  }
+
   onEmployeeNameChange(value: string): void {
     this.employeeName.set(value || '');
     try {
       this.persistenceService.saveEmployeeName(value || '');
-    } catch (e) {
-    }
+    } catch (e) {}
   }
 
   private showExportError(): void {
@@ -555,9 +965,19 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
     if (validation.invalidDays.length > 0) {
       errorMessage += `\nGiorni non validi:\n`;
       validation.invalidDays.forEach((day) => {
-        errorMessage += `  - ${day.date.toLocaleDateString('it-IT')}: ${
-          day.code
-        } - ${day.hours} ore\n`;
+        const dateLabel = day.date.toLocaleDateString('it-IT');
+        if (day.tasks && day.tasks.length > 0) {
+          errorMessage += `  - ${dateLabel}:\n`;
+          day.tasks.forEach((t: any) => {
+            errorMessage += `      • ${t.code || '(no code)'} - ${
+              t.hours || 0
+            } ore - ${t.activity || ''}\n`;
+          });
+        } else {
+          errorMessage += `  - ${dateLabel}: ${day.code || ''} - ${
+            day.hours
+          } ore\n`;
+        }
       });
     }
 

@@ -1,4 +1,22 @@
 <div class="app-container" [class.initialized]="isInitialized">
+  <header class="nav-container">
+    <div class="nav-content">
+      <a routerLink="/" class="nav-logo">📁 Monthly Reports</a>
+      <nav class="nav-menu">
+        <a routerLink="/" class="nav-link">Home</a>
+        <a routerLink="/monthly-report" class="nav-link">Report Mensile</a>
+        <a routerLink="/extracts" class="nav-link">Elenco Estratti</a>
+        <a routerLink="/export-history" class="nav-link"
+          >Storico Esportazioni</a
+        >
+      </nav>
+      <div class="nav-info">
+        <div class="app-version">v1</div>
+        <div class="app-year">© {{ currentYear }}</div>
+      </div>
+    </div>
+  </header>
+
   <main class="main-content">
     <router-outlet></router-outlet>
   </main>

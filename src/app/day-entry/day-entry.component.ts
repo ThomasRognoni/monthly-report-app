@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { DayEntry, Extract } from '../models/day-entry.model';
+import { DayEntry, Extract, Task } from '../models/day-entry.model';
 
 @Component({
   selector: 'app-day-entry',
@@ -32,6 +32,9 @@ export class DayEntryComponent implements OnChanges {
   @Output() remove = new EventEmitter<number>();
 
   localDay!: DayEntry;
+  localTasks: Task[] = [];
+
+  expanded: boolean = false;
 
   isCodeValid: boolean = true;
   isHoursValid: boolean = true;
@@ -42,6 +45,21 @@ export class DayEntryComponent implements OnChanges {
     if (changes['day']) {
       this.localDay = { ...this.day };
       this._formattedDate = null;
+      // Initialize tasks array from day or from legacy fields
+      if (this.day.tasks && this.day.tasks.length > 0) {
+        this.localTasks = this.day.tasks.map((t) => ({ ...t }));
+      } else {
+        this.localTasks = [
+            {
+              code: this.day.code || '',
+              activity: this.day.activity || '',
+              extract: this.day.extract || '',
+              client: this.day.client || '',
+              hours: typeof this.day.hours === 'number' && this.day.hours > 0 ? this.day.hours : 8,
+              notes: this.day.notes || '',
+            },
+          ];
+      }
     }
   }
 
@@ -72,6 +90,38 @@ export class DayEntryComponent implements OnChanges {
         this._formattedDate = null;
       }
     }
+  }
+
+  // Task-level operations
+  updateTask(taskIndex: number, field: keyof Task, value: any): void {
+    let newValue: any = value;
+    // If an Event was passed from template, extract the target value
+    if (value && value.target) {
+      const target = value.target as HTMLInputElement | HTMLSelectElement;
+      newValue = target.type === 'number' ? +target.value : target.value;
+    }
+
+    this.localTasks = this.localTasks.map((t, i) =>
+      i === taskIndex ? { ...t, [field]: newValue } : t
+    );
+    this.emitTasksUpdate();
+  }
+
+  addTask(): void {
+    this.localTasks = [
+      ...this.localTasks,
+      { code: '', activity: '', extract: '', client: '', hours: 8, notes: '' },
+    ];
+    this.emitTasksUpdate();
+  }
+
+  removeTask(taskIndex: number): void {
+    this.localTasks = this.localTasks.filter((_, i) => i !== taskIndex);
+    this.emitTasksUpdate();
+  }
+
+  private emitTasksUpdate(): void {
+    this.update.emit({ index: this.index, field: 'tasks' as any, value: this.localTasks });
   }
 
   private validateField(field: keyof DayEntry, value: any): void {
@@ -105,6 +155,10 @@ isValid(): boolean {
       default:
         return true;
     }
+  }
+
+  getLocalTotalHours(): number {
+    return this.localTasks.reduce((s, t) => s + (typeof t.hours === 'number' ? t.hours : 0), 0);
   }
 
   onRemove(): void {

@@ -7,6 +7,16 @@ export interface DayEntry {
   hours: number;
   notes?: string;
   prefilled?: boolean;
+  tasks?: Task[];
+}
+
+export interface Task {
+  code: string;
+  activity?: string;
+  extract?: string;
+  client?: string;
+  hours: number;
+  notes?: string;
 }
 
 export interface Extract {

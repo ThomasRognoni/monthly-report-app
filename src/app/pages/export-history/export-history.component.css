@@ -1,0 +1,29 @@
+.page-container {
+    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --card-bg: rgba(255, 255, 255, 0.15);
+    --card-border: rgba(255, 255, 255, 0.2);
+    --text-primary: #ffffff;
+    --blur-effect: blur(10px);
+
+    min-height: 100vh;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    background: var(--primary-gradient);
+    color: var(--text-primary);
+}
+
+.page-container h2 {
+    margin: 0 0 0.5rem 0;
+    color: var(--text-primary);
+}
+
+.content-card {
+    background: var(--card-bg);
+    backdrop-filter: var(--blur-effect);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    color: var(--text-primary);
+}

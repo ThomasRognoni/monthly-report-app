@@ -5,7 +5,7 @@
   --color-white-20: rgba(255, 255, 255, 0.2);
   --color-white-15: rgba(255, 255, 255, 0.15);
   --color-white-10: rgba(255, 255, 255, 0.1);
-  
+
   --color-success: #51cf66;
   --color-success-light: rgba(16, 185, 129, 0.2);
   --color-success-dark: rgba(5, 150, 105, 0.9);
@@ -13,23 +13,23 @@
   --color-warning-light: rgba(239, 68, 68, 0.2);
   --color-info: #4dabf7;
   --color-info-light: rgba(59, 130, 246, 0.2);
-  
+
   --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   --gradient-success: linear-gradient(135deg, rgba(16, 185, 129, 0.8) 0%, var(--color-success-dark) 100%);
   --gradient-success-hover: linear-gradient(135deg, rgba(16, 185, 129, 0.9) 0%, rgba(5, 150, 105, 1) 100%);
   --gradient-card: rgba(255, 255, 255, 0.15);
   --gradient-card-hover: rgba(255, 255, 255, 0.2);
-  
+
   --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
   --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.3);
   --shadow-lg: 0 10px 25px -3px rgba(0, 0, 0, 0.3);
   --shadow-xl: 0 15px 30px -5px rgba(0, 0, 0, 0.4);
   --shadow-text: 0 2px 4px rgba(0, 0, 0, 0.3);
-  
+
   --border-radius-sm: 8px;
   --border-radius-md: 12px;
   --border-radius-lg: 16px;
-  
+
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;
   --spacing-md: 0.75rem;
@@ -38,7 +38,7 @@
   --spacing-2xl: 1.5rem;
   --spacing-3xl: 2rem;
   --spacing-4xl: 2.5rem;
-  
+
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.875rem;
   --font-size-base: 1rem;
@@ -46,11 +46,11 @@
   --font-size-xl: 1.25rem;
   --font-size-2xl: 1.5rem;
   --font-size-3xl: 1.75rem;
-  
+
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
-  
+
   --transition: all 0.3s ease;
   --blur: blur(10px);
 }
@@ -151,6 +151,14 @@
   margin: 0 0 var(--spacing-2xl) 0;
   text-shadow: var(--shadow-text);
   padding-left: var(--spacing-sm);
+}
+
+/* Ensure prominent report summary headings are white */
+.report-summary .main-title,
+.report-summary .month-title,
+.report-summary .employee-name,
+.report-summary .section-title {
+  color: var(--color-white) !important;
 }
 
 .quadrature-grid {
@@ -414,17 +422,17 @@
     padding: var(--spacing-lg);
     gap: var(--spacing-2xl);
   }
-  
+
   .header-content {
     flex-direction: column;
     gap: var(--spacing-2xl);
   }
-  
+
   .header-stats {
     width: 100%;
     flex-direction: row;
   }
-  
+
   .stat-item {
     flex: 1;
     flex-direction: column;
@@ -432,52 +440,52 @@
     text-align: center;
     padding: var(--spacing-lg) var(--spacing-sm);
   }
-  
+
   .quadrature-grid,
   .activity-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .main-title {
     font-size: var(--font-size-xl);
     text-align: center;
   }
-  
+
   .month-title {
     font-size: var(--font-size-lg);
     text-align: center;
   }
-  
+
   .employee-name {
     font-size: var(--font-size-base);
     text-align: center;
   }
-  
+
   .section-title {
     text-align: center;
     font-size: var(--font-size-lg);
   }
-  
+
   .metric-card {
     padding: var(--spacing-xl);
   }
-  
+
   .activity-content {
     flex-direction: column;
     align-items: flex-start;
     gap: var(--spacing-md);
   }
-  
+
   .activity-total {
     align-self: flex-end;
   }
-  
+
   .holiday-item {
     flex-direction: column;
     gap: var(--spacing-sm);
     text-align: center;
   }
-  
+
   .holiday-date,
   .holiday-reason,
   .holiday-status {
@@ -490,27 +498,27 @@
   .header-stats {
     flex-direction: column;
   }
-  
+
   .stat-item {
     flex-direction: row;
     text-align: left;
   }
-  
+
   .activity-info {
     flex-direction: column;
     align-items: flex-start;
     gap: var(--spacing-sm);
   }
-  
+
   .activity-total {
     align-self: flex-start;
   }
-  
+
   .activity-progress {
     flex-direction: column;
     gap: var(--spacing-sm);
   }
-  
+
   .progress-text {
     text-align: center;
     min-width: auto;
@@ -518,6 +526,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .summary-header,
   .metric-card,
   .activity-card,
@@ -526,7 +535,7 @@
     transition: none;
     transform: none;
   }
-  
+
   .progress-fill {
     transition: none;
   }

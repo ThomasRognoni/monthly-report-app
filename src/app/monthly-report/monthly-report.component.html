@@ -1,38 +1,9 @@
 <div class="monthly-report-container">
   <header class="page-header">
     <div class="header-content">
-      <h1 class="page-title">Gestione Estratti Mensili</h1>
+      <h1 class="page-title">Report Mensile</h1>
     </div>
   </header>
-
-  <section
-    class="instructions-card feature-card"
-    aria-labelledby="instructions-heading"
-  >
-    <div class="instructions-header">
-      <span class="feature-icon" aria-hidden="true">💡</span>
-      <h3 id="instructions-heading">Note di compilazione</h3>
-    </div>
-    <div class="instructions-content">
-      <p>
-        Ogni dipendente dovrà compilare il seguente prospetto indicando con
-        precisione le attività svolte nel mese con riferimento all'estratto
-        interessato.
-      </p>
-      <ul class="instructions-list">
-        <li>Indicando il codice dell'estratto e i giorni effettuati</li>
-        <li>
-          Dovrà inoltre provvedere ad indicare eventuali giorni di
-          ferie/permessi e malattia
-        </li>
-        <li>
-          Il totale dei giorni indicati non dovrà essere inferiore ai giorni
-          lavorativi del mese
-        </li>
-        <li>Limite massimo di 8 ore per giorno lavorativo</li>
-      </ul>
-    </div>
-  </section>
 
   <section
     class="month-selection-card feature-card"
@@ -66,6 +37,7 @@
           aria-label="Nome dipendente"
         />
       </div>
+
       <button
         type="button"
         (click)="loadTemplate()"
@@ -77,8 +49,8 @@
     </div>
   </section>
 
-  @if (getCurrentMonthHolidays().length > 0) {
   <section
+    *ngIf="getCurrentMonthHolidays().length > 0"
     class="holidays-info feature-card"
     aria-labelledby="holidays-heading"
   >
@@ -88,15 +60,58 @@
       </div>
     </div>
     <div class="holidays-list">
-      @for (holiday of getCurrentMonthHolidays(); track holiday.date) {
-      <div class="holiday-item">
+      <div
+        *ngFor="let holiday of getCurrentMonthHolidays()"
+        class="holiday-item"
+      >
         <span class="holiday-date">{{ formatHolidayDate(holiday.date) }}</span>
         <span class="holiday-description">{{ holiday.reason }}</span>
+        <button
+          class="btn btn-danger btn-sm"
+          (click)="removeHoliday(holiday.date)"
+          aria-label="Rimuovi festività"
+        >
+          Rimuovi
+        </button>
       </div>
-      }
+    </div>
+    <div class="manage-holidays">
+      <button class="btn btn-outline" (click)="toggleHolidayManager()">
+        Gestisci festività
+      </button>
+      <div
+        *ngIf="showHolidayManager()"
+        class="form-inline"
+        style="margin-top: 8px"
+      >
+        <input
+          id="holiday-date"
+          type="date"
+          [ngModel]="holidayDateModel()"
+          (ngModelChange)="holidayDateModel.set($event)"
+          class="form-control"
+          aria-label="Data festività"
+        />
+        <input
+          [ngModel]="holidayReasonModel()"
+          (ngModelChange)="holidayReasonModel.set($event)"
+          placeholder="Motivo (es. Chiusura azienda)"
+          class="form-control"
+          aria-label="Motivo festività"
+        />
+        <button
+          class="btn btn-secondary"
+          (click)="
+            addHoliday(holidayDateModel(), holidayReasonModel());
+            holidayDateModel.set('');
+            holidayReasonModel.set('')
+          "
+        >
+          Aggiungi festività
+        </button>
+      </div>
     </div>
   </section>
-  }
 
   <section class="summary-section" aria-labelledby="summary-heading">
     <app-report-summary
@@ -113,14 +128,7 @@
     </app-report-summary>
   </section>
 
-  <section class="extract-section" aria-labelledby="extracts-heading">
-    <app-extract-list
-      [extracts]="extracts()"
-      [extractTotals]="extractTotals()"
-      [totalDeclaredDays]="totalDeclaredDays()"
-    >
-    </app-extract-list>
-  </section>
+  <!-- Extracts moved to Home page per request -->
 
   <section
     class="entries-section feature-card"
@@ -158,17 +166,6 @@
     }
 
     <div class="entries-container">
-      <div class="entries-header" role="rowgroup">
-        <div role="columnheader">Data</div>
-        <div role="columnheader">Codice</div>
-        <div role="columnheader">Attività</div>
-        <div role="columnheader">Estratto</div>
-        <div role="columnheader">Cliente</div>
-        <div role="columnheader">Ore</div>
-        <div role="columnheader">Note</div>
-        <div role="columnheader">Azioni</div>
-      </div>
-
       @for (day of days(); track day.date.getTime(); let i = $index) {
       <app-day-entry
         [day]="day"
@@ -215,10 +212,10 @@
         Il prospetto dovrà essere inviato entro la chiusura del mese all'Ufficio
         Amministrazione:
         <a
-          href="mailto:amministrazione@studioform.net"
-          aria-label="Invia email a amministrazione@studioform.net"
+          href="mailto:amministrazione@beyondoc.net"
+          aria-label="Invia email a amministrazione@beyondoc.net"
         >
-          {{ "amministrazione@studioform.net" }}
+          {{ "amministrazione@beyondoc.net" }}
         </a>
       </p>
 

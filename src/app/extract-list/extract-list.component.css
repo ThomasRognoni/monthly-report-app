@@ -5,25 +5,25 @@
   --color-white-20: rgba(255, 255, 255, 0.2);
   --color-white-15: rgba(255, 255, 255, 0.15);
   --color-white-10: rgba(255, 255, 255, 0.1);
-  
+
   --color-gray-dark: #1f2937;
   --color-gray-light: rgba(255, 255, 255, 0.9);
-  
+
   --gradient-success: linear-gradient(135deg, rgba(16, 185, 129, 0.8) 0%, rgba(5, 150, 105, 0.9) 100%);
   --gradient-success-hover: linear-gradient(135deg, rgba(16, 185, 129, 0.9) 0%, rgba(5, 150, 105, 1) 100%);
-  
+
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
   --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.2);
   --shadow-lg: 0 10px 25px -3px rgba(0, 0, 0, 0.3);
   --shadow-xl: 0 15px 30px -5px rgba(0, 0, 0, 0.4);
   --shadow-text: 0 1px 2px rgba(0, 0, 0, 0.2);
   --shadow-text-lg: 0 2px 4px rgba(0, 0, 0, 0.3);
-  
+
   --border-radius-sm: 4px;
   --border-radius-md: 12px;
   --border-radius-lg: 16px;
   --border-radius-xl: 20px;
-  
+
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;
   --spacing-md: 0.75rem;
@@ -31,7 +31,7 @@
   --spacing-xl: 1.5rem;
   --spacing-2xl: 2rem;
   --spacing-3xl: 3rem;
-  
+
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.875rem;
   --font-size-base: 1rem;
@@ -39,20 +39,41 @@
   --font-size-xl: 1.25rem;
   --font-size-2xl: 1.5rem;
   --font-size-3xl: 2rem;
-  
+
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
-  
+
   --transition: all 0.3s ease;
   --blur: blur(10px);
-  
+
   --animation-timing: ease-out;
   --animation-duration: 0.5s;
+
+  /* summary-like color tokens for consistency with monthly-report */
+  --gradient-card: rgba(255, 255, 255, 0.15);
+  --gradient-card-hover: rgba(255, 255, 255, 0.2);
+  --color-white-10: rgba(255, 255, 255, 0.1);
+  --color-white-15: rgba(255, 255, 255, 0.15);
+  --color-white-20: rgba(255, 255, 255, 0.2);
+  /* primary colorful gradient from report-summary for strong contrast */
+  --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* Import primary theme variables similar to monthly-report for better contrast */
+:host {
+  --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --card-bg: rgba(255, 255, 255, 0.15);
+  --card-border: rgba(255, 255, 255, 0.2);
+  --text-primary: #ffffff;
+  --blur-effect: blur(10px);
 }
 
 .extract-container {
   padding: var(--spacing-2xl) 0;
+  /* use monthly-report like card background so text is readable */
+  background: transparent;
+  color: var(--text-primary);
 }
 
 .section-header {
@@ -69,14 +90,14 @@
 }
 
 .section-subtitle {
-  color: var(--color-white-80);
+  color: var(--color-white);
   font-size: var(--font-size-lg);
 }
 
 .extract-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: var(--spacing-xl);
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--spacing-2xl);
   margin-bottom: var(--spacing-3xl);
 }
 
@@ -97,19 +118,34 @@
   box-shadow: var(--shadow-xl);
 }
 
+.extract-card {
+  /* use the summary header primary gradient for strong contrast on white pages */
+  background: var(--gradient-primary);
+  background-size: cover;
+  backdrop-filter: var(--blur);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: var(--border-radius-lg);
+  color: var(--color-white);
+  transition: var(--transition);
+  overflow: hidden;
+  animation: fadeInUp var(--animation-duration) var(--animation-timing);
+}
+
+.extract-card:hover {
+  transform: translateY(-5px);
+  filter: brightness(1.03);
+  box-shadow: var(--shadow-xl);
+}
+
+/* header area inside each card: ensure padding and vertical space */
 .extract-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--spacing-xl) var(--spacing-xl) var(--spacing-lg) var(--spacing-xl);
+  padding: calc(var(--spacing-xl) + 0.5rem) var(--spacing-xl) calc(var(--spacing-lg) + 0.25rem) var(--spacing-xl);
   background: var(--color-white-10);
   border-bottom: 1px solid var(--color-white-10);
-}
-
-.extract-badge {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
+  min-height: 64px;
 }
 
 .extract-code {
@@ -137,10 +173,21 @@
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
   backdrop-filter: var(--blur);
+  margin-top: 0.25rem;
+  display: inline-block;
 }
 
 .extract-body {
-  padding: var(--spacing-xl);
+  padding: calc(var(--spacing-lg) + 0.5rem);
+}
+
+/* Ensure card internal elements flow vertically and don't overlap */
+.extract-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  min-height: 180px;
 }
 
 .extract-id {
@@ -180,6 +227,16 @@
   border-top: 1px solid var(--color-white-10);
 }
 
+.extract-header,
+.extract-body,
+.extract-footer {
+  width: 100%;
+}
+
+.extract-grid {
+  align-items: start;
+}
+
 .progress-container {
   display: flex;
   align-items: center;
@@ -212,7 +269,41 @@
 }
 
 .total-section {
-  margin-top: var(--spacing-2xl);
+  margin-top: var(--spacing-lg);
+}
+
+.manage-inside {
+  margin: 0 0 var(--spacing-md) 0;
+}
+
+.extract-management-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--border-radius-md);
+  color: var(--text-primary);
+  backdrop-filter: var(--blur-effect);
+}
+
+/* Form controls inside management should match monthly-report theme */
+.extract-management-card .form-control,
+.extract-management-card input.form-control {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 12px;
+  padding: 0.5rem 0.75rem;
+  color: var(--text-primary);
+}
+
+.extract-row.card {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+}
+
+.extract-row.card {
+  background: var(--color-white-10);
+  border: 1px solid var(--color-white-20);
+  color: var(--text-primary);
 }
 
 .total-card {
@@ -286,13 +377,13 @@
 }
 
 .empty-title {
-  color: var(--color-white-80);
+  color: var(--text-primary);
   margin-bottom: var(--spacing-sm);
   font-size: var(--font-size-xl);
 }
 
 .empty-description {
-  color: var(--color-white-60);
+  color: rgba(255, 255, 255, 0.85);
   font-size: var(--font-size-sm);
 }
 
@@ -307,47 +398,47 @@
   .extract-container {
     padding: var(--spacing-lg) 0;
   }
-  
+
   .section-title {
     font-size: var(--font-size-2xl);
   }
-  
+
   .section-subtitle {
     font-size: var(--font-size-base);
   }
-  
+
   .extract-grid {
     grid-template-columns: 1fr;
     gap: var(--spacing-lg);
     margin-bottom: var(--spacing-2xl);
   }
-  
+
   .extract-header {
     padding: var(--spacing-lg) var(--spacing-lg) var(--spacing-md) var(--spacing-lg);
   }
-  
+
   .extract-body {
     padding: var(--spacing-lg);
   }
-  
+
   .extract-footer {
     padding: var(--spacing-md) var(--spacing-lg) var(--spacing-lg) var(--spacing-lg);
   }
-  
+
   .total-content {
     flex-direction: column;
     text-align: center;
     gap: var(--spacing-lg);
   }
-  
+
   .total-value {
     font-size: var(--font-size-2xl);
   }
-  
+
   .total-card {
     padding: var(--spacing-xl);
   }
-  
+
   .section-header {
     margin-bottom: var(--spacing-2xl);
   }
@@ -359,28 +450,28 @@
     gap: var(--spacing-md);
     align-items: flex-start;
   }
-  
+
   .extract-actions {
     align-self: stretch;
     justify-content: flex-end;
   }
-  
+
   .extract-total {
     text-align: center;
     flex: 1;
   }
-  
+
   .progress-container {
     flex-direction: column;
     gap: var(--spacing-sm);
     align-items: stretch;
   }
-  
+
   .progress-text {
     text-align: center;
     min-width: auto;
   }
-  
+
   .section-title {
     font-size: 1.375rem;
   }
@@ -391,6 +482,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -406,13 +498,26 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .extract-card,
   .total-card {
     animation: none;
     transition: none;
   }
-  
+
   .progress-fill {
     transition: none;
   }
+}
+
+/* Ensure extract list headings and key labels are white for contrast */
+.extract-container .section-title,
+.extract-container h2,
+.extract-container h3,
+.extract-container h4,
+.extract-container .total-label,
+.extract-container .total-description,
+.extract-container .extract-id,
+.extract-container .extract-description {
+  color: var(--color-white) !important;
 }

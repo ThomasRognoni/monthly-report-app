@@ -1,14 +1,5 @@
 :host {
-  --color-danger: #e53e3e;
-  --color-danger-hover: #c53030;
-  --color-danger-light: #fed7d7;
-  --color-primary: #4299e1;
-  --color-primary-light: rgba(66, 153, 225, 0.1);
-  --color-border: #ced4da;
-  --color-background-alt: #f8f9fa;
-  --color-background-invalid: #fff5f5;
-  --color-text-muted: #a0aec0;
-  --color-text-dark: #4a5568;
+  /* keep spacing and sizing tokens local, use theme vars for colors */
   --border-radius: 6px;
   --spacing-xs: 4px;
   --spacing-sm: 8px;
@@ -21,26 +12,42 @@
 
 .day-entry {
   display: grid;
-  grid-template-columns: 1fr 1fr 2fr 1.5fr 1.5fr 0.8fr 2fr 1fr;
+  grid-template-columns: minmax(140px, 1fr) minmax(100px, 0.7fr) minmax(220px, 2fr) minmax(160px, 1fr) minmax(160px, 1fr) minmax(90px, 0.6fr) minmax(180px, 1.4fr) 80px;
   gap: var(--spacing-md);
-  padding: var(--spacing-md) var(--spacing-lg);
-  border-bottom: 1px solid var(--color-border);
-  align-items: start;
-  background: white;
-  transition: all var(--transition);
+  padding: calc(var(--spacing-md) + 6px) var(--spacing-lg);
+  border-bottom: 1px solid var(--card-border);
+  align-items: center;
+  background: var(--card-bg);
+  color: var(--text-primary);
+  transition: background var(--transition), transform var(--transition);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* allow grid cells to shrink instead of causing overflow/clipping */
+.day-entry,
+.task-row,
+.tasks-header {
+  min-width: 0;
+}
+
+.task-row .entry-field,
+.tasks-header .task-col {
+  min-width: 0;
 }
 
 .day-entry:hover {
-  background-color: #fafafa;
+  background-color: rgba(255, 255, 255, 0.06);
+  transform: translateY(-2px);
 }
 
 .day-entry.invalid {
-  background-color: var(--color-background-invalid);
-  border-left: 4px solid var(--color-danger);
+  background-color: rgba(245, 101, 101, 0.08);
+  border-left: 4px solid rgba(229, 62, 62, 0.95);
 }
 
 .day-entry:nth-child(even) {
-  background-color: var(--color-background-alt);
+  background-color: rgba(255, 255, 255, 0.03);
 }
 
 .day-entry.invalid:nth-child(even) {
@@ -59,8 +66,9 @@
 
 .actions {
   display: flex;
-  justify-content: center;
-  align-items: flex-start;
+  justify-content: flex-start;
+  align-items: center;
+  gap: var(--spacing-sm);
 }
 
 ::ng-deep .day-entry .p-message {
@@ -82,14 +90,14 @@
     margin-bottom: var(--spacing-md);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
-  
+
   .entry-field label {
     font-weight: 600;
     margin-bottom: var(--spacing-xs);
     font-size: 12px;
-    color: var(--color-text-dark);
+    color: var(--text-primary);
   }
-  
+
   .actions {
     justify-content: flex-start;
     margin-top: var(--spacing-sm);
@@ -108,7 +116,7 @@
     border-bottom: 1px solid #ccc;
     background: white !important;
   }
-  
+
   ::ng-deep .day-entry .p-button {
     display: none;
   }
@@ -123,8 +131,207 @@
     opacity: 0;
     transform: translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Expanded row layout */
+.day-header {
+  display: flex;
+  gap: var(--spacing-md);
+  width: 100%;
+  align-items: center;
+}
+
+.day-header .entry-field {
+  margin: 0;
+}
+
+.day-total {
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.day-tasks {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-sm);
+  width: 100%;
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: max-height 360ms cubic-bezier(.2, .9, .2, 1), opacity 240ms ease;
+}
+
+/* span the expanded details across all columns of the parent day-entry grid */
+.day-tasks {
+  grid-column: 1 / -1;
+}
+
+.day-tasks,
+.task-row,
+.tasks-header {
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
+}
+
+.task-row {
+  display: grid;
+  grid-template-columns: minmax(100px, 1fr) minmax(160px, 2fr) minmax(120px, 1fr) minmax(140px, 1fr) minmax(80px, 0.6fr) minmax(140px, 1.2fr) 48px;
+  gap: var(--spacing-sm);
+  padding: calc(var(--spacing-sm) + 6px);
+  border: 1px solid var(--card-border);
+  border-radius: calc(var(--border-radius) - 2px);
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--text-primary);
+  align-items: center;
+  transform: translateY(-8px);
+  opacity: 0;
+  transition: transform 360ms cubic-bezier(.2, .9, .2, 1), opacity 300ms ease, box-shadow 220ms ease;
+}
+
+.task-row .entry-field {
+  margin: 0;
+}
+
+.task-row .actions {
+  display: flex;
+  justify-content: center;
+}
+
+.task-controls {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-sm);
+}
+
+/* Expanded state */
+.day-tasks.expanded {
+  max-height: 800px;
+  /* large enough for multiple tasks */
+  opacity: 1;
+}
+
+.day-tasks.expanded .task-row {
+  transform: translateY(0);
+  opacity: 1;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.14);
+}
+
+.task-row[style] {
+  /* ensure custom animationDelay set inline works */
+}
+
+.btn-toggle {
+  transition: transform 220ms ease, background 220ms ease;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-primary);
+  border: 1px solid var(--card-border);
+}
+
+.btn-toggle.open {
+  transform: none;
+}
+
+.btn-toggle {
+  transition: transform 220ms ease;
+}
+
+.btn-trash {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--card-border);
+  color: var(--danger, #e53e3e);
+}
+
+.btn-trash svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Compact inputs */
+.task-row .form-control {
+  padding: 0.5rem 0.6rem;
+  font-size: 0.9rem;
+}
+
+/* Responsive adjustments for tasks grid */
+@media (max-width: 768px) {
+  .day-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .task-row {
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-auto-rows: auto;
+    gap: 0.5rem;
+  }
+
+  .task-row .actions {
+    grid-column: 3 / 4;
+  }
+}
+
+.tasks-header {
+  display: grid;
+  grid-template-columns: minmax(100px, 1fr) minmax(160px, 2fr) minmax(120px, 1fr) minmax(140px, 1fr) minmax(80px, 0.6fr) minmax(140px, 1.2fr) 48px;
+  gap: var(--spacing-sm);
+  padding: calc(var(--spacing-sm) + 4px) calc(var(--spacing-sm) + 6px);
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 0.85rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: calc(var(--border-radius) - 2px);
+  align-items: center;
+  margin-bottom: calc(var(--spacing-sm));
+}
+
+@media (max-width: 768px) {
+  .tasks-header {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+  }
+}
+
+/* Day-level delete button styling to match toggle alignment */
+.btn-day-delete {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--card-border);
+  color: var(--danger, #e53e3e);
+  margin-right: 6px;
+}
+
+/* Compact closed rows: reduce vertical spacing when details are collapsed */
+.day-entry:not(.expanded) {
+  padding: calc(var(--spacing-sm)) var(--spacing-lg);
+}
+
+.day-entry:not(.expanded) .day-header {
+  align-items: center;
+}
+
+/* Only add the gap above details when expanded */
+.day-tasks.expanded {
+  margin-top: var(--spacing-md);
 }

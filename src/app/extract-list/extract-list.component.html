@@ -1,49 +1,143 @@
 <div class="extract-container">
   <div class="section-header">
-    <h2 class="section-title">
-      📋 Elenco Estratti
-    </h2>
+    <h2 class="section-title">📋 Elenco Estratti</h2>
     <p class="section-subtitle">Gestione estratti e relativi totali</p>
   </div>
 
-  @if (hasExtracts && hasExtractTotals) {
+  <div *ngIf="hasExtracts; else emptyState">
     <div class="extract-grid">
-      @for (extract of sortedExtracts; track extract.id) {
-        <div class="extract-card feature-card">
-          <div class="extract-header">
-            <div class="extract-badge">
-              <span class="extract-code">{{ extract.code }}</span>
-            </div>
-            <div class="extract-actions">
-              <span class="extract-total">
-                {{ getDaysFromHours(extractTotals[extract.id] || 0) | number:'1.2-2' }} giorni
-              </span>
-            </div>
+      <div
+        *ngFor="let extract of sortedExtracts"
+        class="extract-card feature-card"
+      >
+        <div class="extract-header">
+          <div class="extract-badge">
+            <span class="extract-code">{{ extract.code }}</span>
           </div>
-          
-          <div class="extract-body">
-            <h3 class="extract-id">{{ extract.id }}</h3>
-            <p class="extract-description">{{ extract.description }}</p>
-            <div class="extract-client">
-              <span class="client-badge">{{ extract.client }}</span>
-            </div>
-          </div>
-          
-          <div class="extract-footer">
-            <div class="progress-container">
-              <div class="progress-bar">
-                <div 
-  class="progress-fill"
-  [style.width.%]="getProgressWidth(extract.id, extractTotals[extract.id] || 0)">
-</div>
-              </div>
-              <span class="progress-text">
-  {{ getProgressWidth(extract.id, extractTotals[extract.id] || 0) | number:'1.0-0' }}%
-</span>
-            </div>
+          <div class="extract-actions">
+            <span class="extract-total">
+              {{
+                getDaysFromHours(extractTotals[extract.id] || 0)
+                  | number : "1.2-2"
+              }}
+              giorni
+            </span>
           </div>
         </div>
-      }
+
+        <div class="extract-body">
+          <h3 class="extract-id">{{ extract.id }}</h3>
+          <p class="extract-description">{{ extract.description }}</p>
+          <div class="extract-client">
+            <span class="client-badge">{{ extract.client }}</span>
+          </div>
+        </div>
+
+        <div class="extract-footer">
+          <div class="progress-container">
+            <div class="progress-bar">
+              <div
+                class="progress-fill"
+                [style.width.%]="
+                  getProgressWidth(extract.id, extractTotals[extract.id] || 0)
+                "
+              ></div>
+            </div>
+            <span class="progress-text">
+              {{
+                getProgressWidth(extract.id, extractTotals[extract.id] || 0)
+                  | number : "1.0-0"
+              }}%
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="manage-inside" style="margin: 12px 0; text-align: center">
+      <button class="btn btn-outline" (click)="onManage()">
+        Gestisci estratti
+      </button>
+    </div>
+
+    <div
+      *ngIf="showManager"
+      class="extract-management-card card"
+      style="margin: 12px 0; padding: 12px"
+    >
+      <h4 style="margin-bottom: 8px">Gestisci estratti</h4>
+      <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px">
+        <input
+          placeholder="ID estratto"
+          class="form-control"
+          [ngModel]="newExtractId"
+          (ngModelChange)="newExtractIdChange.emit($event)"
+        />
+        <input
+          placeholder="Codice"
+          class="form-control"
+          [ngModel]="newExtractCode"
+          (ngModelChange)="newExtractCodeChange.emit($event)"
+        />
+        <input
+          placeholder="Descrizione"
+          class="form-control"
+          [ngModel]="newExtractDesc"
+          (ngModelChange)="newExtractDescChange.emit($event)"
+        />
+        <input
+          placeholder="Cliente"
+          class="form-control"
+          [ngModel]="newExtractClient"
+          (ngModelChange)="newExtractClientChange.emit($event)"
+        />
+        <div style="display: flex; gap: 8px; align-items: center">
+          <button
+            class="btn btn-primary"
+            [disabled]="!newExtractId || !newExtractCode"
+            (click)="onAddExtract()"
+          >
+            {{ editingExtractId ? "Salva" : "Aggiungi estratto" }}
+          </button>
+          <button
+            *ngIf="editingExtractId"
+            class="btn btn-outline"
+            (click)="onCancelEdit()"
+          >
+            Annulla
+          </button>
+        </div>
+      </div>
+
+      <div class="existing-extracts-list" style="margin-top: 8px">
+        <div
+          *ngFor="let ex of sortedExtracts"
+          class="extract-row card"
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            margin-bottom: 8px;
+          "
+        >
+          <div style="display: flex; flex-direction: column">
+            <div style="font-weight: 600">{{ ex.id }}</div>
+            <div style="font-size: 0.9rem; opacity: 0.8">
+              {{ ex.description }}
+            </div>
+          </div>
+          <div style="display: flex; gap: 8px; align-items: center">
+            <div style="opacity: 0.8">{{ ex.client }}</div>
+            <button class="btn btn-ghost btn-sm" (click)="onStartEdit(ex)">
+              Modifica
+            </button>
+            <button class="btn btn-danger btn-sm" (click)="onRemove(ex.id)">
+              Rimuovi
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="total-section">
@@ -52,21 +146,30 @@
           <div class="total-icon">📊</div>
           <div class="total-info">
             <h3 class="total-label">TOTALE GENERALE</h3>
-            <p class="total-description">Giorni dichiarati su tutti gli estratti</p>
+            <p class="total-description">
+              Giorni dichiarati su tutti gli estratti
+            </p>
           </div>
           <div class="total-value">
-            {{ (totalDeclaredDays ?? totalExtractDays()) | number:'1.2-2' }} giorni
+            {{
+              totalDeclaredDays ?? totalExtractDays() | number : "1.2-2"
+            }}
+            giorni
           </div>
         </div>
       </div>
     </div>
-  } @else {
+  </div>
+
+  <ng-template #emptyState>
     <div class="no-extracts-message">
       <div class="empty-state">
         <div class="empty-icon">📋</div>
         <h3 class="empty-title">Nessun estratto disponibile</h3>
-        <p class="empty-description">Non ci sono estratti da visualizzare al momento.</p>
+        <p class="empty-description">
+          Non ci sono estratti da visualizzare al momento.
+        </p>
       </div>
     </div>
-  }
+  </ng-template>
 </div>

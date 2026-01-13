@@ -1,0 +1,70 @@
+.home-page {
+    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --card-bg: rgba(255, 255, 255, 0.15);
+    --card-border: rgba(255, 255, 255, 0.2);
+    --text-primary: #ffffff;
+    --blur-effect: blur(10px);
+
+    min-height: 100vh;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    background: var(--primary-gradient);
+    color: var(--text-primary);
+}
+
+.quick-links {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.btn {
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+}
+
+.btn-outline {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: var(--text-primary);
+}
+
+.btn-primary {
+    background: rgba(255, 255, 255, 0.12);
+    color: var(--text-primary);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.page-wrapper {
+    padding: 20px;
+}
+
+.page-header {
+    margin-bottom: 16px;
+}
+
+.page-title {
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    padding: 16px;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    color: var(--text-primary);
+    backdrop-filter: var(--blur-effect);
+}
+
+.section-title {
+    color: var(--text-primary);
+    margin: 0 0 8px 0;
+}
+
+.actions .btn {
+    margin-right: 8px;
+}

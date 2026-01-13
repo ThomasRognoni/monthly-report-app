@@ -1,0 +1,34 @@
+<div class="page-container">
+  <h2>Storico Esportazioni</h2>
+  <div class="content-card">
+    <p>Elenco dei file esportati (localmente salvati durante l'export).</p>
+
+    <div *ngIf="history.length === 0">
+      <p>Nessuna esportazione trovata.</p>
+    </div>
+
+    <ul *ngIf="history.length > 0">
+      <li *ngFor="let item of history">
+        <div
+          class="history-row"
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+          "
+        >
+          <div>
+            <strong>{{ item.filename }}</strong>
+            <div style="font-size: 0.85rem; opacity: 0.8">{{ item.date }}</div>
+          </div>
+          <div>
+            <button class="btn btn-outline" (click)="download(item)">
+              Scarica
+            </button>
+          </div>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>
