@@ -16,11 +16,9 @@ export class PersistenceService {
   private readonly EXPORT_HISTORY_KEY = 'export-history';
   private readonly CURRENT_MONTH_KEY = 'current-month-key';
 
-  // Simple event target to notify components about persistence changes
   public readonly changes = new EventTarget();
 
   constructor() {
-    // attempt lightweight migration from legacy extract keys if present
     try {
       const current = localStorage.getItem(this.EXTRACTS_KEY);
       if (!current) {
@@ -36,7 +34,6 @@ export class PersistenceService {
               const parsed = JSON.parse(raw);
               if (Array.isArray(parsed)) {
                 localStorage.setItem(this.EXTRACTS_KEY, JSON.stringify(parsed));
-                // keep legacy key for safety but stop after first successful migrate
                 console.info(
                   `PersistenceService: migrated extracts from ${k} to ${this.EXTRACTS_KEY}`
                 );
@@ -44,7 +41,6 @@ export class PersistenceService {
               }
             }
           } catch (e) {
-            // ignore parse errors and continue
           }
         }
       }
@@ -55,7 +51,6 @@ export class PersistenceService {
     const allData = this.getAllMonthlyData();
     allData[month] = data.map((day) => this.serializeDate(day));
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(allData));
-    // temporary debug logging to trace saves
     try {
       const ts = new Date().toISOString();
       const stack = new Error('stack').stack || '';
@@ -88,7 +83,6 @@ export class PersistenceService {
     const allData = this.getAllMonthlyData();
     delete allData[month];
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(allData));
-    // temporary debug logging to trace clears
     try {
       const ts = new Date().toISOString();
       const stack = new Error('stack').stack || '';
@@ -207,7 +201,6 @@ export class PersistenceService {
   saveCurrentMonthKey(key: string): void {
     try {
       localStorage.setItem(this.CURRENT_MONTH_KEY, key || '');
-      // temporary debug logging to trace who/when updates the current-month-key
       try {
         const ts = new Date().toISOString();
         const stack = new Error('stack').stack || '';

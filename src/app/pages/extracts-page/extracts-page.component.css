@@ -22,7 +22,6 @@
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-/* content area should use translucent cards like monthly-report */
 .page-container>.content-card {
     background: var(--card-bg);
     backdrop-filter: var(--blur-effect);

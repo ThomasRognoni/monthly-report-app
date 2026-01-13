@@ -91,7 +91,6 @@
   box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.4);
 }
 
-/* Ensure specific headings are always white for readable contrast */
 #instructions-heading,
 #month-selection-heading,
 #holidays-heading,
@@ -323,8 +322,6 @@
 .entries-section {
   padding: 0.5rem 0;
   overflow: visible;
-  /* allow expanded day-details to exceed container without being clipped */
-  /* make section span full viewport width (safe full-bleed) */
   position: relative;
   width: 100vw;
   left: 50%;
@@ -358,16 +355,13 @@
 
 .entries-container {
   padding: 1rem 3rem;
-  /* add inner spacing so expanded details don't touch the edges */
   width: 100%;
   margin: 0 auto;
   box-sizing: border-box;
   display: block;
   max-width: none;
-  /* ensure no max-width constraints */
 }
 
-/* ensure entries-section spans full width and inner content isn't clipped */
 .entries-section {
   position: relative;
   width: 100vw;
@@ -379,7 +373,6 @@
   overflow: visible;
 }
 
-/* allow horizontal scrolling when task grids are wider than viewport */
 .entries-container {
   overflow-x: auto;
 }

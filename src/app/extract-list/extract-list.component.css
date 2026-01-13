@@ -50,17 +50,14 @@
   --animation-timing: ease-out;
   --animation-duration: 0.5s;
 
-  /* summary-like color tokens for consistency with monthly-report */
   --gradient-card: rgba(255, 255, 255, 0.15);
   --gradient-card-hover: rgba(255, 255, 255, 0.2);
   --color-white-10: rgba(255, 255, 255, 0.1);
   --color-white-15: rgba(255, 255, 255, 0.15);
   --color-white-20: rgba(255, 255, 255, 0.2);
-  /* primary colorful gradient from report-summary for strong contrast */
   --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
-/* Import primary theme variables similar to monthly-report for better contrast */
 :host {
   --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   --card-bg: rgba(255, 255, 255, 0.15);
@@ -71,7 +68,6 @@
 
 .extract-container {
   padding: var(--spacing-2xl) 0;
-  /* use monthly-report like card background so text is readable */
   background: transparent;
   color: var(--text-primary);
 }
@@ -119,7 +115,6 @@
 }
 
 .extract-card {
-  /* use the summary header primary gradient for strong contrast on white pages */
   background: var(--gradient-primary);
   background-size: cover;
   backdrop-filter: var(--blur);
@@ -137,7 +132,6 @@
   box-shadow: var(--shadow-xl);
 }
 
-/* header area inside each card: ensure padding and vertical space */
 .extract-header {
   display: flex;
   justify-content: space-between;
@@ -181,7 +175,6 @@
   padding: calc(var(--spacing-lg) + 0.5rem);
 }
 
-/* Ensure card internal elements flow vertically and don't overlap */
 .extract-card {
   display: flex;
   flex-direction: column;
@@ -284,7 +277,6 @@
   backdrop-filter: var(--blur-effect);
 }
 
-/* Form controls inside management should match monthly-report theme */
 .extract-management-card .form-control,
 .extract-management-card input.form-control {
   background: rgba(255, 255, 255, 0.1);
@@ -510,7 +502,6 @@
   }
 }
 
-/* Ensure extract list headings and key labels are white for contrast */
 .extract-container .section-title,
 .extract-container h2,
 .extract-container h3,

@@ -28,8 +28,6 @@ export class ExtractsPageComponent {
     this.refresh();
     try {
       this.persistence.changes.addEventListener('change', (e: any) => {
-        // refresh on extracts, monthlyData and currentMonth so the view
-        // immediately reflects the selected month and its data
         if (
           e?.detail?.type === 'extracts' ||
           e?.detail?.type === 'monthlyData' ||
@@ -42,24 +40,19 @@ export class ExtractsPageComponent {
 
   private refresh() {
     try {
-      // clear previous values immediately so UI shows cleared cards while we
-      // recompute for the selected month
       this.extracts = this.persistence.getExtracts();
       this.extractTotals = {};
       this.totalDeclaredDays = 0;
-      // compute totals for current month if available
       const monthKey = this.persistence.getCurrentMonthKey();
       this.currentMonthKey = monthKey;
       if (monthKey) {
         const days = this.persistence.getMonthlyData(monthKey);
         const totals: { [key: string]: number } = {};
         days.forEach((d: any) => {
-          // count top-level extract on the day (legacy) if present
           const dayExtract = d.extract;
           if (dayExtract) {
             totals[dayExtract] = (totals[dayExtract] || 0) + (d.hours || 0);
           }
-          // also count per-task extracts (current model)
           const tasks = d.tasks || [];
           tasks.forEach((t: any) => {
             const tExt = t.extract;
@@ -68,7 +61,6 @@ export class ExtractsPageComponent {
           });
         });
         this.extractTotals = totals;
-        // compute declared unique days for the month (based on day.date)
         const uniqueDates = new Set<string>();
         days.forEach((d: any) => {
           try {
@@ -91,7 +83,6 @@ export class ExtractsPageComponent {
   onAddExtract(payload: Partial<any>) {
     try {
       const list = this.persistence.getExtracts() || [];
-      // if editing (id exists), replace
       if (payload && payload['id']) {
         const exists = list.find((x: any) => x['id'] === payload['id']);
         if (exists) {
@@ -104,7 +95,6 @@ export class ExtractsPageComponent {
           this.persistence.saveExtracts(next);
         }
       }
-      // reset manager state
       this.editingExtractId = null;
       this.newExtractId = '';
       this.newExtractCode = '';
@@ -125,7 +115,6 @@ export class ExtractsPageComponent {
   }
 
   onStartEdit(ex: any) {
-    // populate manager fields and open manager for editing
     this.editingExtractId = ex?.id || null;
     this.newExtractId = ex?.id || '';
     this.newExtractCode = ex?.code || '';

@@ -57,19 +57,15 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
   readonly currentMonth = signal(new Date());
   readonly adminEmail = signal('amministrazione@beyondoc.net');
   readonly showExtractManager = signal(false);
-  // form fields for extract management (bind with ngModel)
   newExtractId = signal('');
   newExtractCode = signal('');
   newExtractDesc = signal('');
   newExtractClient = signal('');
   editingExtractId = signal<string | null>(null);
 
-  // holiday manager toggle
   readonly showHolidayManager = signal(false);
 
-  // aria-live message
   lastActionMessage = signal('');
-  // holiday form models
   holidayDateModel = signal('');
   holidayReasonModel = signal('');
 
@@ -190,7 +186,6 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
   readonly quadrature = computed(() => this.totalWorkDays() - this.totalDeclaredDays());
 
   readonly overtime = computed(() => {
-    // Sum hours of tasks with code 'ST'
     return this.days()
       .flatMap((d) => d.tasks || [])
       .filter((t) => t.code === 'ST')
@@ -218,8 +213,6 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
     return daysMap;
   });
 
-  // Persist the selected month whenever it changes so other pages always
-  // see the current selection even if days are temporarily empty.
   readonly persistCurrentMonthEffect = effect(() => {
     const key = this.getCurrentMonthKey();
     try {
@@ -227,8 +220,6 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
     } catch (e) {}
   });
 
-  // Reactively persist days when they change. Moved out of ngOnInit to run
-  // in the injection context and avoid runtime NG0203 errors.
   readonly persistDaysEffect = effect(() => {
     const d = this.days();
     const key = this.getCurrentMonthKey();
@@ -365,13 +356,10 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    // If a current month key was persisted by the app, restore it so the
-    // selected month and its days persist across navigation.
     try {
       const savedKey = this.persistenceService.getCurrentMonthKey();
       console.debug('MonthlyReport.ngOnInit: persisted key=', savedKey);
       if (savedKey) {
-        // savedKey format is YYYY-MM
         const parts = savedKey.split('-');
         if (parts.length === 2) {
           const yyyy = parseInt(parts[0], 10);
@@ -380,7 +368,6 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
           this.currentMonth.set(restored);
         }
       } else {
-        // No saved key: initialize to the actual current month and persist it
         const today = new Date();
         const firstOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
         this.currentMonth.set(firstOfMonth);
@@ -404,11 +391,6 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
           );
       } catch (e) {}
       
-      // Distinguish first app load from subsequent navigations within the
-      // same browser session. On first load we intentionally keep `days`
-      // empty (user requested no in-memory data at startup). On later
-      // navigations in the same session, restore persisted days for the
-      // current month so user edits are visible when returning to the page.
       const firstLoadFlag = sessionStorage.getItem('monthlyReportFirstLoad');
       if (!firstLoadFlag) {
         sessionStorage.setItem('monthlyReportFirstLoad', '1');
@@ -429,7 +411,6 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
     try {
       const saved = this.persistenceService.getEmployeeName();
       if (saved) this.employeeName.set(saved);
-      // load persisted extracts if user customized them
       const savedExtracts = this.persistenceService.getExtracts();
       if (
         savedExtracts &&
@@ -442,12 +423,10 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
       if (savedEmail) this.adminEmail.set(savedEmail);
     } catch (e) {}
     
-    // persist current month key for other pages to read
     try {
       this.persistenceService.saveCurrentMonthKey(this.getCurrentMonthKey());
     } catch (e) {}
 
-    // listen for monthlyData changes made elsewhere and reload if it matches
     try {
       this.persistenceService.changes.addEventListener('change', (e: any) => {
         try {
@@ -482,8 +461,6 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
       });
     } catch (e) {}
 
-    // Effects for persisting month and days are initialized on the class
-    // field level to run in the proper injection context.
   }
 
   ngOnDestroy(): void {
@@ -494,13 +471,9 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
     const monthKey = this.getCurrentMonthKey();
     const currentData = this.days();
 
-    // Persist current month's data if any. Do NOT automatically clear stored
-    // monthly data when there are no in-memory days to avoid accidental
-    // deletions when navigating between pages.
     try {
       if (currentData.length > 0) {
         this.persistenceService.saveMonthlyData(monthKey, currentData);
-        // ensure other pages know which month is current so they can show totals
         try {
           this.persistenceService.saveCurrentMonthKey(monthKey);
         } catch (e) {}
@@ -562,7 +535,6 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
   onMonthChange(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.value) {
-      // persist current month data before switching
       this.saveCurrentData();
 
       const newDate = new Date(input.value + '-01');
@@ -572,7 +544,6 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
         this.persistenceService.saveCurrentMonthKey(this.getCurrentMonthKey());
       } catch (e) {}
 
-      // Load persisted data for the newly selected month if present.
       try {
         const saved = this.persistenceService.getMonthlyData(
           this.getCurrentMonthKey()
@@ -580,7 +551,6 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
         if (saved && Array.isArray(saved) && saved.length > 0) {
           this.days.set(saved as DayEntry[]);
         } else {
-          // leave days empty to allow user to load template or add entries
           this.days.set([]);
         }
       } catch (e) {
@@ -772,10 +742,6 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
           .generateExcel(exportData)
           .then(() => {
             alert('File Excel generato con successo!');
-            // export history is recorded by the export service (with dataUrl)
-            // After successful export, clear the current selection so other pages
-            // (e.g. extracts list) no longer show totals for this month until
-            // the user selects a month again.
             try {
               this.persistenceService.saveCurrentMonthKey('');
             } catch (e) {}
@@ -817,7 +783,6 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
 
       const editingId = this.editingExtractId();
       if (editingId) {
-        // update existing
         this.extracts.update((list) => {
           const next = list.map((e) =>
             e.id === editingId ? { ...e, id, code, description, client } : e
@@ -842,13 +807,11 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
         this.lastActionMessage.set('Estratto aggiunto');
       }
 
-      // clear form
       this.newExtractId.set('');
       this.newExtractCode.set('');
       this.newExtractDesc.set('');
       this.newExtractClient.set('');
       this.editingExtractId.set(null);
-      // keep the manager open and focus
       setTimeout(() => {
         const el = document.getElementById(
           'new-extract-id'
@@ -923,7 +886,6 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
       reason || 'Festività aziendale'
     );
     if (res.status === 'saved') {
-      // optional: notify user
     }
   }
 
@@ -934,13 +896,11 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
 
   applyCompanyClosures(year?: number): void {
     const y = year || this.currentMonth().getFullYear();
-    // 15 and 16 August closed
     this.holidayService.addHoliday(
       `${y}-08-15`,
       'Chiusura azienda - Ferragosto'
     );
     this.holidayService.addHoliday(`${y}-08-16`, 'Chiusura azienda');
-    // 24 December half-day - store as a full-day entry with note
     this.holidayService.addHoliday(
       `${y}-12-24`,
       'Chiusura azienda (mezza giornata)'

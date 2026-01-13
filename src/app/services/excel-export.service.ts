@@ -1,6 +1,5 @@
 import { Injectable, inject } from '@angular/core';
 import { PersistenceService } from './persistence.service';
-// Delay loading heavy SheetJS library until export time to reduce initial bundle size
 import {
   formatExcelDate,
   getMonthYearItalian,
@@ -57,7 +56,6 @@ export class ExcelExportService {
 
   async generateExcel(data: ExportData): Promise<void> {
     try {
-      // Client-side export only: attempt in-browser xlsx-populate then fallback to xlsx
 
       try {
         const importPaths = [
@@ -84,7 +82,6 @@ export class ExcelExportService {
         if (!XlsxPopulate)
           throw lastErr || new Error('xlsx-populate import_failed');
 
-        // fetch template with timeout/retries to avoid hanging the UI
         const response = await this.fetchWithTimeout(this.templateUrl, 8000, 2);
         const arrayBuffer = await response.arrayBuffer();
 
@@ -119,7 +116,6 @@ export class ExcelExportService {
           'xlsx-populate not available or failed, falling back to xlsx:',
           xpErr
         );
-        // proceed to SheetJS fallback
       }
 
       const template = await this.loadTemplate();
@@ -154,7 +150,6 @@ export class ExcelExportService {
 
   private async loadTemplate(): Promise<any> {
     try {
-      // use the resilient fetch helper with a slightly longer timeout
       const response = await this.fetchWithTimeout(this.templateUrl, 10000, 2);
       const arrayBuffer = await response.arrayBuffer();
       const XLSXmod: any = await import('xlsx');
@@ -171,7 +166,6 @@ export class ExcelExportService {
         'Errore nel caricamento del template (timeout/retry):',
         error
       );
-      // As a graceful fallback, return a minimal empty workbook structure
       try {
         const XLSXmod: any = await import('xlsx');
         const XLSX = XLSXmod.default || XLSXmod;
@@ -414,7 +408,6 @@ export class ExcelExportService {
       const data: Blob = new Blob([buffer], {
         type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       });
-      // persist export history as a data URL so it can be downloaded later from the history page
       const reader = new FileReader();
       reader.onload = () => {
         try {
@@ -432,8 +425,6 @@ export class ExcelExportService {
         } catch (err) {}
       };
       reader.readAsDataURL(data);
-      // Dynamically import file-saver to avoid bundling CommonJS at startup
-      // This reduces initial bundle size and defers loading until export
       (async () => {
         try {
           const mod: any = await import('file-saver');
@@ -444,7 +435,6 @@ export class ExcelExportService {
             'file-saver dynamic import failed, attempting global save:',
             err
           );
-          // Fallback: attempt to use global saveAs if present
           const globalSave: any = (window as any).saveAs;
           if (typeof globalSave === 'function') {
             globalSave(data, fileName);

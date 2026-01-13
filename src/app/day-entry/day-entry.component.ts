@@ -45,7 +45,6 @@ export class DayEntryComponent implements OnChanges {
     if (changes['day']) {
       this.localDay = { ...this.day };
       this._formattedDate = null;
-      // Initialize tasks array from day or from legacy fields
       if (this.day.tasks && this.day.tasks.length > 0) {
         this.localTasks = this.day.tasks.map((t) => ({ ...t }));
       } else {
@@ -92,10 +91,8 @@ export class DayEntryComponent implements OnChanges {
     }
   }
 
-  // Task-level operations
   updateTask(taskIndex: number, field: keyof Task, value: any): void {
     let newValue: any = value;
-    // If an Event was passed from template, extract the target value
     if (value && value.target) {
       const target = value.target as HTMLInputElement | HTMLSelectElement;
       newValue = target.type === 'number' ? +target.value : target.value;

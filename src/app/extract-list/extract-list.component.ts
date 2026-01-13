@@ -14,7 +14,6 @@ export class ExtractListComponent {
   @Output() manage = new EventEmitter<void>();
   @Input() showManager = false;
 
-  // form bindings passed from parent
   @Input() newExtractId: string = '';
   @Input() newExtractCode: string = '';
   @Input() newExtractDesc: string = '';

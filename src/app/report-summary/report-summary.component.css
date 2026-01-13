@@ -153,7 +153,6 @@
   padding-left: var(--spacing-sm);
 }
 
-/* Ensure prominent report summary headings are white */
 .report-summary .main-title,
 .report-summary .month-title,
 .report-summary .employee-name,

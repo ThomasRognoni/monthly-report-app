@@ -16,7 +16,6 @@ export class ExportHistoryComponent {
 
   constructor() {
     this.refresh();
-    // listen for changes
     try {
       this.persistence.changes.addEventListener('change', (e: any) => {
         if (e?.detail?.type === 'exportHistory') this.refresh();
@@ -25,7 +24,6 @@ export class ExportHistoryComponent {
   }
 
   download(item: any) {
-    // item should include a data URL and filename
     if (!item?.dataUrl) return;
     const a = document.createElement('a');
     a.href = item.dataUrl;
