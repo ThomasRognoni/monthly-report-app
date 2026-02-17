@@ -5,3 +5,103 @@
 .page-container h2 {
     margin-bottom: 1rem
 }
+
+/* Compact day rows */
+.days-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.day-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
+    border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.day-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 200px;
+}
+
+.date-pill {
+    background: rgba(0, 0, 0, 0.06);
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-weight: 600;
+}
+
+.code-label {
+    color: rgba(255, 255, 255, 0.85);
+    opacity: 0.9;
+}
+
+.day-center {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 180px;
+}
+
+.hours-input {
+    width: 84px;
+    padding: 6px 8px;
+    border-radius: 6px;
+}
+
+.notes-input {
+    flex: 1;
+    padding: 6px 8px;
+    border-radius: 6px;
+}
+
+.extract-select {
+    padding: 6px 8px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.03);
+    color: inherit;
+}
+
+.client-quick {
+    margin-left: 8px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.06);
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.day-right {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.actions-row {
+    margin-top: 12px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+@media (max-width: 720px) {
+    .day-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .day-left {
+        min-width: auto;
+    }
+
+    .day-center {
+        min-width: auto;
+    }
+}

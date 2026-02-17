@@ -61,7 +61,10 @@
     </div>
     <div class="holidays-list">
       <div
-        *ngFor="let holiday of getCurrentMonthHolidays()"
+        *ngFor="
+          let holiday of getCurrentMonthHolidays();
+          trackBy: trackByHoliday
+        "
         class="holiday-item"
       >
         <span class="holiday-date">{{ formatHolidayDate(holiday.date) }}</span>
@@ -79,11 +82,7 @@
       <button class="btn btn-outline" (click)="toggleHolidayManager()">
         Gestisci festività
       </button>
-      <div
-        *ngIf="showHolidayManager()"
-        class="form-inline"
-        style="margin-top: 8px"
-      >
+      <div *ngIf="showHolidayManager()" class="form-inline mt-8">
         <input
           id="holiday-date"
           type="date"
@@ -148,43 +147,45 @@
     </div>
 
     @if (hasExceededDailyLimit()) {
-    <div class="alert alert-warning" role="alert" aria-live="polite">
-      <span class="warning-icon" aria-hidden="true">⚠️</span>
-      <div class="warning-content">
-        <strong>Attenzione:</strong> Alcuni giorni superano il limite di 8 ore.
-        <div class="exceeded-days">
-          @for (day of getExceededDays(); track day.date) {
-          <div class="exceeded-day">
-            {{ day.date | date : "dd/MM/yyyy" }}: {{ day.hours }} ore
+      <div class="alert alert-warning" role="alert" aria-live="polite">
+        <span class="warning-icon" aria-hidden="true">⚠️</span>
+        <div class="warning-content">
+          <strong>Attenzione:</strong> Alcuni giorni superano il limite di 8
+          ore.
+          <div class="exceeded-days">
+            @for (day of getExceededDays(); track day.date) {
+              <div class="exceeded-day">
+                {{ day.date | date: "dd/MM/yyyy" }}: {{ day.hours }} ore
+              </div>
+            }
           </div>
-          }
         </div>
       </div>
-    </div>
     }
 
     <div class="entries-container">
       @for (day of days(); track day.date.getTime(); let i = $index) {
-      <app-day-entry
-        [day]="day"
-        [index]="i"
-        [activityCodes]="activityCodes()"
-        [extracts]="extracts()"
-        [dailyHours]="getDailyHoursForDate(day.date)"
-        (update)="updateDayEntry($event)"
-        (remove)="removeDayEntry($event)"
-        role="row"
-      >
-      </app-day-entry>
-      } @if (days().length === 0) {
-      <div class="no-entries" aria-live="polite">
-        <div class="no-entries-icon" aria-hidden="true">📅</div>
-        <h4>Nessun giorno inserito</h4>
-        <p>
-          Clicca "Carica Template Mese" per iniziare o "Aggiungi Giorno" per
-          inserire manualmente.
-        </p>
-      </div>
+        <app-day-entry
+          [day]="day"
+          [index]="i"
+          [activityCodes]="activityCodes()"
+          [extracts]="extracts()"
+          [dailyHours]="getDailyHoursForDate(day.date)"
+          (update)="updateDayEntry($event)"
+          (remove)="removeDayEntry($event)"
+          role="row"
+        >
+        </app-day-entry>
+      }
+      @if (days().length === 0) {
+        <div class="no-entries" aria-live="polite">
+          <div class="no-entries-icon" aria-hidden="true">📅</div>
+          <h4>Nessun giorno inserito</h4>
+          <p>
+            Clicca "Carica Template Mese" per iniziare o "Aggiungi Giorno" per
+            inserire manualmente.
+          </p>
+        </div>
       }
     </div>
   </section>
@@ -223,37 +224,38 @@
       </div>
 
       @if (days().length > 0 && !allDaysValid()) {
-      <div class="validation-warning" role="alert" aria-live="polite">
-        <span class="warning-icon" aria-hidden="true">⚠️</span>
-        <div>
-          <strong>Completa tutti i campi obbligatori:</strong>
-          <ul>
-            <li>Codice attività selezionato per ogni giorno</li>
-            <li>Ore comprese tra 1 e 8 per ogni voce</li>
-            <li>Non più di 8 ore totali per giorno</li>
-          </ul>
+        <div class="validation-warning" role="alert" aria-live="polite">
+          <span class="warning-icon" aria-hidden="true">⚠️</span>
+          <div>
+            <strong>Completa tutti i campi obbligatori:</strong>
+            <ul>
+              <li>Codice attività selezionato per ogni giorno</li>
+              <li>Ore comprese tra 1 e 8 per ogni voce</li>
+              <li>Non più di 8 ore totali per giorno</li>
+            </ul>
+          </div>
         </div>
-      </div>
-      } @if (days().length > 0 && !isMonthFullyFilled()) {
-      <div class="validation-warning" role="alert" aria-live="polite">
-        <span class="warning-icon" aria-hidden="true">⚠️</span>
-        <div>
-          <strong>Mese non completamente compilato:</strong>
-          <ul>
-            <li>
-              Assicurati di aver inserito esattamente 8 ore per ogni giorno
-              lavorativo del mese
-            </li>
-            <li>Giorni lavorativi totali: {{ totalWorkDays() }}</li>
-            <li>Giorni dichiarati: {{ totalDeclaredDays() }}</li>
-            @if (getCurrentMonthHolidays().length > 0) {
-            <li>
-              Festività considerate: {{ getCurrentMonthHolidays().length }}
-            </li>
-            }
-          </ul>
+      }
+      @if (days().length > 0 && !isMonthFullyFilled()) {
+        <div class="validation-warning" role="alert" aria-live="polite">
+          <span class="warning-icon" aria-hidden="true">⚠️</span>
+          <div>
+            <strong>Mese non completamente compilato:</strong>
+            <ul>
+              <li>
+                Assicurati di aver inserito esattamente 8 ore per ogni giorno
+                lavorativo del mese
+              </li>
+              <li>Giorni lavorativi totali: {{ totalWorkDays() }}</li>
+              <li>Giorni dichiarati: {{ totalDeclaredDays() }}</li>
+              @if (getCurrentMonthHolidays().length > 0) {
+                <li>
+                  Festività considerate: {{ getCurrentMonthHolidays().length }}
+                </li>
+              }
+            </ul>
+          </div>
         </div>
-      </div>
       }
     </div>
   </section>

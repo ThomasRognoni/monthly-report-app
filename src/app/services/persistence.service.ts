@@ -15,6 +15,7 @@ export class PersistenceService {
   private readonly ADMIN_EMAIL_KEY = 'monthly-report-admin-email';
   private readonly EXPORT_HISTORY_KEY = 'export-history';
   private readonly CURRENT_MONTH_KEY = 'current-month-key';
+  private readonly UI_STATE_KEY = 'monthly-report-ui-state';
 
   public readonly changes = new EventTarget();
 
@@ -35,7 +36,7 @@ export class PersistenceService {
               if (Array.isArray(parsed)) {
                 localStorage.setItem(this.EXTRACTS_KEY, JSON.stringify(parsed));
                 console.info(
-                  `PersistenceService: migrated extracts from ${k} to ${this.EXTRACTS_KEY}`
+                  `PersistenceService: migrated extracts from ${k} to ${this.EXTRACTS_KEY}`,
                 );
                 break;
               }
@@ -43,6 +44,62 @@ export class PersistenceService {
           } catch (e) {}
         }
       }
+      // Ensure a current-month-key exists (default to current month) so pages open with a month selected
+      try {
+        const cm = localStorage.getItem(this.CURRENT_MONTH_KEY);
+        if (!cm) {
+          const now = new Date();
+          const key = `${now.getFullYear()}-${(now.getMonth() + 1)
+            .toString()
+            .padStart(2, '0')}`;
+          localStorage.setItem(this.CURRENT_MONTH_KEY, key);
+        }
+      } catch (e) {}
+      // If extracts are not present, seed with sensible defaults so the Extracts page shows data
+      try {
+        const raw = localStorage.getItem(this.EXTRACTS_KEY);
+        const parsed = raw ? JSON.parse(raw) : null;
+        if (!parsed || (Array.isArray(parsed) && parsed.length === 0)) {
+          const defaults = [
+            {
+              id: 'ESA3582021',
+              code: 'D',
+              description: 'MONTE DEI PASCHI',
+              client: 'MPS',
+              totalDays: 0,
+            },
+            {
+              id: 'BD0002022S',
+              code: 'D',
+              description: 'BANCO DI DESIO',
+              client: 'BdD',
+              totalDays: 0,
+            },
+            {
+              id: 'ESA9992024S',
+              code: 'D',
+              description: 'BCC',
+              client: 'BCC',
+              totalDays: 0,
+            },
+            {
+              id: 'ESAPAM2024S',
+              code: 'D',
+              description: 'PAM',
+              client: 'PAM',
+              totalDays: 0,
+            },
+            {
+              id: 'ESA9982024S',
+              code: 'D',
+              description: 'FormIO',
+              client: 'MEDIOLANUM',
+              totalDays: 0,
+            },
+          ];
+          localStorage.setItem(this.EXTRACTS_KEY, JSON.stringify(defaults));
+        }
+      } catch (e) {}
     } catch (e) {}
   }
 
@@ -54,20 +111,20 @@ export class PersistenceService {
       const ts = new Date().toISOString();
       const stack = new Error('stack').stack || '';
       console.debug(
-        `PersistenceService.saveMonthlyData: ${ts} month=${month} entries=${data.length}`
+        `PersistenceService.saveMonthlyData: ${ts} month=${month} entries=${data.length}`,
       );
       try {
         const sample = data && data.length > 0 ? data[0] : null;
         console.debug(
           'PersistenceService.saveMonthlyData sample[0]=',
-          sample ? JSON.stringify(sample).slice(0, 1000) : null
+          sample ? JSON.stringify(sample).slice(0, 1000) : null,
         );
       } catch (e) {}
       console.debug(stack.split('\n').slice(0, 4).join('\n'));
     } catch (e) {}
     try {
       this.changes.dispatchEvent(
-        new CustomEvent('change', { detail: { type: 'monthlyData', month } })
+        new CustomEvent('change', { detail: { type: 'monthlyData', month } }),
       );
     } catch (e) {}
   }
@@ -86,13 +143,13 @@ export class PersistenceService {
       const ts = new Date().toISOString();
       const stack = new Error('stack').stack || '';
       console.debug(
-        `PersistenceService.clearMonthlyData: ${ts} month=${month}`
+        `PersistenceService.clearMonthlyData: ${ts} month=${month}`,
       );
       console.debug(stack.split('\n').slice(0, 4).join('\n'));
     } catch (e) {}
     try {
       this.changes.dispatchEvent(
-        new CustomEvent('change', { detail: { type: 'monthlyData', month } })
+        new CustomEvent('change', { detail: { type: 'monthlyData', month } }),
       );
     } catch (e) {}
   }
@@ -121,7 +178,7 @@ export class PersistenceService {
       localStorage.setItem(this.NAME_KEY, name || '');
       try {
         this.changes.dispatchEvent(
-          new CustomEvent('change', { detail: { type: 'employeeName' } })
+          new CustomEvent('change', { detail: { type: 'employeeName' } }),
         );
       } catch (e) {}
     } catch (e) {}
@@ -141,7 +198,7 @@ export class PersistenceService {
       localStorage.setItem(this.EXTRACTS_KEY, JSON.stringify(extracts || []));
       try {
         this.changes.dispatchEvent(
-          new CustomEvent('change', { detail: { type: 'extracts' } })
+          new CustomEvent('change', { detail: { type: 'extracts' } }),
         );
       } catch (e) {}
     } catch (e) {}
@@ -161,7 +218,7 @@ export class PersistenceService {
       localStorage.setItem(this.ADMIN_EMAIL_KEY, email || '');
       try {
         this.changes.dispatchEvent(
-          new CustomEvent('change', { detail: { type: 'adminEmail' } })
+          new CustomEvent('change', { detail: { type: 'adminEmail' } }),
         );
       } catch (e) {}
     } catch (e) {}
@@ -178,11 +235,11 @@ export class PersistenceService {
       hist.unshift(item);
       localStorage.setItem(
         this.EXPORT_HISTORY_KEY,
-        JSON.stringify(hist.slice(0, 50))
+        JSON.stringify(hist.slice(0, 50)),
       );
       try {
         this.changes.dispatchEvent(
-          new CustomEvent('change', { detail: { type: 'exportHistory' } })
+          new CustomEvent('change', { detail: { type: 'exportHistory' } }),
         );
       } catch (e) {}
     } catch (e) {}
@@ -204,14 +261,14 @@ export class PersistenceService {
         const ts = new Date().toISOString();
         const stack = new Error('stack').stack || '';
         console.debug(
-          `PersistenceService.saveCurrentMonthKey: ${ts} key=${key}`
+          `PersistenceService.saveCurrentMonthKey: ${ts} key=${key}`,
         );
         const stackLines = stack.split('\n').slice(0, 4).join('\n');
         console.debug(stackLines);
       } catch (e) {}
       try {
         this.changes.dispatchEvent(
-          new CustomEvent('change', { detail: { type: 'currentMonth', key } })
+          new CustomEvent('change', { detail: { type: 'currentMonth', key } }),
         );
       } catch (e) {}
     } catch (e) {}
@@ -232,6 +289,26 @@ export class PersistenceService {
       return v && v.length > 0 ? v : null;
     } catch (e) {
       return null;
+    }
+  }
+
+  saveUiState(state: any): void {
+    try {
+      localStorage.setItem(this.UI_STATE_KEY, JSON.stringify(state || {}));
+      try {
+        this.changes.dispatchEvent(
+          new CustomEvent('change', { detail: { type: 'uiState' } }),
+        );
+      } catch (e) {}
+    } catch (e) {}
+  }
+
+  getUiState(): any {
+    try {
+      const raw = localStorage.getItem(this.UI_STATE_KEY);
+      return raw ? JSON.parse(raw) : {};
+    } catch (e) {
+      return {};
     }
   }
 }

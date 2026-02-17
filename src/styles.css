@@ -258,6 +258,24 @@ h4 {
   box-shadow: none;
 }
 
+/* Small utility helpers */
+.gap-8 {
+  gap: 8px;
+}
+
+.mt-8 {
+  margin-top: 8px;
+}
+
+.items-center {
+  align-items: center;
+}
+
+/* Opacity utilities */
+.opacity-80 {
+  opacity: 0.8;
+}
+
 .card {
   background: white;
   border-radius: 12px;

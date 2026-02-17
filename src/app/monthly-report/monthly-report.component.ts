@@ -130,7 +130,7 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
   readonly totalHours = computed(() =>
     this.days().reduce((sum, day) => {
       return sum + (day.prefilled ? 0 : day.hours);
-    }, 0)
+    }, 0),
   );
 
   readonly dailyHours = computed((): DailyHours => {
@@ -144,7 +144,7 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
 
   readonly hasExceededDailyLimit = computed(() => {
     const exceeded = Object.values(this.dailyHours()).some(
-      (hours) => hours > 8
+      (hours) => hours > 8,
     );
     return exceeded;
   });
@@ -175,18 +175,18 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
   });
 
   readonly totalDeclaredHours = computed(() =>
-    this.days().reduce((sum, day) => sum + (day.hours || 0), 0)
+    this.days().reduce((sum, day) => sum + (day.hours || 0), 0),
   );
 
   readonly totalDeclaredDays = computed(() => {
     const uniqueDates = new Set(
-      this.days().map((day) => day.date.toDateString())
+      this.days().map((day) => day.date.toDateString()),
     );
     return uniqueDates.size;
   });
 
   readonly quadrature = computed(
-    () => this.totalWorkDays() - this.totalDeclaredDays()
+    () => this.totalWorkDays() - this.totalDeclaredDays(),
   );
 
   readonly overtime = computed(() => {
@@ -241,9 +241,21 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
     }
   });
 
+  // Persist simple UI state (e.g., holiday input values) on change
+  readonly persistUiStateEffect = effect(() => {
+    const hd = this.holidayDateModel();
+    const hr = this.holidayReasonModel();
+    try {
+      this.persistenceService.saveUiState({
+        holidayDateModel: hd || '',
+        holidayReasonModel: hr || '',
+      });
+    } catch (e) {}
+  });
+
   private areDaysEqual(
     a: DayEntry[] | null | undefined,
-    b: DayEntry[] | null | undefined
+    b: DayEntry[] | null | undefined,
   ): boolean {
     if (!a && !b) return true;
     if (!a || !b) return false;
@@ -304,7 +316,7 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
       const normalizedDate = new Date(
         entry.date.getFullYear(),
         entry.date.getMonth(),
-        entry.date.getDate()
+        entry.date.getDate(),
       );
       const key = normalizedDate.toDateString();
       dailyHours[key] = (dailyHours[key] || 0) + entry.hours;
@@ -340,7 +352,7 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
     const invalidDays = this.days().filter((day) => {
       const tasks = day.tasks || [{ code: day.code, hours: day.hours }];
       const hasInvalidTask = tasks.some(
-        (t) => !t.code?.trim() || t.hours <= 0 || isNaN(t.hours) || t.hours > 8
+        (t) => !t.code?.trim() || t.hours <= 0 || isNaN(t.hours) || t.hours > 8,
       );
       return hasInvalidTask;
     });
@@ -377,23 +389,23 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
         this.currentMonth.set(firstOfMonth);
         try {
           this.persistenceService.saveCurrentMonthKey(
-            this.getCurrentMonthKey()
+            this.getCurrentMonthKey(),
           );
         } catch (e) {}
       }
 
       const saved = this.persistenceService.getMonthlyData(
-        this.getCurrentMonthKey()
+        this.getCurrentMonthKey(),
       );
       console.debug(
         'MonthlyReport.ngOnInit: loaded saved days length=',
-        saved?.length || 0
+        saved?.length || 0,
       );
       try {
         if (saved && saved.length > 0)
           console.debug(
             'MonthlyReport.ngOnInit sample[0]=',
-            JSON.stringify(saved[0]).slice(0, 1000)
+            JSON.stringify(saved[0]).slice(0, 1000),
           );
       } catch (e) {}
 
@@ -403,7 +415,7 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
         this.days.set([]);
       } else {
         const saved = this.persistenceService.getMonthlyData(
-          this.getCurrentMonthKey()
+          this.getCurrentMonthKey(),
         );
         if (saved && Array.isArray(saved) && saved.length > 0) {
           this.days.set(saved as DayEntry[]);
@@ -429,6 +441,14 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
       }
       const savedEmail = this.persistenceService.getAdminEmail();
       if (savedEmail) this.adminEmail.set(savedEmail);
+      // Restore small UI state (holiday inputs, etc.)
+      try {
+        const ui = this.persistenceService.getUiState() || {};
+        if (ui) {
+          this.holidayDateModel.set(ui.holidayDateModel || '');
+          this.holidayReasonModel.set(ui.holidayReasonModel || '');
+        }
+      } catch (e) {}
     } catch (e) {}
 
     try {
@@ -445,7 +465,7 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
               'MonthlyReport: persistence change',
               e.detail,
               'currentKey=',
-              current
+              current,
             );
             if (changedMonth && current && changedMonth === current) {
               const saved = this.persistenceService.getMonthlyData(current);
@@ -453,13 +473,13 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
                 'MonthlyReport: reloading days for',
                 current,
                 'len=',
-                saved?.length || 0
+                saved?.length || 0,
               );
               try {
                 if (saved && saved.length > 0)
                   console.debug(
                     'MonthlyReport: reload sample[0]=',
-                    JSON.stringify(saved[0]).slice(0, 1000)
+                    JSON.stringify(saved[0]).slice(0, 1000),
                   );
               } catch (e) {}
               this.days.set(saved as DayEntry[]);
@@ -468,6 +488,10 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
         } catch (err) {}
       });
     } catch (e) {}
+  }
+
+  trackByHoliday(index: number, item: any): string {
+    return item?.date || index.toString();
   }
 
   ngOnDestroy(): void {
@@ -501,20 +525,28 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
           const tasks: Task[] = event.value || [];
           const totalHours = tasks.reduce(
             (s: number, t: Task) => s + (t.hours || 0),
-            0
+            0,
           );
           return { ...day, tasks, hours: totalHours };
         }
 
         return { ...day, [event.field]: event.value };
-      })
+      }),
     );
     this.saveCurrentData();
+    try {
+      const key = this.getCurrentMonthKey();
+      if (key) this.persistenceService.saveMonthlyData(key, this.days());
+    } catch (e) {}
   }
 
   removeDayEntry(index: number): void {
     this.days.update((days) => days.filter((_, i) => i !== index));
     this.saveCurrentData();
+    try {
+      const key = this.getCurrentMonthKey();
+      if (key) this.persistenceService.saveMonthlyData(key, this.days());
+    } catch (e) {}
   }
 
   addDayEntry(): void {
@@ -537,6 +569,10 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
     };
     this.days.update((days) => [...days, newEntry]);
     this.saveCurrentData();
+    try {
+      const key = this.getCurrentMonthKey();
+      if (key) this.persistenceService.saveMonthlyData(key, this.days());
+    } catch (e) {}
   }
 
   onMonthChange(event: Event): void {
@@ -553,7 +589,7 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
 
       try {
         const saved = this.persistenceService.getMonthlyData(
-          this.getCurrentMonthKey()
+          this.getCurrentMonthKey(),
         );
         if (saved && Array.isArray(saved) && saved.length > 0) {
           this.days.set(saved as DayEntry[]);
@@ -650,7 +686,10 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
   }
 
   getFormattedMonth(): string {
-    return this.currentMonth().toISOString().substring(0, 7);
+    const m = this.currentMonth();
+    const yyyy = m.getFullYear();
+    const mm = (m.getMonth() + 1).toString().padStart(2, '0');
+    return `${yyyy}-${mm}`;
   }
 
   getDailyHoursForDate(date: Date): number {
@@ -731,7 +770,7 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
     };
 
     const exportButton = document.querySelector(
-      '.btn-export'
+      '.btn-export',
     ) as HTMLButtonElement | null;
     const originalText =
       exportButton && exportButton.textContent
@@ -792,7 +831,7 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
       if (editingId) {
         this.extracts.update((list) => {
           const next = list.map((e) =>
-            e.id === editingId ? { ...e, id, code, description, client } : e
+            e.id === editingId ? { ...e, id, code, description, client } : e,
           );
           this.persistenceService.saveExtracts(next);
           return next;
@@ -821,7 +860,7 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
       this.editingExtractId.set(null);
       setTimeout(() => {
         const el = document.getElementById(
-          'new-extract-id'
+          'new-extract-id',
         ) as HTMLInputElement | null;
         el?.focus();
       }, 50);
@@ -853,7 +892,7 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
     this.newExtractClient.set(ex.client || '');
     setTimeout(() => {
       const el = document.getElementById(
-        'new-extract-id'
+        'new-extract-id',
       ) as HTMLInputElement | null;
       el?.focus();
     }, 50);
@@ -872,7 +911,7 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
     this.showHolidayManager.update((v) => !v);
     setTimeout(() => {
       const el = document.getElementById(
-        'holiday-date'
+        'holiday-date',
       ) as HTMLInputElement | null;
       if (this.showHolidayManager()) el?.focus();
     }, 50);
@@ -890,7 +929,7 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
     if (!dateIso) return;
     const res = this.holidayService.addHoliday(
       dateIso,
-      reason || 'Festività aziendale'
+      reason || 'Festività aziendale',
     );
     if (res.status === 'saved') {
     }
@@ -905,12 +944,12 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
     const y = year || this.currentMonth().getFullYear();
     this.holidayService.addHoliday(
       `${y}-08-15`,
-      'Chiusura azienda - Ferragosto'
+      'Chiusura azienda - Ferragosto',
     );
     this.holidayService.addHoliday(`${y}-08-16`, 'Chiusura azienda');
     this.holidayService.addHoliday(
       `${y}-12-24`,
-      'Chiusura azienda (mezza giornata)'
+      'Chiusura azienda (mezza giornata)',
     );
   }
 
@@ -962,7 +1001,7 @@ export class MonthlyReportComponent implements OnInit, OnDestroy {
       const monthNumber = month.getMonth() + 1;
       const holidays = this.holidayService.getHolidaysForMonth(
         year,
-        monthNumber
+        monthNumber,
       );
 
       errorMessage += `• Inserisci ore per tutti i giorni lavorativi del mese\n`;

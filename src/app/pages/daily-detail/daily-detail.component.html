@@ -8,51 +8,62 @@
   </div>
 
   <div *ngIf="days.length > 0">
-    <table style="width: 100%; border-collapse: collapse">
-      <thead>
-        <tr style="text-align: left; border-bottom: 1px solid #ddd">
-          <th>Data</th>
-          <th>Codice</th>
-          <th>Ore</th>
-          <th>Note</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr
-          *ngFor="let d of days; let i = index"
-          style="border-bottom: 1px solid rgba(0, 0, 0, 0.04)"
-        >
-          <td>{{ d.date | date : "dd/MM/yyyy" }}</td>
-          <td>{{ d.code }}</td>
-          <td>
-            <input
-              type="number"
-              min="0"
-              max="24"
-              [value]="d.hours"
-              (change)="
-                updateDay(i, 'hours', $any($event.target).valueAsNumber)
-              "
-              style="width: 80px"
-            />
-          </td>
-          <td>
-            <input
-              type="text"
-              [value]="d.notes"
-              (change)="updateDay(i, 'notes', $any($event.target).value)"
-            />
-          </td>
-          <td>
-            <button class="btn btn-outline" (click)="removeDay(i)">
-              Rimuovi
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-    <div style="margin-top: 12px">
+    <div class="days-list">
+      <div
+        *ngFor="let d of days; let i = index; trackBy: trackByDay"
+        class="day-row"
+      >
+        <div class="day-left">
+          <div class="date-pill">{{ d.date | date: "dd/MM/yyyy" }}</div>
+          <div class="code-label">{{ d.code }}</div>
+        </div>
+
+        <div class="day-center">
+          <input
+            type="number"
+            min="0"
+            max="24"
+            class="hours-input"
+            [(ngModel)]="d.hours"
+            (ngModelChange)="updateDay(i, 'hours', $event)"
+            aria-label="Ore"
+          />
+
+          <select
+            class="extract-select"
+            [(ngModel)]="d.extract"
+            (ngModelChange)="updateDay(i, 'extract', $event)"
+          >
+            <option value="">-- Nessun estratto --</option>
+            <option
+              *ngFor="let ex of extracts; trackBy: trackByExtract"
+              [value]="ex.id"
+            >
+              {{ ex.code }} - {{ ex.id }}
+            </option>
+          </select>
+          <span class="client-quick">{{ getClientForExtract(d.extract) }}</span>
+
+          <input
+            type="text"
+            class="notes-input"
+            placeholder="Note"
+            [(ngModel)]="d.notes"
+            (ngModelChange)="updateDay(i, 'notes', $event)"
+            aria-label="Note"
+          />
+        </div>
+
+        <div class="day-right">
+          <button class="btn btn-ghost small" (click)="editDay(i)">
+            Dettagli
+          </button>
+          <button class="btn btn-danger small" (click)="removeDay(i)">✕</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions-row">
       <button class="btn btn-primary" (click)="addDay()">
         Aggiungi Giorno
       </button>

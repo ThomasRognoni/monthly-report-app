@@ -1,14 +1,15 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { DayEntryComponent } from '../../day-entry/day-entry.component';
 import { inject } from '@angular/core';
 import { PersistenceService } from '../../services/persistence.service';
-import { DayEntry } from '../../models/day-entry.model';
+import { DayEntry, Extract } from '../../models/day-entry.model';
 
 @Component({
   selector: 'app-daily-detail',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './daily-detail.component.html',
   styleUrls: ['./daily-detail.component.css'],
 })
@@ -16,6 +17,8 @@ export class DailyDetailComponent {
   private persistence = inject(PersistenceService);
 
   days: DayEntry[] = [];
+  extracts: Extract[] = [];
+  expandedIndex: number | null = null;
 
   constructor() {
     this.refresh();
@@ -30,11 +33,29 @@ export class DailyDetailComponent {
     } catch (e) {}
   }
 
+  trackByDay(index: number, item: DayEntry): string {
+    try {
+      return item?.date ? new Date(item.date).toISOString() : index.toString();
+    } catch (e) {
+      return index.toString();
+    }
+  }
+
+  trackByExtract(index: number, item: Extract): string {
+    return item?.id || index.toString();
+  }
+
   private refresh() {
     try {
       const key = this.persistence.getCurrentMonthKey();
       if (key) this.days = this.persistence.getMonthlyData(key);
       else this.days = [];
+      // load global extracts for selection
+      try {
+        this.extracts = this.persistence.getExtracts() || [];
+      } catch (e) {
+        this.extracts = [];
+      }
     } catch (e) {
       this.days = [];
     }
@@ -59,7 +80,7 @@ export class DailyDetailComponent {
         list.map((d: any) => ({
           ...d,
           date: typeof d.date === 'string' ? new Date(d.date) : d.date,
-        })) as DayEntry[]
+        })) as DayEntry[],
       );
       this.refresh();
     } catch (e) {}
@@ -76,7 +97,7 @@ export class DailyDetailComponent {
         list.map((d: any) => ({
           ...d,
           date: typeof d.date === 'string' ? new Date(d.date) : d.date,
-        })) as DayEntry[]
+        })) as DayEntry[],
       );
       this.refresh();
     } catch (e) {}
@@ -91,14 +112,33 @@ export class DailyDetailComponent {
       if (!item) return;
       if (field === 'hours') item.hours = Number(value) || 0;
       else (item as any)[field] = value;
+
+      // if extract changed, sync client automatically
+      if (field === 'extract') {
+        const ex = this.extracts.find(
+          (e) => e.id === value || e.code === value,
+        );
+        if (ex) item.client = ex.client || item.client;
+      }
       this.persistence.saveMonthlyData(
         key,
         list.map((d: any) => ({
           ...d,
           date: typeof d.date === 'string' ? new Date(d.date) : d.date,
-        })) as DayEntry[]
+        })) as DayEntry[],
       );
       this.refresh();
     } catch (e) {}
+  }
+
+  editDay(index: number) {
+    // toggle expanded index for future detailed editor
+    this.expandedIndex = this.expandedIndex === index ? null : index;
+  }
+
+  getClientForExtract(id: string | undefined): string {
+    if (!id) return '';
+    const ex = this.extracts.find((e) => e.id === id || e.code === id);
+    return ex?.client || '';
   }
 }

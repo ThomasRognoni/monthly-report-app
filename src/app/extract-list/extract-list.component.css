@@ -379,6 +379,26 @@
   font-size: var(--font-size-sm);
 }
 
+/* Utility classes to replace inline styles */
+.flex-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.gap-8 {
+  gap: 8px;
+}
+
+.flex-row-justify-end {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.mt-8 {
+  margin-top: 8px;
+}
+
 @media (max-width: 1024px) {
   .extract-grid {
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -397,6 +417,32 @@
 
   .section-subtitle {
     font-size: var(--font-size-base);
+  }
+
+
+  /* Overrides: remove white panels / card backgrounds per user request */
+  .extract-detail-card,
+  .extract-card,
+  .feature-card,
+  .extract-row.card,
+  .extract-management-card,
+  .total-card {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+  }
+
+  .extract-header {
+    background: transparent !important;
+    border-bottom: none !important;
+  }
+
+  .client-badge,
+  .extract-code,
+  .extract-total {
+    background: rgba(255, 255, 255, 0.06) !important;
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
   }
 
   .extract-grid {

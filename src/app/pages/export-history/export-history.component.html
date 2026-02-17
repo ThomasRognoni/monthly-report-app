@@ -8,19 +8,11 @@
     </div>
 
     <ul *ngIf="history.length > 0">
-      <li *ngFor="let item of history">
-        <div
-          class="history-row"
-          style="
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 8px;
-          "
-        >
+      <li *ngFor="let item of history; trackBy: trackByHistory">
+        <div class="history-row flex justify-between items-center gap-8">
           <div>
             <strong>{{ item.filename }}</strong>
-            <div style="font-size: 0.85rem; opacity: 0.8">{{ item.date }}</div>
+            <div class="text-sm opacity-80">{{ item.date }}</div>
           </div>
           <div>
             <button class="btn btn-outline" (click)="download(item)">

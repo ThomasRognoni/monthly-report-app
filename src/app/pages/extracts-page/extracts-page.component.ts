@@ -27,6 +27,17 @@ export class ExtractsPageComponent {
   constructor() {
     this.refresh();
     try {
+      const ui = this.persistence.getUiState() || {};
+      if (ui) {
+        this.newExtractId = ui.newExtractId || this.newExtractId;
+        this.newExtractCode = ui.newExtractCode || this.newExtractCode;
+        this.newExtractDesc = ui.newExtractDesc || this.newExtractDesc;
+        this.newExtractClient = ui.newExtractClient || this.newExtractClient;
+        this.editingExtractId = ui.editingExtractId || this.editingExtractId;
+        this.showManager = ui.showManager || this.showManager;
+      }
+    } catch (e) {}
+    try {
       this.persistence.changes.addEventListener('change', (e: any) => {
         if (
           e?.detail?.type === 'extracts' ||
@@ -36,6 +47,39 @@ export class ExtractsPageComponent {
           this.refresh();
       });
     } catch (e) {}
+  }
+
+  private persistUiForm() {
+    try {
+      this.persistence.saveUiState({
+        newExtractId: this.newExtractId,
+        newExtractCode: this.newExtractCode,
+        newExtractDesc: this.newExtractDesc,
+        newExtractClient: this.newExtractClient,
+        editingExtractId: this.editingExtractId,
+        showManager: this.showManager,
+      });
+    } catch (e) {}
+  }
+
+  onNewExtractIdChange(v: string) {
+    this.newExtractId = v || '';
+    this.persistUiForm();
+  }
+
+  onNewExtractCodeChange(v: string) {
+    this.newExtractCode = v || '';
+    this.persistUiForm();
+  }
+
+  onNewExtractDescChange(v: string) {
+    this.newExtractDesc = v || '';
+    this.persistUiForm();
+  }
+
+  onNewExtractClientChange(v: string) {
+    this.newExtractClient = v || '';
+    this.persistUiForm();
   }
 
   private refresh() {
@@ -87,7 +131,7 @@ export class ExtractsPageComponent {
         const exists = list.find((x: any) => x['id'] === payload['id']);
         if (exists) {
           const next = list.map((x: any) =>
-            x['id'] === payload['id'] ? { ...x, ...payload } : x
+            x['id'] === payload['id'] ? { ...x, ...payload } : x,
           );
           this.persistence.saveExtracts(next);
         } else {

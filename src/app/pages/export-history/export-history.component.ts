@@ -33,6 +33,14 @@ export class ExportHistoryComponent {
     a.remove();
   }
 
+  trackByHistory(index: number, item: any): string {
+    try {
+      return (item?.date || '') + '|' + (item?.filename || index.toString());
+    } catch (e) {
+      return index.toString();
+    }
+  }
+
   private refresh() {
     try {
       this.history = this.persistence.getExportHistory();

@@ -1,4 +1,10 @@
-import { Component, Input, computed, Output, EventEmitter } from '@angular/core';
+import {
+  Component,
+  Input,
+  computed,
+  Output,
+  EventEmitter,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Extract } from '../models/day-entry.model';
@@ -8,7 +14,7 @@ import { Extract } from '../models/day-entry.model';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './extract-list.component.html',
-  styleUrls: ['./extract-list.component.css']
+  styleUrls: ['./extract-list.component.css'],
 })
 export class ExtractListComponent {
   @Output() manage = new EventEmitter<void>();
@@ -32,13 +38,16 @@ export class ExtractListComponent {
   @Output() remove = new EventEmitter<string>();
   @Input() extracts: Extract[] = [];
   @Input() extractTotals: { [key: string]: number } = {};
-  
+
   @Input() totalDeclaredDays: number | null = null;
 
   private readonly HOURS_PER_DAY = 8;
 
-  readonly totalExtractDays = computed(() => 
-    Object.values(this.extractTotals).reduce((sum, hours) => sum + this.hoursToDays(hours), 0)
+  readonly totalExtractDays = computed(() =>
+    Object.values(this.extractTotals).reduce(
+      (sum, hours) => sum + this.hoursToDays(hours),
+      0,
+    ),
   );
 
   private hoursToDays(hours: number): number {
@@ -50,16 +59,16 @@ export class ExtractListComponent {
   }
 
   getProgressWidth(extractId: string, hours: number): number {
-    const extract = this.extracts.find(e => e.id === extractId);
+    const extract = this.extracts.find((e) => e.id === extractId);
     if (!extract) return 0;
 
     const actualDays = this.hoursToDays(hours);
-    
-    const expectedDays = extract.expectedDays || this.calculateDefaultExpectedDays(extract);
-    
-    if (expectedDays <= 0) return 0;
-    
-    const percentage = (actualDays / expectedDays) * 100;
+
+    // If there are no declared days from the parent (monthly report),
+    // show 0% as required.
+    if (!this.totalDeclaredDays || this.totalDeclaredDays <= 0) return 0;
+
+    const percentage = (actualDays / this.totalDeclaredDays) * 100;
     return Math.min(Math.max(percentage, 0), 100);
   }
 
@@ -67,7 +76,7 @@ export class ExtractListComponent {
     if (extract.id === 'ESAPAM2024S') {
       return 22;
     }
-    
+
     return 20;
   }
 
@@ -99,7 +108,12 @@ export class ExtractListComponent {
 
   onAddExtract(): void {
     if (!this.newExtractId || !this.newExtractCode) return;
-    this.addExtract.emit({ id: this.newExtractId || '', code: this.newExtractCode || '', description: this.newExtractDesc || '', client: this.newExtractClient || '' });
+    this.addExtract.emit({
+      id: this.newExtractId || '',
+      code: this.newExtractCode || '',
+      description: this.newExtractDesc || '',
+      client: this.newExtractClient || '',
+    });
   }
 
   onCancelEdit(): void {
@@ -112,5 +126,20 @@ export class ExtractListComponent {
 
   onRemove(id: string): void {
     this.remove.emit(id);
+  }
+
+  // Helpers used by template buttons to reuse existing outputs
+  startLocalEdit(ex: Extract): void {
+    this.onStartEdit(ex);
+  }
+
+  removeLocal(id: string): void {
+    const ok = confirm(`Confermi la rimozione dell'estratto ${id}?`);
+    if (!ok) return;
+    this.onRemove(id);
+  }
+
+  trackByExtract(index: number, item: Extract): string {
+    return item?.id || index.toString();
   }
 }
