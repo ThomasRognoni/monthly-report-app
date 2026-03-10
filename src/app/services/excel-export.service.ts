@@ -878,6 +878,24 @@ export class ExcelExportService {
       const fileSaver = window.electronApi?.saveExportFile;
       if (fileSaver) {
         const saved = await fileSaver(fileName, buffer);
+        if (saved?.path && window.electronApi?.openExportFile) {
+          try {
+            const openResult = await window.electronApi.openExportFile(saved.path);
+            if (!openResult?.ok) {
+              this.logger.warn(
+                'ExcelExportService',
+                'Apertura automatica file Excel non riuscita',
+                openResult?.error,
+              );
+            }
+          } catch (err) {
+            this.logger.warn(
+              'ExcelExportService',
+              'Apertura automatica file Excel non riuscita',
+              err,
+            );
+          }
+        }
         try {
           this.persistence.saveExportHistory({
             filename: fileName,
