@@ -1,29 +1,280 @@
 .page-container {
-    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    --card-bg: rgba(255, 255, 255, 0.15);
-    --card-border: rgba(255, 255, 255, 0.2);
-    --text-primary: #ffffff;
-    --blur-effect: blur(10px);
+  --panel-bg: rgba(20, 56, 92, 0.34);
+  --panel-bg-strong: rgba(20, 56, 92, 0.46);
+  --panel-border: rgba(173, 220, 246, 0.34);
+  --panel-text: #ffffff;
+  --panel-text-soft: rgba(245, 252, 255, 0.94);
 
-    min-height: 100vh;
-    padding: 2rem;
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-    background: var(--primary-gradient);
-    color: var(--text-primary);
+  min-height: calc(100dvh - 92px);
+  padding: 1rem;
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 8% 14%, rgba(114, 213, 244, 0.26), transparent 36%),
+    radial-gradient(circle at 90% 4%, rgba(151, 152, 255, 0.2), transparent 34%),
+    linear-gradient(150deg, #12345c 0%, #1f578b 52%, #3474ab 100%);
+  display: grid;
+  gap: 1rem;
+  align-content: start;
+  align-items: start;
+  color: var(--panel-text);
 }
 
-.page-container h2 {
-    margin: 0 0 0.5rem 0;
-    color: var(--text-primary);
+.page-header,
+.content-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 16px;
+  backdrop-filter: blur(5px);
+  box-shadow: 0 14px 26px -24px rgba(5, 18, 34, 0.66);
+}
+
+.page-header {
+  padding: 1.1rem 1.2rem;
+}
+
+.page-title {
+  margin: 0;
+  color: #ffffff;
+  letter-spacing: 0.01em;
+}
+
+.history-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+  margin-bottom: 0.9rem;
+}
+
+.header-subtitle {
+  margin: 0;
+  max-width: 620px;
+  color: var(--panel-text-soft);
+}
+
+.header-stats {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.stats-pill {
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  padding: 0.34rem 0.82rem;
+  font-size: 0.85rem;
+  font-weight: 760;
 }
 
 .content-card {
-    background: var(--card-bg);
-    backdrop-filter: var(--blur-effect);
-    border: 1px solid var(--card-border);
-    border-radius: 16px;
-    padding: 1.5rem;
-    color: var(--text-primary);
+  padding: 1.15rem;
+}
+
+.inline-feedback {
+  margin-bottom: 0.9rem;
+  border-radius: 11px;
+  border: 1px solid rgba(117, 241, 189, 0.46);
+  background: rgba(23, 112, 85, 0.56);
+  color: #ffffff;
+  font-size: 0.88rem;
+  font-weight: 700;
+  padding: 0.64rem 0.8rem;
+}
+
+.inline-feedback.is-error {
+  border-color: rgba(255, 156, 178, 0.5);
+  background: rgba(131, 32, 58, 0.58);
+}
+
+.undo-banner {
+  margin-bottom: 0.85rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.26);
+  background: var(--panel-bg-strong);
+  padding: 0.62rem 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.undo-text {
+  font-size: 0.88rem;
+  color: #ffffff;
+}
+
+.btn-undo {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.28);
+  color: #ffffff;
+}
+
+.btn-undo:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.24);
+}
+
+.history-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 0.9rem;
+}
+
+.history-card {
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--panel-bg);
+  padding: 0.95rem;
+  display: grid;
+  gap: 0.85rem;
+  transition: transform 120ms ease-out, border-color 120ms ease-out, box-shadow 120ms ease-out, background-color 120ms ease-out;
+}
+
+.history-card:hover {
+  transform: translateY(-1px);
+  border-color: rgba(114, 213, 244, 0.52);
+  background: var(--panel-bg-strong);
+  box-shadow: 0 16px 30px -24px rgba(5, 18, 34, 0.84);
+}
+
+.history-filename {
+  margin: 0;
+  color: #ffffff;
+  font-size: 1rem;
+  line-height: 1.35;
+  font-weight: 760;
+  word-break: break-word;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.history-date {
+  font-size: 0.84rem;
+  color: var(--panel-text-soft);
+}
+
+.history-info {
+  display: grid;
+  gap: 0.2rem;
+  margin-top: 0.38rem;
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.86);
+}
+
+.history-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.history-actions .btn {
+  min-width: 90px;
+}
+
+.history-actions .btn:focus-visible,
+.header-stats .btn:focus-visible {
+  outline: 2px solid transparent;
+  box-shadow: 0 0 0 3px rgba(114, 213, 244, 0.3);
+}
+
+.empty-state {
+  text-align: center;
+  border-radius: 14px;
+  border: 1px dashed rgba(255, 255, 255, 0.33);
+  background: rgba(255, 255, 255, 0.08);
+  padding: 2rem 1rem;
+}
+
+.empty-icon {
+  font-size: 2.2rem;
+  margin-bottom: 0.52rem;
+}
+
+.empty-state h3 {
+  margin: 0 0 0.45rem;
+  color: #ffffff;
+}
+
+.empty-state p {
+  margin: 0;
+  color: var(--panel-text-soft);
+}
+
+.page-container .btn-outline,
+.page-container .btn-ghost {
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.36);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.page-container .btn-outline:hover:not(:disabled),
+.page-container .btn-ghost:hover:not(:disabled) {
+  color: #ffffff;
+  border-color: rgba(114, 213, 244, 0.62);
+  background: rgba(114, 213, 244, 0.22);
+}
+
+@media (max-width: 780px) {
+  .page-container {
+    min-height: calc(100dvh - 132px);
+    padding: 0.75rem;
+    border-radius: 14px;
+    gap: 0.75rem;
+  }
+
+  .page-header,
+  .content-card {
+    border-radius: 14px;
+    padding: 0.86rem;
+  }
+
+  .history-toolbar {
+    margin-bottom: 0.8rem;
+  }
+
+  .header-stats {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .history-actions {
+    justify-content: stretch;
+  }
+
+  .history-actions .btn {
+    flex: 1 1 0;
+    min-width: 0;
+    justify-content: center;
+  }
+
+  .undo-banner {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+@media print {
+  .page-container {
+    min-height: auto;
+    padding: 0;
+    border-radius: 0;
+    background: #ffffff;
+    color: #111111;
+  }
+
+  .page-header,
+  .content-card,
+  .history-card,
+  .empty-state,
+  .undo-banner {
+    border-color: #d5e0ef;
+    background: #ffffff;
+    color: #111111;
+    box-shadow: none;
+    backdrop-filter: none;
+  }
 }

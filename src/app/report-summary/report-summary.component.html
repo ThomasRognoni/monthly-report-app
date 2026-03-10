@@ -18,7 +18,7 @@
           <span class="stat-value">{{ totalWorkDays }}</span>
         </div>
         <div class="stat-item">
-          <span class="stat-label">Giorni Dichiarati</span>
+          <span class="stat-label">Giorni Dichiarati (incl. ST)</span>
           <span class="stat-value">{{ formatNumber(totalDeclaredDays) }}</span>
         </div>
       </div>
@@ -41,9 +41,14 @@
       <div class="metric-card feature-card">
         <div class="card-content">
           <div class="metric-header">
-            <span class="metric-label">Giorni Dichiarati</span>
+            <span class="metric-label">Copertura ordinaria (8h/g)</span>
           </div>
-          <div class="metric-value">{{ formatNumber(totalDeclaredDays) }}</div>
+          <div class="metric-value">{{ formatNumber(regularDeclaredDays) }}</div>
+          <div class="metric-subvalue">
+            {{ formatHours(regularDeclaredHours) }} / {{
+              formatHours(requiredRegularHours)
+            }}
+          </div>
         </div>
       </div>
 
@@ -55,7 +60,10 @@
           <div class="metric-header">
             <span class="metric-label">Quadratura</span>
           </div>
-          <div class="metric-value">{{ formatNumber(quadrature) }}</div>
+          <div class="metric-value">{{ formatNumber(displayedQuadrature) }}</div>
+          <div class="metric-note">
+            {{ quadratureSummary }}
+          </div>
         </div>
       </div>
 
@@ -64,7 +72,7 @@
           <div class="metric-header">
             <span class="metric-label">Straordinari</span>
           </div>
-          <div class="metric-value">{{ formatNumber(overtime) }}</div>
+          <div class="metric-value">{{ formatHours(overtime) }}</div>
         </div>
       </div>
     </div>
@@ -92,19 +100,11 @@
           <div class="progress-bar">
             <div
               class="progress-fill"
-              [style.width.%]="
-                getPercentage(
-                  activityDays[activityCode] || 0,
-                  totalDeclaredDays
-                )
-              "
+              [style.width.%]="getActivityPercentage(activityCode)"
             ></div>
           </div>
           <span class="progress-text">
-            {{
-              getPercentage(activityDays[activityCode] || 0, totalDeclaredDays)
-                | number : "1.0-0"
-            }}%
+            {{ getActivityPercentage(activityCode) | number : "1.0-0" }}%
           </span>
         </div>
         }
@@ -128,10 +128,12 @@
           <div class="progress-bar">
             <div
               class="progress-fill total-progress"
-              [style.width.%]="100"
+              [style.width.%]="getTotalCoveragePercentage()"
             ></div>
           </div>
-          <span class="progress-text">100%</span>
+          <span class="progress-text">
+            {{ getTotalCoveragePercentage() | number : "1.0-0" }}%
+          </span>
         </div>
         }
       </div>

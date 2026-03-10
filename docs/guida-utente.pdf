@@ -1,0 +1,148 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R 4 0 R 5 0 R 6 0 R] /Count 4 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 7 0 R >> >> /Contents 8 0 R >>
+endobj
+4 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 7 0 R >> >> /Contents 9 0 R >>
+endobj
+5 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 7 0 R >> >> /Contents 10 0 R >>
+endobj
+6 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] /Resources << /Font << /F1 7 0 R >> >> /Contents 11 0 R >>
+endobj
+7 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+8 0 obj
+<< /Length 414 >>
+stream
+q 0.94 0.96 0.99 rg 56.00 605.89 483.28 180.00 re f Q
+BT /F1 22 Tf 68.00 735.89 Td (Guida Utente) Tj ET
+BT /F1 12 Tf 68.00 705.89 Td (Monthly Report App) Tj ET
+BT /F1 11 Tf 68.00 665.89 Td (Versione: 0.1.0-beta.4) Tj ET
+BT /F1 11 Tf 68.00 647.89 Td (Ultimo aggiornamento: 10/03/2026) Tj ET
+q 0.1 0.2 0.4 rg 56.00 136.00 483.28 1.50 re f Q
+BT /F1 11 Tf 56.00 118.00 Td (Guida pratica per usare l'app al 100%.) Tj ET
+endstream
+endobj
+9 0 obj
+<< /Length 2676 >>
+stream
+BT /F1 18 Tf 56.00 785.89 Td (Guida Utente - Monthly Report App) Tj ET
+BT /F1 11 Tf 56.00 747.89 Td (Versione: 0.1.0-beta.4 Ultimo aggiornamento: 10/03/2026) Tj ET
+BT /F1 14 Tf 56.00 720.89 Td (Scopo) Tj ET
+BT /F1 11 Tf 56.00 694.89 Td (Questa guida spiega come usare l'app dall'apertura fino all'export Excel. E una) Tj ET
+BT /F1 11 Tf 56.00 679.89 Td (guida completa, passo-passo.) Tj ET
+BT /F1 14 Tf 56.00 652.89 Td (Prima volta che apri l'app) Tj ET
+BT /F1 11 Tf 68.00 626.89 Td (1. Apri l'app e resta sulla Home.) Tj ET
+BT /F1 11 Tf 68.00 609.89 Td (2. Usa i pulsanti principali per entrare in Report Mensile o nello Storico) Tj ET
+BT /F1 11 Tf 68.00 594.89 Td (Esportazioni.) Tj ET
+BT /F1 11 Tf 68.00 577.89 Td (3. Se e la prima volta, inizia dal Report Mensile.) Tj ET
+BT /F1 14 Tf 56.00 554.89 Td (Flusso completo \(passo-passo\)) Tj ET
+BT /F1 12 Tf 56.00 528.89 Td (1\) Apri il Report Mensile) Tj ET
+BT /F1 11 Tf 68.00 506.89 Td (- Vai su: Home -> Report Mensile.) Tj ET
+BT /F1 11 Tf 68.00 489.89 Td (- Qui lavori sul mese corrente o su un altro mese.) Tj ET
+BT /F1 12 Tf 56.00 466.89 Td (2\) Seleziona il mese) Tj ET
+BT /F1 11 Tf 68.00 444.89 Td (- Nel box "Selezione Mese", scegli il mese di riferimento.) Tj ET
+BT /F1 11 Tf 68.00 427.89 Td (- Inserisci il nome e cognome del dipendente.) Tj ET
+BT /F1 12 Tf 56.00 404.89 Td (3\) Carica il template del mese) Tj ET
+BT /F1 11 Tf 68.00 382.89 Td (- Premi "Carica Template Mese".) Tj ET
+BT /F1 11 Tf 68.00 365.89 Td (- L'app prepara la base del report per il mese selezionato.) Tj ET
+BT /F1 12 Tf 56.00 342.89 Td (4\) Gestisci festivita \(se servono\)) Tj ET
+BT /F1 11 Tf 68.00 320.89 Td (- Se ci sono festivita nel mese, aggiungile.) Tj ET
+BT /F1 11 Tf 68.00 303.89 Td (- Usa "Gestisci Festivita" e seleziona data e motivo.) Tj ET
+BT /F1 11 Tf 68.00 286.89 Td (- Puoi anche rimuovere una festivita gia inserita.) Tj ET
+BT /F1 12 Tf 56.00 263.89 Td (5\) Inserisci i giorni e le attivita) Tj ET
+BT /F1 11 Tf 68.00 241.89 Td (- Se non ci sono righe, usa "Aggiungi Giorno".) Tj ET
+BT /F1 11 Tf 68.00 224.89 Td (- Ogni giorno puo avere una o piu attivita.) Tj ET
+BT /F1 11 Tf 68.00 207.89 Td (- Per ogni attivita compila:) Tj ET
+BT /F1 11 Tf 56.00 190.89 Td (- Codice attivita - Descrizione attivita - Estratto \(se richiesto\) - Cliente \(se) Tj ET
+BT /F1 11 Tf 56.00 175.89 Td (richiesto\) - Ore - Note \(opzionale\)) Tj ET
+BT /F1 11 Tf 56.00 148.89 Td (Regole importanti:) Tj ET
+BT /F1 11 Tf 68.00 127.89 Td (- Ogni giorno lavorativo deve avere almeno 8 ore.) Tj ET
+BT /F1 11 Tf 68.00 110.89 Td (- Se superi 8 ore in un giorno, usa il codice ST \(straordinario\).) Tj ET
+BT /F1 9 Tf 478.44 38.00 Td (Pagina 1 di 3) Tj ET
+endstream
+endobj
+10 0 obj
+<< /Length 2661 >>
+stream
+BT /F1 11 Tf 68.00 785.89 Td (- Le ore vanno inserite con step di 0.5.) Tj ET
+BT /F1 12 Tf 56.00 762.89 Td (6\) Controlla il riepilogo) Tj ET
+BT /F1 11 Tf 68.00 740.89 Td (- Scorri la sezione "Riepilogo".) Tj ET
+BT /F1 11 Tf 68.00 723.89 Td (- Verifica: ore totali, giorni lavorativi, giorni dichiarati, quadrature,) Tj ET
+BT /F1 11 Tf 68.00 708.89 Td (straordinari.) Tj ET
+BT /F1 11 Tf 68.00 691.89 Td (- Se ci sono avvisi, correggi prima di esportare.) Tj ET
+BT /F1 12 Tf 56.00 668.89 Td (7\) Esporta in Excel) Tj ET
+BT /F1 11 Tf 68.00 646.89 Td (- Vai alla sezione "Esporta Report".) Tj ET
+BT /F1 11 Tf 68.00 629.89 Td (- Se il tasto e disabilitato, leggi il motivo e correggi i dati.) Tj ET
+BT /F1 11 Tf 68.00 612.89 Td (- Clicca "Esporta" per generare il file Excel.) Tj ET
+BT /F1 11 Tf 56.00 589.89 Td (Dove finisce il file:) Tj ET
+BT /F1 11 Tf 68.00 568.89 Td (- Versione desktop \(Electron\): Documenti\\Monthly Report Exports) Tj ET
+BT /F1 11 Tf 68.00 551.89 Td (- Versione browser: cartella Download) Tj ET
+BT /F1 12 Tf 56.00 528.89 Td (8\) Backup e ripristino) Tj ET
+BT /F1 11 Tf 68.00 506.89 Td (- In "Selezione Mese" trovi:) Tj ET
+BT /F1 11 Tf 56.00 489.89 Td (- "Esporta backup JSON" per salvare una copia del mese. - "Ripristina backup JSON") Tj ET
+BT /F1 11 Tf 56.00 474.89 Td (per caricare un backup.) Tj ET
+BT /F1 11 Tf 68.00 453.89 Td (- Usa il backup prima di modifiche importanti.) Tj ET
+BT /F1 12 Tf 56.00 430.89 Td (9\) Gestione estratti) Tj ET
+BT /F1 11 Tf 68.00 408.89 Td (- Vai a "Elenco Estratti".) Tj ET
+BT /F1 11 Tf 68.00 391.89 Td (- Crea o aggiorna gli estratti usati nelle attivita.) Tj ET
+BT /F1 11 Tf 68.00 374.89 Td (- Verifica che ogni estratto abbia codice, descrizione e cliente.) Tj ET
+BT /F1 12 Tf 56.00 351.89 Td (10\) Storico esportazioni) Tj ET
+BT /F1 11 Tf 68.00 329.89 Td (- Vai a "Storico Esportazioni".) Tj ET
+BT /F1 11 Tf 68.00 312.89 Td (- Vedi tutti i file creati.) Tj ET
+BT /F1 11 Tf 68.00 295.89 Td (- Puoi scaricare o eliminare una voce.) Tj ET
+BT /F1 11 Tf 68.00 278.89 Td (- Lo storico e locale \(non e condiviso online\).) Tj ET
+BT /F1 14 Tf 56.00 255.89 Td (Controlli finali prima di consegnare) Tj ET
+BT /F1 11 Tf 68.00 229.89 Td (- Nessun giorno lavorativo con meno di 8 ore.) Tj ET
+BT /F1 11 Tf 68.00 212.89 Td (- Straordinari presenti se superi 8 ore in un giorno.) Tj ET
+BT /F1 11 Tf 68.00 195.89 Td (- Estratti associati correttamente.) Tj ET
+BT /F1 11 Tf 68.00 178.89 Td (- Riepilogo senza avvisi.) Tj ET
+BT /F1 11 Tf 68.00 161.89 Td (- File Excel aperto e verificato.) Tj ET
+BT /F1 14 Tf 56.00 138.89 Td (Problemi comuni e soluzioni rapide) Tj ET
+BT /F1 9 Tf 478.44 38.00 Td (Pagina 2 di 3) Tj ET
+endstream
+endobj
+11 0 obj
+<< /Length 892 >>
+stream
+BT /F1 11 Tf 68.00 785.89 Td (- "Export disabilitato": controlla che tutti i giorni siano validi e che il mese) Tj ET
+BT /F1 11 Tf 68.00 770.89 Td (sia completo.) Tj ET
+BT /F1 11 Tf 68.00 753.89 Td (- "Excel non si apre": rigenera l'export e non rinominare l'estensione.) Tj ET
+BT /F1 11 Tf 68.00 736.89 Td (- "Mese incompleto": verifica ore e festivita.) Tj ET
+BT /F1 14 Tf 56.00 713.89 Td (Suggerimenti pratici) Tj ET
+BT /F1 11 Tf 68.00 687.89 Td (- Compila ogni giorno appena possibile, non a fine mese.) Tj ET
+BT /F1 11 Tf 68.00 670.89 Td (- Usa le note solo per informazioni davvero utili.) Tj ET
+BT /F1 11 Tf 68.00 653.89 Td (- Fai un backup prima di modifiche massive.) Tj ET
+BT /F1 14 Tf 56.00 630.89 Td (Supporto) Tj ET
+BT /F1 11 Tf 68.00 604.89 Td (- Per supporto interno, contatta l'amministrazione o il referente aziendale.) Tj ET
+BT /F1 9 Tf 478.44 38.00 Td (Pagina 3 di 3) Tj ET
+endstream
+endobj
+xref
+0 12
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000133 00000 n 
+0000000265 00000 n 
+0000000397 00000 n 
+0000000530 00000 n 
+0000000663 00000 n 
+0000000733 00000 n 
+0000001198 00000 n 
+0000003926 00000 n 
+0000006640 00000 n 
+trailer
+<< /Size 12 /Root 1 0 R >>
+startxref
+7584
+%%EOF

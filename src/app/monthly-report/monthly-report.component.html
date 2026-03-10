@@ -16,89 +16,137 @@
     <div class="selection-controls">
       <div class="form-group">
         <label for="month-select">Mese di riferimento:</label>
-        <input
+        <p-datepicker
           id="month-select"
-          type="month"
-          [value]="getFormattedMonth()"
-          (change)="onMonthChange($event)"
-          class="form-control"
+          [ngModel]="currentMonth()"
+          (ngModelChange)="onMonthPickerChange($event)"
+          view="month"
+          dateFormat="mm/yy"
+          [showIcon]="true"
+          iconDisplay="input"
+          [appendTo]="'body'"
+          panelStyleClass="brand-datepicker-panel"
+          inputStyleClass="form-control"
+          styleClass="month-picker-control"
           aria-describedby="month-help"
-        />
+        ></p-datepicker>
       </div>
       <div class="form-group">
         <label for="employee-name">Nome dipendente:</label>
-        <input
+        <input pInputText
           id="employee-name"
           type="text"
           class="form-control"
           [ngModel]="employeeName()"
-          (ngModelChange)="onEmployeeNameChange($event)"
+          (ngModelChange)="onEmployeeNameInput($event)"
+          (blur)="commitEmployeeName()"
           placeholder="Inserisci nome e cognome"
           aria-label="Nome dipendente"
         />
       </div>
 
-      <button
-        type="button"
-        (click)="loadTemplate()"
-        class="btn btn-primary"
-        aria-label="Carica template per il mese selezionato"
-      >
-        Carica Template Mese
-      </button>
+      <div class="button-status-wrap">
+        <button pButton
+          type="button"
+          (click)="loadTemplate()"
+          class="btn btn-primary btn-animated"
+          [disabled]="loadTemplateButtonState() === 'loading'"
+          [class.is-loading]="loadTemplateButtonState() === 'loading'"
+          [class.is-success]="loadTemplateButtonState() === 'success'"
+          [class.is-error]="loadTemplateButtonState() === 'error'"
+          aria-label="Carica template per il mese selezionato"
+        >
+          <span class="btn-content">
+            <span class="btn-label">Carica Template Mese</span>
+            <span class="btn-state-icon" aria-hidden="true"></span>
+          </span>
+        </button>
+        <span class="visually-hidden" aria-live="polite">
+          {{ loadTemplateFeedback() }}
+        </span>
+      </div>
+
+      <div class="button-status-wrap backup-actions">
+        <button pButton
+          type="button"
+          (click)="exportMonthBackup()"
+          class="btn btn-outline backup-action-btn"
+          aria-label="Esporta backup JSON del mese corrente"
+        >
+          Esporta backup JSON
+        </button>
+        <p-fileUpload
+          mode="basic"
+          name="backupJson"
+          chooseLabel="Ripristina backup JSON"
+          styleClass="backup-upload"
+          chooseStyleClass="btn btn-outline backup-action-btn"
+          [chooseIcon]="'pi pi-upload'"
+          accept="application/json,.json"
+          [customUpload]="true"
+          [auto]="true"
+          (uploadHandler)="onBackupUpload($event)"
+          aria-label="Ripristina backup JSON"
+        ></p-fileUpload>
+      </div>
     </div>
   </section>
 
-  <section
-    *ngIf="getCurrentMonthHolidays().length > 0"
-    class="holidays-info feature-card"
-    aria-labelledby="holidays-heading"
-  >
+  <section class="holidays-info feature-card" aria-labelledby="holidays-heading">
     <div class="section-header">
       <div class="section-title">
-        <h3 id="holidays-heading">Festività del Mese</h3>
+        <h3 id="holidays-heading">Festivita del Mese</h3>
       </div>
     </div>
-    <div class="holidays-list">
-      <div
-        *ngFor="
-          let holiday of getCurrentMonthHolidays();
-          trackBy: trackByHoliday
-        "
-        class="holiday-item"
-      >
-        <span class="holiday-date">{{ formatHolidayDate(holiday.date) }}</span>
-        <span class="holiday-description">{{ holiday.reason }}</span>
-        <button
-          class="btn btn-danger btn-sm"
-          (click)="removeHoliday(holiday.date)"
-          aria-label="Rimuovi festività"
+    @if (getCurrentMonthHolidays().length > 0) {
+      <div class="holidays-list">
+        <div
+          *ngFor="
+            let holiday of getCurrentMonthHolidays();
+            trackBy: trackByHoliday
+          "
+          class="holiday-item"
         >
-          Rimuovi
-        </button>
+          <span class="holiday-date">{{ formatHolidayDate(holiday.date) }}</span>
+          <span class="holiday-description">{{ holiday.reason }}</span>
+          <button pButton
+            class="btn btn-danger btn-sm"
+            (click)="removeHoliday(holiday.date)"
+            aria-label="Rimuovi Festivita"
+          >
+            Rimuovi
+          </button>
+        </div>
       </div>
-    </div>
+    } @else {
+      <p class="holiday-empty-state">Nessuna Festivita impostata per questo mese.</p>
+    }
     <div class="manage-holidays">
-      <button class="btn btn-outline" (click)="toggleHolidayManager()">
-        Gestisci festività
+      <button pButton class="btn btn-outline" (click)="toggleHolidayManager()">
+        Gestisci Festivita
       </button>
       <div *ngIf="showHolidayManager()" class="form-inline mt-8">
-        <input
+        <p-datepicker
           id="holiday-date"
-          type="date"
-          [ngModel]="holidayDateModel()"
-          (ngModelChange)="holidayDateModel.set($event)"
-          class="form-control"
-          aria-label="Data festività"
-        />
-        <input
+          [ngModel]="getHolidayDatePickerValue()"
+          (ngModelChange)="onHolidayDatePickerChange($event)"
+          dateFormat="dd/mm/yy"
+          [showIcon]="true"
+          iconDisplay="input"
+          [appendTo]="'body'"
+          panelStyleClass="brand-datepicker-panel"
+          inputStyleClass="form-control"
+          styleClass="holiday-date-control"
+          aria-label="Data Festivita"
+        ></p-datepicker>
+        <input pInputText
           [ngModel]="holidayReasonModel()"
           (ngModelChange)="holidayReasonModel.set($event)"
           placeholder="Motivo (es. Chiusura azienda)"
           class="form-control"
-          aria-label="Motivo festività"
+          aria-label="Motivo Festivita"
         />
-        <button
+        <button pButton
           class="btn btn-secondary"
           (click)="
             addHoliday(holidayDateModel(), holidayReasonModel());
@@ -106,7 +154,7 @@
             holidayReasonModel.set('')
           "
         >
-          Aggiungi festività
+          Aggiungi Festivita
         </button>
       </div>
     </div>
@@ -117,6 +165,7 @@
       [employeeName]="employeeName()"
       [currentMonth]="currentMonth()"
       [totalWorkDays]="totalWorkDays()"
+      [totalDeclaredHours]="totalDeclaredHours()"
       [totalDeclaredDays]="totalDeclaredDays()"
       [quadrature]="quadrature()"
       [overtime]="overtime()"
@@ -133,25 +182,35 @@
   >
     <div class="section-header">
       <div class="section-title">
-        <span class="feature-icon" aria-hidden="true">📝</span>
+        <span class="feature-icon" aria-hidden="true">*</span>
         <h3 id="entries-heading">Dettaglio Giornaliero</h3>
       </div>
-      <button
+      <button pButton
         type="button"
         (click)="addDayEntry()"
         class="btn btn-primary"
         aria-label="Aggiungi un nuovo giorno al report"
       >
-        ➕ Aggiungi Giorno
+        + Aggiungi Giorno
       </button>
     </div>
 
+    @if (visibleDayStates().length > 0) {
+      <div class="day-states-legend" aria-label="Legenda stati dettaglio giornaliero">
+        @for (state of visibleDayStates(); track state.key) {
+          <span class="legend-item" [class]="state.className">
+            {{ state.label }}
+          </span>
+        }
+      </div>
+    }
+
     @if (hasExceededDailyLimit()) {
       <div class="alert alert-warning" role="alert" aria-live="polite">
-        <span class="warning-icon" aria-hidden="true">⚠️</span>
+        <span class="warning-icon" aria-hidden="true">!</span>
         <div class="warning-content">
-          <strong>Attenzione:</strong> Alcuni giorni superano il limite di 8
-          ore.
+          <strong>Attenzione:</strong> Alcuni giorni superano 8 ore senza
+          Straordinari (ST).
           <div class="exceeded-days">
             @for (day of getExceededDays(); track day.date) {
               <div class="exceeded-day">
@@ -163,23 +222,24 @@
       </div>
     }
 
-    <div class="entries-container">
-      @for (day of days(); track day.date.getTime(); let i = $index) {
+    <div class="entries-container" role="list">
+      @for (day of days(); track $index; let i = $index) {
         <app-day-entry
           [day]="day"
           [index]="i"
+          [overtimeOnly]="isOvertimeOnlyDay(i)"
           [activityCodes]="activityCodes()"
           [extracts]="extracts()"
           [dailyHours]="getDailyHoursForDate(day.date)"
           (update)="updateDayEntry($event)"
           (remove)="removeDayEntry($event)"
-          role="row"
+          role="listitem"
         >
         </app-day-entry>
       }
       @if (days().length === 0) {
         <div class="no-entries" aria-live="polite">
-          <div class="no-entries-icon" aria-hidden="true">📅</div>
+          <div class="no-entries-icon" aria-hidden="true">i</div>
           <h4>Nessun giorno inserito</h4>
           <p>
             Clicca "Carica Template Mese" per iniziare o "Aggiungi Giorno" per
@@ -194,21 +254,31 @@
       <h3 id="export-heading">Esporta Report</h3>
       <p>Genera il file Excel completo per l'invio all'amministrazione</p>
 
-      <button
+      <button pButton
         type="button"
         (click)="exportToExcel()"
-        class="btn btn-export"
-        [disabled]="
-          !allDaysValid() || days().length === 0 || !isMonthFullyFilled()
-        "
+        class="btn btn-export btn-animated"
+        [disabled]="isExportDisabled()"
+        [class.is-loading]="exportButtonState() === 'loading'"
+        [class.is-success]="exportButtonState() === 'success'"
+        [class.is-error]="exportButtonState() === 'error'"
+        [attr.title]="isExportDisabled() ? getExportDisabledReason() : null"
         aria-describedby="export-requirements"
         aria-label="Esporta il report in formato Excel"
       >
-        🚀 Esporta in Excel
+        {{ getExportButtonLabel() }}
       </button>
+      <span
+        class="button-feedback"
+        [class.is-success]="exportButtonState() === 'success'"
+        [class.is-error]="exportButtonState() === 'error'"
+        aria-live="polite"
+      >
+        {{ exportFeedback() }}
+      </span>
 
       <p class="export-note">
-        Il prospetto dovrà essere inviato entro la chiusura del mese all'Ufficio
+        Il prospetto dovra essere inviato entro la chiusura del mese all'Ufficio
         Amministrazione:
         <a
           href="mailto:amministrazione@beyondoc.net"
@@ -219,26 +289,26 @@
       </p>
 
       <div id="export-requirements" class="visually-hidden">
-        Per esportare, è necessario che tutti i giorni siano validi, ci sia
+        Per esportare, e necessario che tutti i giorni siano validi, ci sia
         almeno un giorno inserito e il mese sia completamente compilato.
       </div>
 
       @if (days().length > 0 && !allDaysValid()) {
         <div class="validation-warning" role="alert" aria-live="polite">
-          <span class="warning-icon" aria-hidden="true">⚠️</span>
+          <span class="warning-icon" aria-hidden="true">!</span>
           <div>
             <strong>Completa tutti i campi obbligatori:</strong>
             <ul>
-              <li>Codice attività selezionato per ogni giorno</li>
+              <li>Codice Attivita selezionato per ogni giorno</li>
               <li>Ore comprese tra 1 e 8 per ogni voce</li>
-              <li>Non più di 8 ore totali per giorno</li>
+              <li>Oltre 8 ore totali solo se presenti Straordinari (ST)</li>
             </ul>
           </div>
         </div>
       }
       @if (days().length > 0 && !isMonthFullyFilled()) {
         <div class="validation-warning" role="alert" aria-live="polite">
-          <span class="warning-icon" aria-hidden="true">⚠️</span>
+          <span class="warning-icon" aria-hidden="true">!</span>
           <div>
             <strong>Mese non completamente compilato:</strong>
             <ul>
@@ -250,7 +320,7 @@
               <li>Giorni dichiarati: {{ totalDeclaredDays() }}</li>
               @if (getCurrentMonthHolidays().length > 0) {
                 <li>
-                  Festività considerate: {{ getCurrentMonthHolidays().length }}
+                  Festivita considerate: {{ getCurrentMonthHolidays().length }}
                 </li>
               }
             </ul>
@@ -260,3 +330,4 @@
     </div>
   </section>
 </div>
+

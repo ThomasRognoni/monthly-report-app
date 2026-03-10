@@ -1,31 +1,62 @@
-<div class="day-entry" [class.invalid]="!isValid()" [class.expanded]="expanded">
+<div
+  class="day-entry"
+  [class.invalid]="isDayOverLimit() || !isValid()"
+  [class.expanded]="expanded"
+  [class.completed]="isDayCompleted()"
+  [class.in-progress]="!isDayCompleted() && isDayStarted() && !isDayOverLimit()"
+  [class.not-started]="!isDayCompleted() && !isDayStarted() && !isDayOverLimit()"
+>
   <div class="day-header">
-    <div class="entry-field">
-      <input
-        type="date"
-        [value]="getFormattedDate()"
-        (change)="onFieldChange('date', $event)"
-        class="form-control"
-      />
+    <div class="entry-field day-date">
+      <p-datepicker
+        [ngModel]="displayDay.date"
+        (ngModelChange)="onDatePickerChange($event)"
+        dateFormat="dd/mm/yy"
+        [showIcon]="true"
+        iconDisplay="input"
+        [appendTo]="'body'"
+        panelStyleClass="brand-datepicker-panel"
+        inputStyleClass="form-control"
+        styleClass="date-picker-control"
+        aria-label="Data giornata"
+      ></p-datepicker>
     </div>
 
-    <div class="entry-field">
+    <div class="entry-field day-metrics">
       <div class="day-total">Ore totali: {{ getLocalTotalHours() }}</div>
+      <span class="day-status">{{ getDayStatusLabel() }}</span>
     </div>
 
-    <div class="entry-field actions">
-      <button
+    @if (!expanded) {
+      @let previewItems = getPreviewItems();
+      <div class="entry-field day-preview">
+        <span class="preview-label">Preview lavorazioni</span>
+        @if (previewItems.length > 0) {
+          <div class="preview-list">
+            @for (item of previewItems; track $index) {
+              <span class="preview-chip" [title]="item">{{ item }}</span>
+            }
+          </div>
+        } @else {
+          <span class="preview-empty">Nessun dettaglio inserito</span>
+        }
+      </div>
+    }
+
+    <div class="entry-field actions day-actions">
+      <button pButton
         (click)="onRemove()"
         class="btn btn-danger btn-sm btn-day-delete"
         aria-label="Elimina giorno"
       >
-        ×
+        x
       </button>
-      <button
+      <button pButton
         (click)="expanded = !expanded"
         class="btn btn-secondary btn-sm btn-toggle"
         [class.open]="expanded"
         [attr.aria-expanded]="expanded"
+        [attr.aria-controls]="'day-tasks-' + index"
       >
         {{ expanded ? "Chiudi" : "Dettagli" }}
       </button>
@@ -36,102 +67,123 @@
     class="day-tasks"
     [class.expanded]="expanded"
     [attr.aria-hidden]="!expanded"
+    [id]="'day-tasks-' + index"
   >
     <div class="tasks-header" *ngIf="expanded">
       <div class="task-col">Codice</div>
-      <div class="task-col">Attività</div>
+      <div class="task-col">Attivita</div>
       <div class="task-col">Estratto</div>
       <div class="task-col">Cliente</div>
       <div class="task-col">Ore</div>
       <div class="task-col">Note</div>
       <div class="task-col"></div>
     </div>
-    @for (task of localTasks; track i; let i = $index) {
+    @for (task of localTasks; track $index; let i = $index) {
       <div
         class="task-row"
         [class.invalid]="false"
-        [style.animationDelay]="i * 60 + 'ms'"
       >
-        <div class="entry-field">
-          <select
-            [value]="task.code"
-            (change)="updateTask(i, 'code', $event)"
-            class="form-control"
-          >
-            <option value="" disabled selected>Seleziona codice *</option>
-            @for (activity of activityCodes; track activity.code) {
-              <option [value]="activity.code">
-                {{ activity.code }} - {{ activity.description }}
-              </option>
-            }
-          </select>
+        <div class="entry-field" data-label="Codice">
+          <p-select
+            [options]="codeOptions"
+            optionLabel="label"
+            optionValue="value"
+            optionDisabled="disabled"
+            [ngModel]="localTasks[i].code || null"
+            (ngModelChange)="onTaskFieldInput(i, 'code', $event ?? '')"
+            (onChange)="commitTasksUpdate()"
+            placeholder="Seleziona codice *"
+            [appendTo]="'body'"
+            panelStyleClass="day-entry-select-panel"
+            styleClass="form-control select-control"
+            aria-label="Codice attivita"
+          ></p-select>
         </div>
 
-        <div class="entry-field">
-          <input
+        <div class="entry-field" data-label="Attivita">
+          <input pInputText
             type="text"
-            [value]="task.activity"
-            (change)="updateTask(i, 'activity', $event)"
-            placeholder="Descrizione attività"
+            [ngModel]="localTasks[i].activity"
+            (ngModelChange)="onTaskFieldInput(i, 'activity', $event)"
+            (blur)="commitTasksUpdate()"
+            placeholder="Descrizione Attivita"
             class="form-control"
+            aria-label="Descrizione attivita"
           />
         </div>
 
         @if (shouldShowExtract()) {
-          <div class="entry-field">
-            <select
-              [ngModel]="task.extract || ''"
-              (ngModelChange)="updateTask(i, 'extract', $event)"
-              class="form-control"
-            >
-              <option value="">-- Seleziona Estratto --</option>
-              @for (extract of extracts; track extract.id) {
-                <option [value]="extract.id">
-                  {{ extract.id }} - {{ extract.client }}
-                </option>
-              }
-            </select>
+          <div class="entry-field" data-label="Estratto">
+            <p-select
+              [options]="extractOptions"
+              optionLabel="label"
+              optionValue="value"
+              [ngModel]="localTasks[i].extract ?? ''"
+              (ngModelChange)="onTaskFieldInput(i, 'extract', $event ?? '')"
+              (onChange)="commitTasksUpdate()"
+              [disabled]="isVacation(task)"
+              [showClear]="false"
+              placeholder="-- Nessun estratto --"
+              [appendTo]="'body'"
+              panelStyleClass="day-entry-select-panel"
+              styleClass="form-control select-control"
+              aria-label="Estratto"
+            ></p-select>
           </div>
         }
 
-        <div class="entry-field">
-          <input
+        <div class="entry-field" data-label="Cliente">
+          <input pInputText
             type="text"
-            [value]="task.client || ''"
-            (change)="updateTask(i, 'client', $event)"
+            [ngModel]="localTasks[i].client || ''"
+            (ngModelChange)="onTaskFieldInput(i, 'client', $event)"
+            (blur)="commitTasksUpdate()"
+            [disabled]="isVacation(task)"
             placeholder="Cliente"
             class="form-control"
+            aria-label="Cliente"
           />
         </div>
 
-        <div class="entry-field">
-          <input
-            type="number"
-            [value]="task.hours"
-            (change)="updateTask(i, 'hours', $event)"
-            min="0.125"
-            max="8"
-            step="0.125"
-            placeholder="0.00"
-            class="form-control hours-input"
-          />
+        <div class="entry-field" data-label="Ore">
+          <p-inputnumber
+            [ngModel]="localTasks[i].hours"
+            (ngModelChange)="onTaskHoursChange(i, $event)"
+            [min]="0.5"
+            [max]="8"
+            [step]="0.5"
+            [allowEmpty]="false"
+            [showButtons]="true"
+            buttonLayout="stacked"
+            incrementButtonIcon="pi pi-chevron-up"
+            decrementButtonIcon="pi pi-chevron-down"
+            mode="decimal"
+            [minFractionDigits]="1"
+            [maxFractionDigits]="1"
+            [useGrouping]="false"
+            inputStyleClass="form-control hours-input"
+            styleClass="hours-number-control"
+            aria-label="Ore"
+          ></p-inputnumber>
         </div>
 
-        <div class="entry-field">
-          <input
+        <div class="entry-field" data-label="Note">
+          <input pInputText
             type="text"
-            [value]="task.notes || ''"
-            (change)="updateTask(i, 'notes', $event)"
+            [ngModel]="localTasks[i].notes || ''"
+            (ngModelChange)="onTaskFieldInput(i, 'notes', $event)"
+            (blur)="commitTasksUpdate()"
             placeholder="Note"
             class="form-control"
+            aria-label="Note"
           />
         </div>
 
         <div class="entry-field actions">
-          <button
+          <button pButton
             (click)="removeTask(i)"
             class="btn btn-danger btn-sm btn-trash"
-            aria-label="Rimuovi attività"
+            aria-label="Rimuovi Attivita"
           >
             <svg
               viewBox="0 0 24 24"
@@ -149,9 +201,10 @@
     }
 
     <div class="task-controls">
-      <button (click)="addTask()" class="btn btn-primary btn-sm">
-        Aggiungi attività
+      <button pButton (click)="addTask()" class="btn btn-primary btn-sm">
+        Aggiungi Attivita
       </button>
     </div>
   </div>
 </div>
+

@@ -8,11 +8,14 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Extract } from '../models/day-entry.model';
+import { hoursToDaysRounded } from '../utils';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
   selector: 'app-extract-list',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ButtonModule, InputTextModule],
   templateUrl: './extract-list.component.html',
   styleUrls: ['./extract-list.component.css'],
 })
@@ -40,8 +43,7 @@ export class ExtractListComponent {
   @Input() extractTotals: { [key: string]: number } = {};
 
   @Input() totalDeclaredDays: number | null = null;
-
-  private readonly HOURS_PER_DAY = 8;
+  @Input() totalDeclaredHours: number | null = null;
 
   readonly totalExtractDays = computed(() =>
     Object.values(this.extractTotals).reduce(
@@ -51,7 +53,18 @@ export class ExtractListComponent {
   );
 
   private hoursToDays(hours: number): number {
-    return hours / this.HOURS_PER_DAY;
+    return hoursToDaysRounded(this.toNumber(hours));
+  }
+
+  private toNumber(value: unknown): number {
+    if (typeof value === 'number') {
+      return Number.isFinite(value) ? value : 0;
+    }
+    if (typeof value === 'string') {
+      const parsed = Number(value);
+      return Number.isFinite(parsed) ? parsed : 0;
+    }
+    return 0;
   }
 
   getDaysFromHours(hours: number): number {
@@ -62,13 +75,17 @@ export class ExtractListComponent {
     const extract = this.extracts.find((e) => e.id === extractId);
     if (!extract) return 0;
 
-    const actualDays = this.hoursToDays(hours);
+    const actualHours = this.toNumber(hours);
+    const declaredHours = this.toNumber(this.totalDeclaredHours);
+    const totalHours =
+      declaredHours > 0
+        ? declaredHours
+        : this.toNumber(this.totalDeclaredDays) > 0
+          ? this.toNumber(this.totalDeclaredDays) * 8
+          : 0;
+    if (totalHours <= 0) return 0;
 
-    // If there are no declared days from the parent (monthly report),
-    // show 0% as required.
-    if (!this.totalDeclaredDays || this.totalDeclaredDays <= 0) return 0;
-
-    const percentage = (actualDays / this.totalDeclaredDays) * 100;
+    const percentage = (actualHours / totalHours) * 100;
     return Math.min(Math.max(percentage, 0), 100);
   }
 
@@ -134,8 +151,6 @@ export class ExtractListComponent {
   }
 
   removeLocal(id: string): void {
-    const ok = confirm(`Confermi la rimozione dell'estratto ${id}?`);
-    if (!ok) return;
     this.onRemove(id);
   }
 

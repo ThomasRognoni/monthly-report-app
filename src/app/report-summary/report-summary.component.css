@@ -1,24 +1,24 @@
 :host {
   --color-white: rgba(255, 255, 255, 1);
-  --color-white-90: rgba(255, 255, 255, 0.9);
-  --color-white-80: rgba(255, 255, 255, 0.8);
+  --color-white-90: rgba(255, 255, 255, 0.94);
+  --color-white-80: rgba(255, 255, 255, 0.9);
   --color-white-20: rgba(255, 255, 255, 0.2);
-  --color-white-15: rgba(255, 255, 255, 0.15);
-  --color-white-10: rgba(255, 255, 255, 0.1);
+  --color-white-15: rgba(255, 255, 255, 0.18);
+  --color-white-10: rgba(255, 255, 255, 0.14);
 
-  --color-success: #51cf66;
-  --color-success-light: rgba(16, 185, 129, 0.2);
-  --color-success-dark: rgba(5, 150, 105, 0.9);
-  --color-warning: #ff6b6b;
-  --color-warning-light: rgba(239, 68, 68, 0.2);
-  --color-info: #4dabf7;
-  --color-info-light: rgba(59, 130, 246, 0.2);
+  --color-success: #72d5f4;
+  --color-success-light: rgba(26, 72, 115, 0.5);
+  --color-success-dark: rgba(114, 213, 244, 0.92);
+  --color-warning: #9798ff;
+  --color-warning-light: rgba(61, 63, 122, 0.5);
+  --color-info: #72d5f4;
+  --color-info-light: rgba(26, 72, 115, 0.5);
 
-  --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --gradient-success: linear-gradient(135deg, rgba(16, 185, 129, 0.8) 0%, var(--color-success-dark) 100%);
-  --gradient-success-hover: linear-gradient(135deg, rgba(16, 185, 129, 0.9) 0%, rgba(5, 150, 105, 1) 100%);
-  --gradient-card: rgba(255, 255, 255, 0.15);
-  --gradient-card-hover: rgba(255, 255, 255, 0.2);
+  --gradient-primary: linear-gradient(135deg, #12345c 0%, #3474ab 100%);
+  --gradient-success: linear-gradient(135deg, rgba(151, 152, 255, 0.72) 0%, var(--color-success-dark) 100%);
+  --gradient-success-hover: linear-gradient(135deg, rgba(151, 152, 255, 0.82) 0%, rgba(114, 213, 244, 0.98) 100%);
+  --gradient-card: rgba(22, 61, 98, 0.42);
+  --gradient-card-hover: rgba(24, 66, 106, 0.5);
 
   --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
   --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.3);
@@ -51,8 +51,8 @@
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
 
-  --transition: all 0.3s ease;
-  --blur: blur(10px);
+  --transition: transform 140ms ease-out, background-color 140ms ease-out, border-color 140ms ease-out, box-shadow 140ms ease-out;
+  --blur: blur(6px);
 }
 
 .report-summary {
@@ -121,6 +121,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: var(--spacing-md);
   padding: var(--spacing-md) var(--spacing-lg);
   background: var(--color-white-10);
   border-radius: var(--border-radius-md);
@@ -137,11 +138,18 @@
 .stat-label {
   font-size: var(--font-size-sm);
   opacity: 0.8;
+  flex: 1 1 auto;
+  min-width: 0;
+  line-height: 1.2;
+  padding-right: var(--spacing-sm);
 }
 
 .stat-value {
   font-size: var(--font-size-xl);
   font-weight: var(--font-weight-bold);
+  margin-left: auto;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .section-title {
@@ -157,7 +165,7 @@
 .report-summary .month-title,
 .report-summary .employee-name,
 .report-summary .section-title {
-  color: var(--color-white) !important;
+  color: var(--color-white);
 }
 
 .quadrature-grid {
@@ -178,7 +186,7 @@
 }
 
 .metric-card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-2px);
   background: var(--gradient-card-hover);
   box-shadow: var(--shadow-lg);
 }
@@ -215,13 +223,32 @@
   text-shadow: var(--shadow-text);
 }
 
+.metric-subvalue {
+  color: var(--color-white-90);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.35;
+}
+
+.metric-note {
+  color: var(--color-white);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.35;
+}
+
 .quadrature-status.negative {
   background: var(--color-warning-light);
   border-left: 4px solid var(--color-warning);
 }
 
 .quadrature-status.negative .metric-value {
-  color: var(--color-warning);
+  color: var(--color-white);
+}
+
+.quadrature-status.negative .metric-label,
+.quadrature-status.negative .quadrature-icon {
+  color: var(--color-white);
 }
 
 .quadrature-status.positive {
@@ -230,7 +257,12 @@
 }
 
 .quadrature-status.positive .metric-value {
-  color: var(--color-info);
+  color: var(--color-white);
+}
+
+.quadrature-status.positive .metric-label,
+.quadrature-status.positive .quadrature-icon {
+  color: var(--color-white);
 }
 
 .quadrature-status.balanced {
@@ -239,7 +271,12 @@
 }
 
 .quadrature-status.balanced .metric-value {
-  color: var(--color-success);
+  color: var(--color-white);
+}
+
+.quadrature-status.balanced .metric-label,
+.quadrature-status.balanced .quadrature-icon {
+  color: var(--color-white);
 }
 
 .activity-grid {
@@ -259,7 +296,7 @@
 }
 
 .activity-card:hover {
-  transform: translateY(-3px);
+  transform: translateY(-1px);
   background: var(--gradient-card-hover);
   box-shadow: var(--shadow-md);
 }
@@ -298,7 +335,7 @@
 }
 
 .activity-total {
-  color: var(--color-success);
+  color: var(--color-white);
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-semibold);
   text-shadow: var(--shadow-text);
@@ -324,12 +361,12 @@
   height: 100%;
   background: var(--gradient-success);
   border-radius: 3px;
-  transition: width 0.3s ease;
+  transition: width 160ms ease-out;
   box-shadow: var(--shadow-sm);
 }
 
 .total-progress {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.8) 0%, rgba(37, 99, 235, 0.9) 100%);
+  background: linear-gradient(135deg, rgba(80, 204, 247, 0.8) 0%, rgba(83, 118, 188, 0.9) 100%);
 }
 
 .progress-text {
@@ -341,12 +378,12 @@
 }
 
 .total-card {
-  background: var(--gradient-success) !important;
-  border: 1px solid var(--color-white-20) !important;
+  background: var(--gradient-success);
+  border: 1px solid var(--color-white-20);
 }
 
 .total-card:hover {
-  background: var(--gradient-success-hover) !important;
+  background: var(--gradient-success-hover);
 }
 
 .total-code {
@@ -394,7 +431,14 @@
 
 .holiday-item.compiled {
   background: var(--color-success-light);
-  border-color: rgba(16, 185, 129, 0.4);
+  border-color: rgba(151, 152, 255, 0.4);
+}
+
+.holiday-item.compiled,
+.holiday-item.compiled .holiday-date,
+.holiday-item.compiled .holiday-reason,
+.holiday-item.compiled .holiday-status {
+  color: var(--color-white);
 }
 
 .holiday-date {
@@ -438,6 +482,14 @@
     gap: var(--spacing-xs);
     text-align: center;
     padding: var(--spacing-lg) var(--spacing-sm);
+  }
+
+  .stat-label {
+    padding-right: 0;
+  }
+
+  .stat-value {
+    margin-left: 0;
   }
 
   .quadrature-grid,
@@ -501,6 +553,15 @@
   .stat-item {
     flex-direction: row;
     text-align: left;
+    gap: var(--spacing-sm);
+  }
+
+  .stat-label {
+    padding-right: var(--spacing-sm);
+  }
+
+  .stat-value {
+    margin-left: auto;
   }
 
   .activity-info {
@@ -539,3 +600,6 @@
     transition: none;
   }
 }
+
+
+

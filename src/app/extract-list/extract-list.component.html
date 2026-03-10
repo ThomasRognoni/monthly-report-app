@@ -1,7 +1,12 @@
 <div class="extract-container">
   <div class="section-header">
-    <h2 class="section-title">📋 Elenco Estratti</h2>
+    <h2 class="section-title">Elenco Estratti</h2>
     <p class="section-subtitle">Gestione estratti e relativi totali</p>
+    @if (lastActionMessage) {
+      <div class="inline-feedback" aria-live="polite">
+        {{ lastActionMessage }}
+      </div>
+    }
   </div>
 
   <div *ngIf="hasExtracts; else emptyState">
@@ -15,39 +20,55 @@
         >
           <div class="extract-body">
             <div class="flex-col gap-8">
-              <input
-                class="form-control"
-                placeholder="ID estratto"
-                [ngModel]="newExtractId"
-                (ngModelChange)="newExtractIdChange.emit($event)"
-              />
-              <input
-                class="form-control"
-                placeholder="Codice"
-                [ngModel]="newExtractCode"
-                (ngModelChange)="newExtractCodeChange.emit($event)"
-              />
-              <input
-                class="form-control"
-                placeholder="Descrizione"
-                [ngModel]="newExtractDesc"
-                (ngModelChange)="newExtractDescChange.emit($event)"
-              />
-              <input
-                class="form-control"
-                placeholder="Cliente"
-                [ngModel]="newExtractClient"
-                (ngModelChange)="newExtractClientChange.emit($event)"
-              />
+              <div class="field-group">
+                <label class="field-label">ID estratto</label>
+                <input pInputText
+                  class="form-control"
+                  placeholder="ID estratto"
+                  [ngModel]="newExtractId"
+                  (ngModelChange)="newExtractIdChange.emit($event)"
+                  aria-label="ID estratto"
+                />
+              </div>
+              <div class="field-group">
+                <label class="field-label">Codice attività</label>
+                <input pInputText
+                  class="form-control"
+                  placeholder="Codice"
+                  [ngModel]="newExtractCode"
+                  (ngModelChange)="newExtractCodeChange.emit($event)"
+                  aria-label="Codice attività estratto"
+                />
+              </div>
+              <div class="field-group">
+                <label class="field-label">Descrizione</label>
+                <input pInputText
+                  class="form-control"
+                  placeholder="Descrizione"
+                  [ngModel]="newExtractDesc"
+                  (ngModelChange)="newExtractDescChange.emit($event)"
+                  aria-label="Descrizione estratto"
+                />
+              </div>
+              <div class="field-group">
+                <label class="field-label">Cliente</label>
+                <input pInputText
+                  class="form-control"
+                  placeholder="Cliente"
+                  [ngModel]="newExtractClient"
+                  (ngModelChange)="newExtractClientChange.emit($event)"
+                  aria-label="Cliente estratto"
+                />
+              </div>
               <div class="flex-row-justify-end mt-8">
-                <button
+                <button pButton
                   class="btn btn-primary"
                   [disabled]="!newExtractId || !newExtractCode"
                   (click)="onAddExtract()"
                 >
                   Salva
                 </button>
-                <button class="btn btn-outline" (click)="onCancelEdit()">
+                <button pButton class="btn btn-outline" (click)="onCancelEdit()">
                   Annulla
                 </button>
               </div>
@@ -63,7 +84,7 @@
               <span class="extract-total">
                 {{
                   getDaysFromHours(extractTotals[extract.id] || 0)
-                    | number: "1.2-2"
+                    | number: "1.4-4"
                 }}
                 giorni
               </span>
@@ -95,18 +116,11 @@
                 }}%</span
               >
             </div>
-            <div
-              style="
-                margin-top: 8px;
-                display: flex;
-                gap: 8px;
-                justify-content: flex-end;
-              "
-            >
-              <button class="btn btn-ghost" (click)="startLocalEdit(extract)">
+            <div class="extract-inline-actions">
+              <button pButton class="btn btn-ghost" (click)="startLocalEdit(extract)">
                 Modifica
               </button>
-              <button class="btn btn-danger" (click)="removeLocal(extract.id)">
+              <button pButton class="btn btn-danger" (click)="removeLocal(extract.id)">
                 Rimuovi
               </button>
             </div>
@@ -118,32 +132,48 @@
       <div class="extract-card feature-card">
         <div class="extract-body">
           <div class="flex-col gap-8">
-            <input
-              class="form-control"
-              placeholder="ID estratto"
-              [ngModel]="newExtractId"
-              (ngModelChange)="newExtractIdChange.emit($event)"
-            />
-            <input
-              class="form-control"
-              placeholder="Codice"
-              [ngModel]="newExtractCode"
-              (ngModelChange)="newExtractCodeChange.emit($event)"
-            />
-            <input
-              class="form-control"
-              placeholder="Descrizione"
-              [ngModel]="newExtractDesc"
-              (ngModelChange)="newExtractDescChange.emit($event)"
-            />
-            <input
-              class="form-control"
-              placeholder="Cliente"
-              [ngModel]="newExtractClient"
-              (ngModelChange)="newExtractClientChange.emit($event)"
-            />
+            <div class="field-group">
+              <label class="field-label">ID estratto</label>
+              <input pInputText
+                class="form-control"
+                placeholder="ID estratto"
+                [ngModel]="newExtractId"
+                (ngModelChange)="newExtractIdChange.emit($event)"
+                aria-label="ID nuovo estratto"
+              />
+            </div>
+            <div class="field-group">
+              <label class="field-label">Codice attività</label>
+              <input pInputText
+                class="form-control"
+                placeholder="Codice"
+                [ngModel]="newExtractCode"
+                (ngModelChange)="newExtractCodeChange.emit($event)"
+                aria-label="Codice nuovo estratto"
+              />
+            </div>
+            <div class="field-group">
+              <label class="field-label">Descrizione</label>
+              <input pInputText
+                class="form-control"
+                placeholder="Descrizione"
+                [ngModel]="newExtractDesc"
+                (ngModelChange)="newExtractDescChange.emit($event)"
+                aria-label="Descrizione nuovo estratto"
+              />
+            </div>
+            <div class="field-group">
+              <label class="field-label">Cliente</label>
+              <input pInputText
+                class="form-control"
+                placeholder="Cliente"
+                [ngModel]="newExtractClient"
+                (ngModelChange)="newExtractClientChange.emit($event)"
+                aria-label="Cliente nuovo estratto"
+              />
+            </div>
             <div class="flex-row-justify-end mt-8">
-              <button
+              <button pButton
                 class="btn btn-primary"
                 [disabled]="!newExtractId || !newExtractCode"
                 (click)="onAddExtract()"
@@ -169,7 +199,7 @@
             </p>
           </div>
           <div class="total-value">
-            {{ totalExtractDays() | number: "1.2-2" }}
+            {{ totalExtractDays() | number: "1.4-4" }}
             giorni
           </div>
         </div>
@@ -189,3 +219,4 @@
     </div>
   </ng-template>
 </div>
+

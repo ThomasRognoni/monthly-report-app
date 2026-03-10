@@ -1,26 +1,92 @@
 <div class="page-container">
-  <h2>Storico Esportazioni</h2>
-  <div class="content-card">
-    <p>Elenco dei file esportati (localmente salvati durante l'export).</p>
+  <header class="page-header">
+    <h1 class="page-title">Storico Esportazioni</h1>
+  </header>
 
-    <div *ngIf="history.length === 0">
-      <p>Nessuna esportazione trovata.</p>
+  <div class="content-card">
+    <div class="history-toolbar">
+      <p class="header-subtitle">
+        Elenco dei file generati localmente durante l'export.
+      </p>
+      <div class="header-stats">
+        <span class="stats-pill">{{ formattedCount }}</span>
+        <button pButton
+          class="btn btn-outline"
+          [disabled]="!canClearHistory"
+          (click)="clearHistory()"
+        >
+          Svuota storico
+        </button>
+      </div>
     </div>
 
-    <ul *ngIf="history.length > 0">
-      <li *ngFor="let item of history; trackBy: trackByHistory">
-        <div class="history-row flex justify-between items-center gap-8">
-          <div>
-            <strong>{{ item.filename }}</strong>
-            <div class="text-sm opacity-80">{{ item.date }}</div>
-          </div>
-          <div>
-            <button class="btn btn-outline" (click)="download(item)">
-              Scarica
-            </button>
+    @if (undoItem) {
+      <div class="undo-banner" aria-live="polite">
+        <div class="undo-text">
+          Voce eliminata:
+          <strong>{{ undoItem.filename || "export.xlsx" }}</strong>
+        </div>
+        <button pButton class="btn btn-undo btn-sm" (click)="undoRemove()">
+          Annulla
+        </button>
+      </div>
+    }
+
+    @if (feedbackMessage) {
+      <div class="inline-feedback" [class.is-error]="feedbackKind === 'error'">
+        {{ feedbackMessage }}
+      </div>
+    }
+
+    <div class="history-grid" *ngIf="history.length > 0; else emptyState">
+      <article
+        class="history-card"
+        *ngFor="let item of history; trackBy: trackByHistory"
+      >
+        <div class="history-meta">
+          <h3
+            class="history-filename"
+            [attr.title]="item.filename || 'export.xlsx'"
+          >
+            {{ item.filename || "export.xlsx" }}
+          </h3>
+          <div class="history-date">{{ formatDate(item.date) }}</div>
+          <div class="history-info">
+            <span>Origine: {{ getSourceLabel(item) }}</span>
+            <span>Dimensione: {{ formatFileSize(item.sizeBytes) }}</span>
+            <span>Checksum: {{ formatChecksum(item.checksum) }}</span>
           </div>
         </div>
-      </li>
-    </ul>
+        <div class="history-actions">
+          <button pButton
+            class="btn btn-primary btn-sm"
+            [disabled]="!canDownload(item)"
+            (click)="download(item)"
+            [attr.aria-label]="'Scarica ' + (item.filename || 'export.xlsx')"
+          >
+            Scarica
+          </button>
+          <button pButton
+            class="btn btn-danger btn-sm"
+            (click)="remove(item)"
+            [attr.aria-label]="'Elimina ' + (item.filename || 'export.xlsx')"
+          >
+            Elimina
+          </button>
+        </div>
+      </article>
+    </div>
+
+    <ng-template #emptyState>
+      <div class="empty-state">
+        <div class="empty-icon">🗂️</div>
+        <h3>Nessuna esportazione trovata</h3>
+        <p>
+          Appena esporti un file Excel, lo troverai qui con possibilità di
+          download e rimozione.
+        </p>
+      </div>
+    </ng-template>
   </div>
 </div>
+

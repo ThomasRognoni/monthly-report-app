@@ -1,14 +1,20 @@
 {
   "name": "monthly-report-app",
-  "version": "0.0.0",
+  "version": "0.1.0-beta.4",
+  "description": "Applicazione Angular + Electron per la compilazione del report mensile ed export Excel.",
+  "author": "Thomas Rognoni",
+  "main": "electron.js",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
+    "build": "ng build --configuration production",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "security:audit": "npm audit",
-    "security:fix": "npm audit fix"
+    "security:fix": "npm audit fix",
+    "electron": "electron .",
+    "clean:electron": "node -e \"require('fs').rmSync('dist_electron',{recursive:true,force:true})\"",
+    "electron-build": "npm run clean:electron && npm run build && electron-builder"
   },
   "prettier": {
     "overrides": [
@@ -22,18 +28,16 @@
   },
   "private": true,
   "dependencies": {
-    "@angular/animations": "^19.2.15",
-    "@angular/common": "^19.2.15",
-    "@angular/compiler": "^19.2.15",
-    "@angular/core": "^19.2.15",
-    "@angular/forms": "^19.2.15",
-    "@angular/platform-browser": "^19.2.15",
-    "@angular/platform-browser-dynamic": "^19.2.15",
-    "@angular/router": "^19.2.15",
-    "@primeuix/themes": "^1.2.5",
-    "date-fns": "^4.1.0",
-    "file-saver": "^2.0.5",
-    "primeflex": "^4.0.0",
+    "@angular/animations": "^19.2.18",
+    "@angular/cdk": "^19.2.18",
+    "@angular/common": "^19.2.18",
+    "@angular/compiler": "^19.2.18",
+    "@angular/core": "^19.2.18",
+    "@angular/forms": "^19.2.18",
+    "@angular/platform-browser": "^19.2.18",
+    "@angular/platform-browser-dynamic": "^19.2.18",
+    "@angular/router": "^19.2.18",
+    "@primeng/themes": "^19.1.4",
     "primeicons": "^7.0.0",
     "primeng": "^19.1.4",
     "rxjs": "~7.8.0",
@@ -45,10 +49,10 @@
   "devDependencies": {
     "@angular-devkit/build-angular": "^19.2.15",
     "@angular/cli": "^19.2.19",
-    "@angular/compiler-cli": "^19.2.15",
-    "@types/file-saver": "^2.0.7",
+    "@angular/compiler-cli": "^19.2.18",
     "@types/jasmine": "~5.1.0",
     "electron": "^40.4.1",
+    "electron-builder": "^26.7.0",
     "jasmine-core": "~5.7.0",
     "karma": "~6.4.0",
     "karma-chrome-launcher": "~3.2.0",
@@ -57,6 +61,24 @@
     "karma-jasmine-html-reporter": "~2.1.0",
     "typescript": "~5.6.3",
     "vite": "~6.0.0"
+  },
+  "build": {
+    "files": [
+      "dist/**/*",
+      "electron.js",
+      "preload.js",
+      "icon/icon.ico"
+    ],
+    "appId": "com.thomas.monthlyreportapp",
+    "productName": "Monthly Report App",
+    "directories": {
+      "output": "dist_electron"
+    },
+    "asar": true,
+    "win": {
+      "target": "nsis",
+      "icon": "icon/icon.ico"
+    }
   },
   "overrides": {
     "vite": "~6.0.0"

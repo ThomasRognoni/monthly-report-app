@@ -1,21 +1,93 @@
-<div class="page-wrapper">
-  <div class="content-card">
-    <header class="page-header">
-      <h1 class="page-title">Home</h1>
-    </header>
-
-    <section class="instructions-card">
-      <h2 class="section-title">Note di compilazione</h2>
-      <p>Compila le righe giornaliere e associa ogni riga a un estratto.</p>
-    </section>
-
-    <section class="quick-actions">
-      <h3 class="section-title">Azioni rapide</h3>
-      <div class="actions">
-        <a routerLink="/monthly-report" class="btn">Apri Report Mensile</a>
-        <a routerLink="/extracts" class="btn">Elenco Estratti</a>
-        <a routerLink="/export-history" class="btn">Storico Esportazioni</a>
+<section class="home-page">
+  <header class="home-hero">
+    <div class="hero-text">
+      <p class="kicker">Beyondoc Monthly Report</p>
+      <h1 class="hero-title">Gestione report mensili, semplice e tracciata</h1>
+      <p class="hero-subtitle">
+        Compila ore, collega estratti e genera l'Excel ufficiale con un flusso guidato.
+      </p>
+      <div class="hero-actions">
+        <a pButton routerLink="/monthly-report" class="btn btn-primary">Nuovo Report Mensile</a>
+        <a pButton routerLink="/export-history" class="btn btn-ghost">Storico Esportazioni</a>
       </div>
-    </section>
-  </div>
-</div>
+    </div>
+    <div class="hero-panel" aria-label="Flusso consigliato">
+      <h2 class="panel-title">Flusso consigliato</h2>
+      <ol class="flow-list">
+        <li>
+          <span class="flow-index">1</span>
+          <span class="flow-text">Compila attivita e ore giornaliere.</span>
+        </li>
+        <li>
+          <span class="flow-index">2</span>
+          <span class="flow-text">Associa le attivita agli estratti corretti.</span>
+        </li>
+        <li>
+          <span class="flow-index">3</span>
+          <span class="flow-text">Verifica riepilogo e quadrature, poi esporta.</span>
+        </li>
+      </ol>
+      <div class="panel-note">
+        <span class="note-label">Output</span>
+        <span class="note-value">Excel pronto per la consegna</span>
+      </div>
+    </div>
+  </header>
+
+  <section class="home-grid" aria-label="Azioni principali">
+    <article class="card">
+      <h2 class="card-title">Azioni rapide</h2>
+      <nav class="quick-actions" aria-label="Navigazione rapida">
+        <a
+          routerLink="/monthly-report"
+          class="quick-action"
+          routerLinkActive="is-active"
+          #homeMonthlyLink="routerLinkActive"
+          [attr.aria-current]="homeMonthlyLink.isActive ? 'page' : null"
+        >
+          <div>
+            <span class="quick-title">Report mensile</span>
+            <span class="quick-subtitle">Inserisci dati e controlla il riepilogo</span>
+          </div>
+          <span class="quick-tag">Core</span>
+        </a>
+        <a
+          routerLink="/extracts"
+          class="quick-action"
+          routerLinkActive="is-active"
+          #homeExtractsLink="routerLinkActive"
+          [attr.aria-current]="homeExtractsLink.isActive ? 'page' : null"
+        >
+          <div>
+            <span class="quick-title">Elenco estratti</span>
+            <span class="quick-subtitle">Aggiorna gli estratti disponibili</span>
+          </div>
+          <span class="quick-tag">Anagrafica</span>
+        </a>
+        <a
+          routerLink="/export-history"
+          class="quick-action"
+          routerLinkActive="is-active"
+          #homeHistoryLink="routerLinkActive"
+          [attr.aria-current]="homeHistoryLink.isActive ? 'page' : null"
+        >
+          <div>
+            <span class="quick-title">Storico esportazioni</span>
+            <span class="quick-subtitle">Scarica o rimuovi file generati</span>
+          </div>
+          <span class="quick-tag">Archivio</span>
+        </a>
+      </nav>
+    </article>
+
+    <article class="card">
+      <h2 class="card-title">Checklist prima dell'export</h2>
+      <ul class="checklist">
+        <li>Ore giornaliere complete e straordinari segnati.</li>
+        <li>Estratti associati alle attivita corrette.</li>
+        <li>Quadrature e riepilogo verificati.</li>
+        <li>Note e clienti aggiornati dove richiesto.</li>
+      </ul>
+    </article>
+  </section>
+</section>

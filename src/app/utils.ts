@@ -27,9 +27,19 @@ export function roundTo2(n: number): number {
   return Math.round(n * 100) / 100;
 }
 
+function roundTo(n: number, decimals: number): number {
+  const factor = Math.pow(10, decimals);
+  return Math.round(n * factor) / factor;
+}
+
 export function hoursToDays(hours: number | undefined | null): number {
   if (typeof hours !== 'number' || !isFinite(hours)) return 0;
-  return roundTo2(hours / 8);
+  return roundTo(hours / 8, 4);
+}
+
+export function hoursToDaysRounded(hours: number | undefined | null): number {
+  // Manteniamo il nome per compatibilita', ma la conversione resta proporzionale.
+  return hoursToDays(hours);
 }
 
 export function isLikelyHours(value: number | undefined | null): boolean {

@@ -1,14 +1,31 @@
 import { Routes } from '@angular/router';
-import { MonthlyReportComponent } from './monthly-report/monthly-report.component';
-import { HomeComponent } from './home/home.component';
-import { ExtractsPageComponent } from './pages/extracts-page/extracts-page.component';
-import { ExportHistoryComponent } from './pages/export-history/export-history.component';
 
 export const routes: Routes = [
-  { path: '', component: HomeComponent },
-  { path: 'monthly-report', component: MonthlyReportComponent },
-  { path: 'extracts', component: ExtractsPageComponent },
-
-  { path: 'export-history', component: ExportHistoryComponent },
+  {
+    path: '',
+    loadComponent: () =>
+      import('./home/home.component').then((m) => m.HomeComponent),
+  },
+  {
+    path: 'monthly-report',
+    loadComponent: () =>
+      import('./monthly-report/monthly-report.component').then(
+        (m) => m.MonthlyReportComponent
+      ),
+  },
+  {
+    path: 'extracts',
+    loadComponent: () =>
+      import('./pages/extracts-page/extracts-page.component').then(
+        (m) => m.ExtractsPageComponent
+      ),
+  },
+  {
+    path: 'export-history',
+    loadComponent: () =>
+      import('./pages/export-history/export-history.component').then(
+        (m) => m.ExportHistoryComponent
+      ),
+  },
   { path: '**', redirectTo: '/' },
 ];

@@ -36,6 +36,12 @@ yarn-error.log
 /libpeerconnection.log
 testem.log
 /typings
+dist_electron/
+dist/
+node_modules/
+.angular/
+coverage/
+*.log
 
 # System files
 .DS_Store

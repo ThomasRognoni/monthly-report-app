@@ -1,7 +1,1 @@
-export interface Extract {
-  id: string;
-  code: string;
-  description: string;
-  client: string;
-  totalDays: number;
-}
+export type { Extract } from './day-entry.model';
