@@ -13,7 +13,8 @@
     "security:audit": "npm audit",
     "security:fix": "npm audit fix",
     "electron": "electron .",
-    "clean:electron": "node -e \"require('fs').rmSync('dist_electron',{recursive:true,force:true})\"",
+    "kill:electron": "powershell -NoProfile -ExecutionPolicy Bypass -Command \"$names = @('monthly-report-app','electron'); foreach ($n in $names) { Get-Process -Name $n -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue }; Start-Sleep -Seconds 2\"",
+    "clean:electron": "powershell -NoProfile -ExecutionPolicy Bypass -Command \"npm run kill:electron | Out-Null; for ($i=0; $i -lt 12; $i++) { if (-not (Test-Path 'dist_electron')) { exit 0 }; try { attrib -r 'dist_electron\\*' /s /d 2>$null; Remove-Item -LiteralPath 'dist_electron' -Recurse -Force -ErrorAction Stop; exit 0 } catch { Start-Sleep -Milliseconds 800 } }; throw 'dist_electron is still locked'\"",
     "electron-build": "npm run clean:electron && npm run build && electron-builder"
   },
   "prettier": {
@@ -59,6 +60,7 @@
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
+    "rimraf": "^6.1.3",
     "typescript": "~5.6.3",
     "vite": "~6.0.0"
   },
